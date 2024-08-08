@@ -54,7 +54,23 @@ def add_update_proxy():
             }
         })
         return jsonify({'message': 'Proxy updated successfully'})
-
+@proxy.route("add_range", methods=['POST'])
+def add_range_proxy():
+    proxy = request.json
+    start = proxy.get('start')
+    end = proxy.get('end')
+    type = proxy.get('type')
+    for i in range(int(start), int(end) + 1):
+        current_app.proxy_collection.insert_one({
+            'username': proxy.get('username'),
+            'password': proxy.get('password'),
+            'port': i,
+            'host': proxy.get('host'),
+            'type': proxy.get('type'),
+            'used': 'no',
+            "last_used": time_ultils.get_current_time()
+        })
+    return jsonify({'message': 'Proxy added successfully'})
 
 @proxy.route("delete", methods=['GET'])
 def delete_proxy():
@@ -104,5 +120,3 @@ def get_used():
         )
         print(f"Proxy_port: {proxy['port']} -- ip: {client_ip}")
         return jsonify({'proxy': proxy_string, 'id': str(proxy['_id']), 'port': proxy['port']})
-
-
