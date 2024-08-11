@@ -1,6 +1,6 @@
 # app/__init__.py
 
-from flask import Flask
+from flask import Flask,jsonify
 from pymongo import MongoClient, ASCENDING
 
 from config import Config
@@ -21,6 +21,15 @@ def create_app():
 
     # Register the schedule job
     run_check_proxy_job()
+
+    # Định nghĩa các trình xử lý lỗi trước
+    app.errorhandler(500)
+    def handle_500_error(e):
+        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
+
+    app.errorhandler(Exception)
+    def handle_exception(e):
+        return jsonify({"error": "An error occurred", "details": str(e)}), 500
 
 
     # Register the blueprints routes

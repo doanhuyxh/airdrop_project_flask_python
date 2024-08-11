@@ -1,5 +1,5 @@
 # Test your FastAPI endpoints
-@baseUrl = "http://127.0.0.1:8080"
+@baseUrl = http://127.0.0.1:8080
 
 ### Get all proxy
 GET {{baseUrl}}/
@@ -19,4 +19,18 @@ Content-Type: application/json
     "host":"proxy8888.duckdns.org",
     "type":"socks5",
     "used":"no"
+}
+
+###Create range proxy
+POST {{baseUrl}}/proxy/add_range
+Content-Type: application/json
+{
+    "username":"winmodern",
+    "password":"nguyhiemvl",
+    "port":"5002",
+    "host":"proxy8888.duckdns.org",
+    "type":"socks5",
+    "used":"no",
+    "start":1,
+    "end":10
 }
