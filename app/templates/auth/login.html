@@ -1,0 +1,114 @@
+{% extends "share/Blank_Layout.html" %}
+
+{% block title %}Đăng nhập{% endblock %}
+
+{% block content %}
+    
+
+<div class="min-vh-100 d-flex flex-row align-items-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card mb-4 mx-4">
+                    <div class="card-body p-4">
+                        <h1 class="text-center">Đăng nhập</h1>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">
+                                <i class="fa-regular fa-user"></i>
+                            </span>
+                            <input class="form-control" type="text" id="username" placeholder="Username">
+                        </div>
+
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">
+                                <i class="fa-solid fa-lock"></i>
+                            </span>
+                            <input class="form-control" type="password" id="password" placeholder="password">
+                        </div>
+
+                        <div class="input-group mb-2">
+                            <p class="text-danger" id="errors"></p>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-3">
+                            <a class="link-opacity-75-hover" href="/register">Đăng ký</a>
+                            <button class="btn btn-block btn-success" type="button" id="login-button">Đăng nhập</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    $("input").keypress(function (event) {
+        $("#errors").text("");
+    });
+
+    document.getElementById('login-button').addEventListener('click', function () {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const errors = [];
+
+        if (!username || username.length < 3) {
+            errors.push("Username không được để trống");
+        }
+
+        if (!password || password.length < 6) {
+            errors.push("Password không được để trống");
+        }
+
+        if (errors.length > 0) {
+            document.getElementById('errors').innerText = errors.join('\n');
+            return
+        } else {
+            
+            let data = {
+                username: username,
+                password: password
+            }
+
+            fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code == 200) {
+                        Swal.fire({
+                            title: 'Đăng nhập thành công',
+                            icon: 'success',
+                        }).then(() => {
+                            window.location.href = '/dashboard';
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Đăng nhập thất bại',
+                            text: data.message,
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                })
+                .catch((error) => {
+                    Swal.fire({
+                            title: 'Đăng nhập thất bại',
+                            text: 'Có lỗi xảy ra, vui lòng thử lại sau.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                });
+
+
+        }
+    });
+
+</script>
+
+{% endblock %}

@@ -1,10 +1,13 @@
 # app/__init__.py
 
-from flask import Flask,jsonify
+from flask import Flask, jsonify
 from pymongo import MongoClient, ASCENDING
+from werkzeug.exceptions import HTTPException
 
+from app.ultils.clear_cache import clear_all_pycache
 from config import Config
-from app.cronjob.run_check_proxy_job import run_check_proxy_job
+#from app.cronjob.run_check_proxy_job import run_check_proxy_job
+
 
 def create_app():
     app = Flask(__name__)
@@ -13,30 +16,35 @@ def create_app():
     # Connect to MongoDB and define the collection
     client = MongoClient(Config.MONGO_URI)
     app.db = client.get_default_database()
-    app.proxy_collection = app.db["proxy"]
 
-    # create index for proxy collection
-    app.proxy_collection.create_index([('used', ASCENDING)])
-
-
+    app.user_system = app.db["user_system"]
+    app.project = app.db["project"]
+    app.data = app.db["data"]
+    
     # Register the schedule job
-    run_check_proxy_job()
+    # run_check_proxy_job()
 
-    # Định nghĩa các trình xử lý lỗi trước
-    app.errorhandler(500)
-    def handle_500_error(e):
-        return jsonify({"error": "Internal Server Error", "details": str(e)}), 500
 
-    app.errorhandler(Exception)
+    @app.errorhandler(Exception)
     def handle_exception(e):
-        return jsonify({"error": "An error occurred", "details": str(e)}), 500
-
+        if isinstance(e, HTTPException):
+            code = e.code  # Lấy mã lỗi từ HTTPException
+        else:
+            code = 500  # Mặc định là 500 nếu không phải HTTPException
+        return (
+            jsonify({"code": code, "message": str(e) }),
+            200,
+        )
 
     # Register the blueprints routes
     from .routes.main import main
-    from .routes.proxy import proxy
-
+    from .routes.auth import auth
+    from .routes.dashboard import dashboard
+    from .routes.project import project
     app.register_blueprint(main)
-    app.register_blueprint(proxy, url_prefix='/proxy')
-
+    app.register_blueprint(auth)
+    app.register_blueprint(dashboard)
+    app.register_blueprint(project)
+    clear_all_pycache()
+    
     return app

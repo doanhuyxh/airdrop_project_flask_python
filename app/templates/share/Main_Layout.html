@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AirDrop{% endblock %}</title>
+    <link rel="stylesheet" href="/static/lib/coreui/coreui.css">
+    <script src="/static/lib/coreui/coreui.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="/static/lib/sweetalert2@11.js"></script>
+    <script src="/static/lib/vue.js"></script>
+    <link rel="stylesheet" href="/static/assets/css/base.css">
+    <script src="/static/assets/js/config.js"></script>
+
+</head>
+
+<body>
+
+    <div class="sidebar sidebar-dark sidebar-fixed border-end show" id="sidebar">
+        <div class="sidebar-header border-bottom">
+            <div class="sidebar-brand">
+                Logo
+            </div>
+            <button class="btn-close d-lg-none" type="button" data-coreui-theme="dark" aria-label="Close"
+                onclick="coreui.Sidebar.getInstance(document.querySelector('#sidebar')).toggle()">
+            </button>
+        </div>
+        <ul class="sidebar-nav simplebar-scrollable-y" data-coreui="navigation" data-simplebar="init">
+            <div class="simplebar-wrapper" style="margin: -8px;">
+                <div class="simplebar-height-auto-observer-wrapper">
+                    <div class="simplebar-height-auto-observer"></div>
+                </div>
+                <div class="simplebar-mask">
+                    <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                        <div class="simplebar-content-wrapper" tabindex="0" role="region"
+                            aria-label="scrollable content" style="height: 100%; overflow: hidden scroll;">
+                            <div class="simplebar-content" style="padding: 8px;">
+                                <li class="nav-group" aria-expanded="false">
+                                    <a class="nav-link nav-group-toggle" href="#">
+                                        <span class="nav-icon">
+                                            <i class="fa-solid fa-scissors"></i>
+                                        </span>
+                                        <span>Quản lý dự án</span>
+                                    </a>
+                                    <ul class="nav-group-items compact" style="height: 0px;">
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="/project/create">
+                                                <span class="nav-icon" style="font-size: small; opacity: 0.4;">
+                                                    <i class="fa-solid fa-plus"></i>
+                                                </span>
+                                                <span data-coreui-i18n="accordion">Tạo dự án</span>
+                                            </a>
+                                        </li>
+                                      </ul>
+                                </li>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="simplebar-placeholder" style="width: 255px; height: 1277px;"></div>
+            </div>
+            <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
+                <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
+            </div>
+            <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
+                <div class="simplebar-scrollbar"
+                    style="height: 571px; transform: translate3d(0px, 0px, 0px); display: block;"></div>
+            </div>
+        </ul>
+        <div class="sidebar-footer border-top d-none d-lg-flex">
+            <button class="sidebar-toggler" type="button" data-coreui-toggle="unfoldable"></button>
+        </div>
+    </div>
+
+    <div class="wrapper d-flex flex-column min-vh-100">
+        <header class="header header-sticky p-0 mb-4">
+            <div class="container-fluid border-bottom px-4">
+                <button class="header-toggler" type="button"
+                    onclick="coreui.Sidebar.getInstance(document.querySelector('#sidebar')).toggle()"
+                    style="margin-inline-start: -14px;">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+
+                <div class="">
+                    <p>Avatar</p>
+                </div>
+            </div>
+            {% block breadcrumb %}{% endblock %}
+        </header>
+        <main>
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+
+</body>
+
+</html>

@@ -1,0 +1,141 @@
+{% extends "share/Blank_Layout.html" %}
+
+{% block title %}
+    Đăng ký
+{% endblock %}
+
+{% block content %}
+
+<div class="min-vh-100 d-flex flex-row align-items-center">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card mb-4 mx-4">
+                    <div class="card-body p-4">
+                        <h1>Đăng ký</h1>
+                        <p class="text-body-secondary">Tạo tài khoản</p>
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">
+                                <i class="fa-regular fa-user"></i>
+                            </span>
+                            <input class="form-control" type="text" id="username" placeholder="Username">
+                        </div>
+
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">
+                                <i class="fa-regular fa-envelope"></i>
+                            </span>
+                            <input class="form-control" type="email" id="email" placeholder="user@gmail.com">
+                        </div>
+
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">
+                                <i class="fa-solid fa-lock"></i>
+                            </span>
+                            <input class="form-control" type="password" id="password" placeholder="password">
+                        </div>
+
+                        <div class="input-group mb-3">
+                            <span class="input-group-text">
+                                <i class="fa-solid fa-lock"></i>
+                            </span>
+                            <input class="form-control" type="password" id="re-password" placeholder="re-password">
+                        </div>
+
+                        <div class="input-group mb-2">
+                            <p class="text-danger" id="errors"></p>
+                        </div>
+
+                        <div class="d-flex justify-content-between mb-3">
+                            <a class="link-opacity-75-hover" href="/login">Đăng nhập</a>
+                            <button class="btn btn-block btn-success" type="button" id="register-button">Tạo tài
+                                khoản</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    $("input").keypress(function (event) {
+        $("#errors").text("");
+    });
+
+    document.getElementById('register-button').addEventListener('click', function () {
+        const username = document.getElementById('username').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+        const rePassword = document.getElementById('re-password').value.trim();
+        const errors = [];
+
+        if (!username || username.length < 3) {
+            errors.push("Username không được để trống và phải có ít nhất 3 ký tự.");
+        }
+
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!email || !emailRegex.test(email)) {
+            errors.push("Email không hợp lệ.");
+        }
+
+        if (!password || password.length < 6) {
+            errors.push("Password không được để trống và phải có ít nhất 6 ký tự.");
+        }
+
+
+        if (password !== rePassword) {
+            errors.push("Password và re-password không khớp.");
+        }
+
+        if (errors.length > 0) {
+            document.getElementById('errors').innerText = errors.join('\n');
+            return
+        } else {
+            
+            let data = {
+                username: username,
+                email: email,
+                password: password
+            }
+
+            fetch('/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code == 200) {
+                        Swal.fire({
+                            title: 'Đăng ký thành công',
+                            text: 'Chuyển hướng đến trang đăng nhập',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            window.location.href = '/login';
+                        });
+                    } else {
+                        Swal.fire({
+                            title: 'Đăng ký thất bại',
+                            text: data.message,
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+
+
+        }
+    });
+
+</script>
+
+{% endblock %}
