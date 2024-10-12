@@ -1,0 +1,38 @@
+{% extends "share/Main_Layout.html" %}
+
+{% block title %}
+
+{{project.project_name}}
+
+{% endblock %}
+
+
+${% block breadcrumb %}
+
+<div class="container-fluid px-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb my-0">
+            <li class="breadcrumb-item"><a href="/project">Quản lý dự án</a></li>
+            <li class="breadcrumb-item"><span>{{project.project_name}}</span></li>
+        </ol>
+    </nav>
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+
+<div class="container-fluid px-4">
+
+
+</div>
+
+{% endblock %}
+{% block script %}
+
+<script>
+    
+</script>
+
+{% endblock %}

@@ -20,3 +20,15 @@ def check_time_difference(minutes = 10, time_str = ""):
         # Nếu có lỗi khi phân tích chuỗi thời gian
         print(f"Error parsing dates: {e}")
         return False
+
+from datetime import datetime
+
+def convertTime(time_str):
+    print(time_str)
+    time_format = "%Y-%m-%d"  # Định dạng cho yyyy-mm-dd
+    try:
+        datetime_obj = datetime.strptime(time_str, time_format)
+        return datetime_obj
+    except Exception as e:
+        print(f"Error parsing date: {e}")
+        return None

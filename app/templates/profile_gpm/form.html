@@ -1,0 +1,116 @@
+{% extends "share/Main_Layout.html" %}
+
+{% block title %}
+
+{{ "Cập nhật profile" if profile else 'Tạo profile mới' }}
+
+{% endblock %}
+
+${% block breadcrumb %}
+<div class="container-fluid px-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb my-0">
+            <li class="breadcrumb-item"><a href="/profile_gpm">Quản lý profile</a>
+            </li>
+            <li class="breadcrumb-item"><span>
+                    {{ "Cập nhật profile" if profile else 'Tạo profile Mới' }}
+                </span>
+            </li>
+        </ol>
+    </nav>
+</div>
+
+{% endblock %}
+{% block content %}
+
+<div class="container-lg px-4">
+    <div class="card mb-4 mx-4">
+        <div class="card-body p-4">
+            <div class="row">
+                <div class="col-md-12">
+                    <input class="d-none" type="text" id="profile_id" value="{{ profile.id if profile else '' }}">
+                    <div class="mb-3">
+                        <label class="form-label">Tên profile</label>
+                        <input class="form-control" type="text" id="profile_name" placeholder="Tên profile"
+                            value="{{ profile.profile_name if profile else '' }}">
+                    </div>
+
+                    <div class=" mb-3">
+                        <label class="form-label">Thiết bị</label>
+                        <input class="form-control" type="text" id="profile_device"
+                            placeholder="Tên thiết bị (pc1, pc2, pc3,...)"
+                            value="{{ profile.profile_device if profile else '' }}">
+                    </div>
+                </div>
+            </div>
+
+            <div class=" mb-2">
+                <p class="text-danger" id="errors"></p>
+            </div>
+
+            <div class="mb-3 d-flex justify-content-end">
+                <button class="btn btn-primary" type="button" onclick="save()">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block script %}
+
+<script>
+
+    async function save() {
+        let errors = [];
+        let profile_id = document.getElementById('profile_id').value;
+        let profileName = document.getElementById('profile_name').value;
+        let profileDevice = document.getElementById('profile_device').value;
+
+
+        let errorElement = document.getElementById('errors');
+        if (errors.length > 0) {
+            errorElement.innerHTML = errors.join("<br>");
+        }
+
+        let formData = new FormData();
+        formData.append('profile_id', profile_id);
+        formData.append('profile_name', profileName);
+        formData.append('profile_device', profileDevice);
+
+        let jsonData = {};
+        formData.forEach((value, key) => {
+            jsonData[key] = value;
+        })
+
+        let response = await fetch('/profile_gpm/save', {
+            method: 'POST',
+            body: JSON.stringify(jsonData),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.code == 200) {
+                    Swal.fire({
+                        title: 'Lưu profile thành công',
+                        icon: 'success',
+                    }).then(() => {
+                        window.location.href = '/profile_gpm';
+                    });
+
+                } else {
+                    Swal.fire({
+                        title: 'Lưu profile thất bại',
+                        text: data.message,
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+
+    }
+</script>
+
+
+{% endblock %}

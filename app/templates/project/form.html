@@ -1,0 +1,177 @@
+{% extends "share/Main_Layout.html" %}
+
+{% block title %}Thêm dự án mới{% endblock %}
+
+${% block breadcrumb %}
+<div class="container-fluid px-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb my-0">
+            <li class="breadcrumb-item"><a href="/project">Quản lý dự án</a>
+            </li>
+            <li class="breadcrumb-item"><span>
+                    {{ "Cập nhật dự án" if project else 'Tạo Dự Án Mới' }}
+                </span>
+            </li>
+        </ol>
+    </nav>
+</div>
+
+{% endblock %}
+{% block content %}
+
+<div class="container-lg px-4">
+    <div class="card mb-4 mx-4">
+        <div class="card-body p-4">
+            <div class="row">
+                <div class="col-md-6">
+                    <input class="d-none" type="text" id="project_id" value="{{ project.id if project else '' }}">
+                    <div class="mb-3">
+                        <label class="form-label">Tên dự án</label>
+                        <input class="form-control" type="text" id="project_name" placeholder="Tên dự án"
+                            value="{{ project.project_name if project else '' }}">
+                    </div>
+
+                    <div class=" mb-3">
+                        <label class="form-label">Slug (sử dụng khi nhập key post dữ theo theo dõi dự án)</label>
+                        <input class="form-control" type="text" id="project_slug" placeholder="slug, tự động tạo"
+                            value="{{ project.project_slug if project else '' }}">
+                    </div>
+
+                    <div class=" mb-3">
+                        <label class="form-label">Ngày bắt đầu dự án</label>
+                        <input class="form-control" type="date" id="start_date" placeholder="Ngày bắt đầu"
+                            value="{{ project.start_date if project else '' }}">
+                    </div>
+
+                    <div class=" mb-3">
+                        <label class="form-label">Ngày AirDrop dự kiến</label>
+                        <input class="form-control" type="date" id="end_date" placeholder="Ngày dự kiến AirDrop"
+                            value="{{ project.end_date if project else '' }}">
+                    </div>
+
+                    <div class=" mb-3">
+                        <label class="form-label">Loại token dự kiến AirDrop</label>
+                        <input class="form-control" type="text" id="token_name"
+                            placeholder="Tên token dự án AirDrop dự kiến"
+                            value="{{ project.token_name if project else '' }}">
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class=" mb-3">
+                        <label class="form-label" for="project_image_file">
+                            Ảnh dự án
+                            <span class="mx-2 p-2"><i class="fa-solid fa-upload"></i></span>
+                        </label>
+                        <input class="form-control" type="text" id="project_image" placeholder="link ảnh dự án"
+                            value="{{ project.project_image if project else '' }}">
+                        <input class="d-none" type="file" id="project_image_file" accept="image/*">
+                        <div class="d-flex justify-content-center mt-2">
+                            <img class="img-fluid" id="project_image_preview"
+                                src="{{ project.project_image if project else '' }}" style="height: 100px; width: auto;"
+                                alt="">
+                        </div>
+                    </div>
+
+                    <div class=" mb-3">
+                        <label class="form-label">Mô tả dự án</label>
+                        <textarea class="form-control" id="project_description" placeholder="Mô tả dự án"
+                            rows="10">{{ project.description if project else '' }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class=" mb-2">
+                <p class="text-danger" id="errors"></p>
+            </div>
+
+            <div class="mb-3 d-flex justify-content-end">
+                <button class="btn btn-primary" type="button" onclick="save()">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block script %}
+
+<script>
+
+    document.getElementById('project_image_file').addEventListener('change', function () {
+        let file = this.files[0];
+        let reader = new FileReader();
+        reader.onload = function (e) {
+            document.getElementById('project_image_preview').src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    });
+
+    document.getElementById('project_name').addEventListener('keyup', function () {
+        let projectName = this.value;
+        let projectSlug = removeVietnameseTones(projectName.toLowerCase()).replace(/[^a-z0-9]/g, '-');
+        document.getElementById('project_slug').value = projectSlug;
+    });
+
+    async function save() {
+        let errors = [];
+        let project_id = document.getElementById('project_id').value;
+        let projectName = document.getElementById('project_name').value;
+        let projectSlug = document.getElementById('project_slug').value;
+        let startDate = document.getElementById('start_date').value;
+        let endDate = document.getElementById('end_date').value;
+        let tokenName = document.getElementById('token_name').value;
+        let projectImage = document.getElementById('project_image').value;
+        let projectDescription = document.getElementById('project_description').value;
+        let projectImageFile = document.getElementById('project_image_file').files[0];
+
+        if (projectImageFile) {
+            projectImage = await uploadFile("project_image_file");
+        }
+
+        if (!projectName) {
+            errors.push("Tên dự án không được để trống.");
+        }
+
+        let errorElement = document.getElementById('errors');
+        if (errors.length > 0) {
+            errorElement.innerHTML = errors.join("<br>");
+        }
+
+        let formData = new FormData();
+        formData.append('project_id', project_id);
+        formData.append('project_name', projectName);
+        formData.append('project_slug', projectSlug);
+        formData.append('start_date', startDate);
+        formData.append('end_date', endDate);
+        formData.append('token_name', tokenName);
+        formData.append('project_image', projectImage);
+        formData.append('project_description', projectDescription);
+
+        let response = await fetch('/project/save', {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.code == 200) {
+                    Swal.fire({
+                        title: 'Lưu dự án thành công',
+                        icon: 'success',
+                    }).then(() => {
+                        window.location.href = '/project';
+                    });
+                } else {
+                    Swal.fire({
+                        title: 'Lưu dự án thất bại',
+                        text: data.message,
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
+                }
+            });
+
+    }
+</script>
+
+
+{% endblock %}

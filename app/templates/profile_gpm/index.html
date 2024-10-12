@@ -1,6 +1,10 @@
 {% extends "share/Main_Layout.html" %}
 
-{% block title %}Quản lý dự án{% endblock %}
+{% block title %}
+
+Profile GPM
+
+{% endblock %}
 
 
 ${% block breadcrumb %}
@@ -8,8 +12,8 @@ ${% block breadcrumb %}
 <div class="container-fluid px-4">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb my-0">
-            <li class="breadcrumb-item"><a href="javascript:void(0)">Quản lý dự án</a>
-            </li>
+            <li class="breadcrumb-item"><a href="/project">Quản lý dự án</a></li>
+            <li class="breadcrumb-item"><span>Profile GPM</span></li>
         </ol>
     </nav>
 </div>
@@ -18,71 +22,71 @@ ${% block breadcrumb %}
 
 {% block content %}
 
+
 <div class="container-fluid px-4">
-    <div class="mb-3 d-flex justify-content-end">
-        <a href="/project/form" class="btn btn-primary">
+    <div class="mx-5 mb-3 d-flex justify-content-between">
+        <a href="/profile_gpm/form" class="btn btn-primary">
             <i class="fa-solid fa-plus"></i>
-            Thêm dự án mới
         </a>
+
+        <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+            <button type="button" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Tooltip on top">
+                <i class="fa-regular fa-file-excel"></i>
+            </button>
+          </div>
+
     </div>
+
     <div class="table-responsive">
         <table class="table table-hover table-striped table-bordered">
             <thead>
                 <tr>
                     <th>STT</th>
-                    <th>Tên dự án</th>
-                    <th>Ngày bắt đầu</th>
-                    <th>Ngày kết thúc</th>
-                    <th>Loại token</th>
-                    <th>Ảnh dự án</th>
+                    <th>Tên profile</th>
+                    <th>Thiết bị</th>
                     <th>Thao tác</th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(item, index) in projects" :key="item.id">
+                <tr v-for="(item, index) in profiles" :key="item.id">
                     <td v-html="index + 1"></td>
+                    <td v-html="item.profile_name"></td>
+                    <td v-html="item.profile_device"></td>
                     <td>
-                        <a :href="'/project/detail?id='+item._id" class="btn" v-html="item.project_name"></a>
-                    </td> 
-                    <td v-html="item.start_date"></td>
-                    <td v-html="item.end_date"></td> 
-                    <td v-html="item.token_name"></td>
-                    <td>
-                        <img :src="item.project_image" alt="Không có ảnh" style="width: 100px; height: 100px;">
-                    </td>
-                    <td>
-                        <a :href="'/project/form?id='+item._id" class="btn btn-warning">
+                        <a :href="'/profile_gpm/form?id='+item._id" class="btn btn-warning">
                             <i class="fa-regular fa-pen-to-square"></i>
                         </a>
-                        <span class="btn btn-danger" v-on:click="deleteProject(item._id)">
+                        <span class="btn btn-danger" v-on:click="deleteProfiles(item._id)">
                             <i class="fa-solid fa-trash"></i>
                         </span>
                     </td>
                 </tr>
             </tbody>
         </table>
+
     </div>
 </div>
+
 {% endblock %}
 {% block script %}
 <script>
     var app_vue = new Vue({
         "el": "#app",
         "data": {
-            "projects": []
+            "profiles": []
         },
         "mounted": function () {
-            this.getProjects();
+            this.getProfiles();
         },
         "methods": {
-            "getProjects": function () {
-                fetch("/project/list").then(response => {
+            "getProfiles": function () {
+                fetch("/profile_gpm/list").then(response => {
                     return response.json();
                 }).then(data => {
-                    this.projects = data.data;
+                    this.profiles = data.data;
                 });
             },
-            deleteProject(id) {
+            deleteProfiles(id) {
                 Swal.fire({
                     title: "Bạn chắc chắn chứ?",
                     text: "Sẽ xoá tất cả dữ liệu liên quan, không thể khôi phục lại!",
@@ -94,7 +98,7 @@ ${% block breadcrumb %}
                     cancelButtonText: "Huỷ",
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        fetch("/project/delete?id=" + id)
+                        fetch("/profiles/delete?id=" + id)
                             .then(response => {
                                 return response.json();
                             }).then(data => {
@@ -103,7 +107,7 @@ ${% block breadcrumb %}
                                         title: "Xoá thành công",
                                         icon: "success"
                                     }).then(() => {
-                                        this.getProjects();
+                                        this.getProfiles();
                                     });
                                 } else {
                                     Swal.fire({
@@ -119,5 +123,6 @@ ${% block breadcrumb %}
         }
     })
 </script>
+
 
 {% endblock %}

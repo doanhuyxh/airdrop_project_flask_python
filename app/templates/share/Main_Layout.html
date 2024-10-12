@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}AirDrop{% endblock %}</title>
+    <link rel="stylesheet" href="/static/lib/bootstrap.min.css">
+    <script src="/static/lib/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="/static/lib/coreui/coreui.css">
     <script src="/static/lib/coreui/coreui.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
@@ -38,23 +40,47 @@
                         <div class="simplebar-content-wrapper" tabindex="0" role="region"
                             aria-label="scrollable content" style="height: 100%; overflow: hidden scroll;">
                             <div class="simplebar-content" style="padding: 8px;">
+
+                                <li class="nav-group" aria-expanded="false">
+                                    <a class="nav-link nav-group-toggle" href="#">
+                                        <span class="nav-icon">
+                                            <i class="fa-solid fa-user-doctor"></i>
+                                        </span>
+                                        <span>ProFile</span>
+                                    </a>
+
+                                    <ul class="nav-group-items compact">
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="/profile_gpm">
+                                                <span>GPM</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+
+                                </li>
+
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/project">
+                                        <span class="nav-icon">
+                                            <i class="fa-solid fa-diagram-project"></i>
+                                        </span>
+                                        <span>Quản lý dự án</span>
+                                    </a>
+                                </li>
                                 <li class="nav-group" aria-expanded="false">
                                     <a class="nav-link nav-group-toggle" href="#">
                                         <span class="nav-icon">
                                             <i class="fa-solid fa-scissors"></i>
                                         </span>
-                                        <span>Quản lý dự án</span>
+                                        <span>Tiến độ dự án</span>
                                     </a>
                                     <ul class="nav-group-items compact" style="height: 0px;">
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="/project/create">
-                                                <span class="nav-icon" style="font-size: small; opacity: 0.4;">
-                                                    <i class="fa-solid fa-plus"></i>
-                                                </span>
-                                                <span data-coreui-i18n="accordion">Tạo dự án</span>
+                                        <li class="nav-item" v-for="(item, index) in projects">
+                                            <a class="nav-link" :href="'/project/detail?id='+item._id">
+                                                <span data-coreui-i18n="accordion" v-html="item.project_name"></span>
                                             </a>
                                         </li>
-                                      </ul>
+                                    </ul>
                                 </li>
                             </div>
                         </div>
@@ -91,11 +117,37 @@
             {% block breadcrumb %}{% endblock %}
         </header>
         <main>
-            {% block content %}{% endblock %}
+            <div class="body mt-4 flex-grow-1" id="app">
+                {% block content %}{% endblock %}
+            </div>
         </main>
     </div>
 
+    <script>
+       var tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+       var tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+        
+        new Vue({
+            "el": "#sidebar",
+            data: {
+                "projects": []
+            },
+            mounted() {               
 
+                this.getProjects();
+            },
+            methods: {
+                getProjects() {
+                    fetch(`/project/list`)
+                        .then(response => response.json())
+                        .then(data => {
+                            this.projects = data.data;
+                        })
+                }
+            }
+        })
+    </script>
+    {% block script %}{% endblock %}
 </body>
 
 </html>
