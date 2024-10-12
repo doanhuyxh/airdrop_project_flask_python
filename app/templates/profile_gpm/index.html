@@ -98,7 +98,7 @@ ${% block breadcrumb %}
                     cancelButtonText: "Huỷ",
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        fetch("/profiles/delete?id=" + id)
+                        fetch("/profile_gpm/delete?id=" + id)
                             .then(response => {
                                 return response.json();
                             }).then(data => {

@@ -71,7 +71,7 @@ def saveData():
 
 @profile_gpm.route('/profile_gpm/delete', methods=['GET'])
 def deteleData():
-    profile_id = request.args.get('profile_id')
+    profile_id = request.args.get('id')
     
     if profile_id is None:
         return jsonify({'code': 400, 'message': 'Profile ID is required'}), 200
