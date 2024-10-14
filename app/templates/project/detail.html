@@ -16,6 +16,11 @@ ${% block breadcrumb %}
             <li class="breadcrumb-item"><span>{{project.project_name}}</span></li>
         </ol>
     </nav>
+
+    <a href="/project/detail/point?id={{project._id}}" class="btn btn-info">
+        <i class="fa-solid fa-location-pin"></i>
+        <span class="mx-2 text-white">Điểm token trong game</span>
+    </a>
 </div>
 
 {% endblock %}

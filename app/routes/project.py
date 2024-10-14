@@ -168,8 +168,6 @@ def data_detail_get():
         detail["project_id"] = str(detail["project_id"])
         data.append(detail)
         
-    print(len(data))
-        
     return jsonify({"code": 200, "data": data}), 200
     
 
@@ -178,3 +176,37 @@ def delete_detail():
     id = request.args.get("id")
     current_app.project_detail.delete_one({"_id": ObjectId(id)})
     return jsonify({"code": 200, "message": "Delete detail successfully"}), 200
+
+
+@project.route("/project/detail/point", methods=["GET"])
+def project_detail_point():
+    project_id = request.args.get("id")
+    project = current_app.project.find_one({"_id": ObjectId(project_id)})
+    project["_id"] = str(project["_id"])
+    project["created_at"] = project["created_at"].strftime("%d-%m-%Y")
+    project["start_date"] = project["start_date"].strftime("%d-%m-%Y")
+    project["end_date"] = project["end_date"].strftime("%d-%m-%Y")
+    project["created_by"] = current_app.user_system.find_one({"_id": project["created_by"]}).get("username")
+    return render_template("project/project_detail_point.html", project=project)
+
+
+@project.route("/project/detail/point/get_data", methods=["GET"])
+def project_detail_point_get():
+    project_id = request.args.get("id")
+    search = request.args.get("search")
+    
+    query = {"project_id": ObjectId(project_id)}
+    
+    if search:
+        query["profile"] = {"$regex": search, "$options": "i"}
+    
+    
+    project_detail_point_data = current_app.project_detail_point.find(query).sort("_id", -1)
+    data = []
+    for detail in project_detail_point_data:
+        detail["_id"] = str(detail["_id"])
+        detail["project_id"] = str(detail["project_id"])
+        data.append(detail)
+    
+    print(data)
+    return jsonify({"code": 200, "data": data}), 200

@@ -1,0 +1,177 @@
+{% extends "share/Main_Layout.html" %}
+
+{% block title %}
+
+{{project.project_name}}
+
+{% endblock %}
+
+
+{% block breadcrumb %}
+
+<div class="container-fluid px-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb my-0">
+            <li class="breadcrumb-item"><a href="/project">Quản lý dự án</a></li>
+            <li class="breadcrumb-item"><a href="/project/detail?id={{project._id}}">{{project.project_name}}</a></li>
+            <li class="breadcrumb-item"><span>Điểm, Token</span></li>
+        </ol>
+    </nav>
+
+</div>
+
+
+{% endblock %}
+
+{% block content %}
+
+
+
+<div class="container-fluid">
+    <h3 class="text-center text-danger">Điểm token: {{project.project_name}}</h3>
+
+    <div class="container shadow-lg bg-light rounded p-4 mt-5">
+        <div class="d-flex justify-content-between mb-3">
+            <div>
+                <input class="form-control" v-model="search" v-on:keyup="getProjectsPoint" placeholder="Nhập từ khoá" />
+            </div>
+            <span class="btn btn-success" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                data-coreui-title="Mẫu dữ liệu api bắn lên server" v-on:click="ShowPostDataKeyServer">
+                <i class="fa-solid fa-code"></i>
+            </span>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <td>STT</td>
+                    <td>Profile</td>
+                    <td>Điểm</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(item, index) in data_project" :key="item._id">
+                    <td v-html="index + 1"></td>
+                    <td v-html="item.profile"></td>
+                    <td v-html="item.point"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+
+<div class="modal fade" id="staticBackdropPostServer" data-coreui-backdrop="static" data-coreui-keyboard="false"
+    tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Các key cần có để push thông tin <strong class="text-primary">điểm</strong> lên
+                    server dự án {{project.project_name}}</h5>
+                <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Dữ liệu post lên dạng json</p>
+                <p>
+                    <span class="btn btn-secondary" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                        data-coreui-title="Copy link api" v-on:click="CopyURL">
+                        <i class="fa-regular fa-copy"></i>
+                    </span>
+                    <span id="url" v-html="api_url"></span>
+                </p>
+                <span class="btn btn-primary" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                    data-coreui-title="Copy mẫu dữ liệu bắn lên" v-on:click="CopyTemplateData">
+                    <i class="fa-regular fa-copy"></i>
+                </span>
+                <pre>
+                    <code>
+                    {
+                        "profile": "Tên profile",
+                        "device": "Tên thiết bị (pc1, pc2, pc3,...)",
+                        "point": "Điểm số",
+                        "project": "{{project.project_slug}}",
+                    }
+                </code></pre>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-coreui-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block script %}
+
+<script>
+    var app_vue = new Vue({
+        el: '#app',
+        data: {
+            data_project: [],
+            search: "",
+            api_url: `${window.location.origin}/api/project/detail/point/push`
+        },
+        mounted() {
+            this.getProjectsPoint();
+        },
+        computed: {
+
+        },
+        methods: {
+            getProjectsPoint() {
+                fetch('/project/detail/point/get_data?id={{project._id}}&search=' + this.search, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(response => {
+                        this.data_project = response.data;
+                    })
+            },
+            ShowPostDataKeyServer() {
+                $('#staticBackdropPostServer').modal('show');
+            },
+            CopyURL() {
+                navigator.clipboard.writeText(this.api_url)
+                    .then(() => {
+                        Toast.fire({
+                            icon: "success",
+                            title: "Copy link thành công"
+                        });
+                    })
+                    .catch(() => {
+                        Toast.fire({
+                            icon: "error",
+                            title: "Copy link thất bại"
+                        });
+                    });
+            },
+            CopyTemplateData() {
+                navigator.clipboard.writeText(`{
+                        "profile": "Tên profile",
+                        "device": "Tên thiết bị (pc1, pc2, pc3,...)",
+                        "point": "Điểm số",
+                        "project": "moonbix"
+                    }`)
+                    .then(() => {
+                        Toast.fire({
+                            icon: "success",
+                            title: "Copy mẫu dữ liệu thành công"
+                        });
+                    })
+                    .catch(() => {
+                        Toast.fire({
+                            icon: "error",
+                            title: "Copy mẫu dữ liệu thất bại"
+                        });
+                    });;
+            },
+        }
+    });
+</script>
+{% endblock %}

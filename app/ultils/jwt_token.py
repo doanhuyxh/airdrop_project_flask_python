@@ -8,7 +8,7 @@ def create_token(obj_id, username):
     token_payload = {
         "id": obj_id,
         'user': username,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)  # Thời gian hết hạn
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
     }
     token = jwt.encode(token_payload, Config.SECRET_KEY, algorithm='HS256')
     return token

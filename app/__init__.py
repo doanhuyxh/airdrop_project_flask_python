@@ -25,6 +25,7 @@ def create_app():
     app.project = app.db["project"]
     app.profile_gpm = app.db["profile_gpm"]
     app.project_detail = app.db["project_detail"]
+    app.project_detail_point = app.db["project_detail_point"]
     
     # Register the schedule job
     # run_check_proxy_job()
@@ -37,7 +38,7 @@ def create_app():
         else:
             code = 500  # Mặc định là 500 nếu không phải HTTPException
         return (
-            jsonify({"code": code, "message": str(e) }),
+            jsonify({"code": code, "message": str(e), "data":[] }),
             200,
         )
 
