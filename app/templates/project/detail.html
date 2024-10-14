@@ -188,7 +188,7 @@ ${% block breadcrumb %}
                         "profile": "Tên profile",
                         "device": "Tên thiết bị (pc1, pc2, pc3,...)",
                         "status": "Trạng thái (Đã hoàn thành, Chưa hoàn thành)",
-                        "project": "moonbix"
+                        "project": "{{project.project_slug}}"
                     }`)
                     .then(() => {
                         Toast.fire({

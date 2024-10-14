@@ -1,5 +1,5 @@
 # app/__init__.py
-
+import traceback
 from flask import Flask, jsonify
 from pymongo import MongoClient, ASCENDING
 from werkzeug.exceptions import HTTPException
@@ -34,11 +34,13 @@ def create_app():
     @app.errorhandler(Exception)
     def handle_exception(e):
         if isinstance(e, HTTPException):
-            code = e.code  # Lấy mã lỗi từ HTTPException
+            code = e.code
         else:
-            code = 500  # Mặc định là 500 nếu không phải HTTPException
+            code = 500
+        
+        stack_trace = traceback.format_exc()
         return (
-            jsonify({"code": code, "message": str(e), "data":[] }),
+            jsonify({"code": code, "message": str(e), "data":[], "stack_trace": stack_trace }),
             200,
         )
 

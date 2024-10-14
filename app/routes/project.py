@@ -38,8 +38,23 @@ def get_data():
     for project in projects:
         project["_id"] = str(project["_id"])
         project["created_at"] = project["created_at"].strftime("%d-%m-%Y")
-        project["start_date"] = project["start_date"].strftime("%d-%m-%Y")
-        project["end_date"] = project["end_date"].strftime("%d-%m-%Y")
+      
+        
+        if project["created_at"] is not None:
+            project["created_at"] = project["created_at"]
+        else:
+            project["created_at"] = None
+            
+        if project["start_date"] is not None:
+            project["start_date"] = project["start_date"].strftime("%d-%m-%Y")
+        else:
+            project["end_date"] = None
+            
+        if project["end_date"] is not None:
+            project["end_date"] = project["end_date"].strftime("%d-%m-%Y")
+        else:
+            project["end_date"] = None
+
         project["created_by"] = current_app.user_system.find_one({"_id": project["created_by"]}).get("username")
         data.append(project)
     return jsonify({"code": 200, "data": data}), 200
@@ -136,7 +151,7 @@ def detail():
     project["_id"] = str(project["_id"])
     project["created_at"] = project["created_at"].strftime("%d-%m-%Y")
     project["start_date"] = project["start_date"].strftime("%d-%m-%Y")
-    project["end_date"] = project["end_date"].strftime("%d-%m-%Y")
+    project["end_date"] = project["end_date"]
     project["created_by"] = current_app.user_system.find_one({"_id": project["created_by"]}).get("username")
     return render_template("project/detail.html", project=project)
 
@@ -185,7 +200,7 @@ def project_detail_point():
     project["_id"] = str(project["_id"])
     project["created_at"] = project["created_at"].strftime("%d-%m-%Y")
     project["start_date"] = project["start_date"].strftime("%d-%m-%Y")
-    project["end_date"] = project["end_date"].strftime("%d-%m-%Y")
+    project["end_date"] = project["end_date"]
     project["created_by"] = current_app.user_system.find_one({"_id": project["created_by"]}).get("username")
     return render_template("project/project_detail_point.html", project=project)
 
