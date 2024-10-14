@@ -11,7 +11,8 @@ from flask import (
 from app.middlewares.auth import token_required
 from app.ultils.time_ultils import convertTime
 from bson import ObjectId
-from datetime import datetime
+from datetime import datetime, timedelta
+import logging
 
 project = Blueprint("project", __name__)
 
@@ -76,6 +77,19 @@ def store():
     token_name = data.get("token_name")
     project_image = data.get("project_image")
     
+    project_slug = project_slug.lower()
+    if start_date is None:
+        start_date = datetime.now()
+    
+    if end_date is None:
+        start_date = datetime.now().__add__(timedelta(days=60))
+        
+    if token_name is None or len(token_name) < 1:
+        token_name = "Chưa rõ"
+    
+    if project_image is None or len(project_image) < 3:
+        project_image = "https://via.placeholder.com/150"
+    
     if project_id is None or len(project_id) < 3:
         current_app.project.insert_one(
             {
@@ -125,3 +139,42 @@ def detail():
     project["end_date"] = project["end_date"].strftime("%d-%m-%Y")
     project["created_by"] = current_app.user_system.find_one({"_id": project["created_by"]}).get("username")
     return render_template("project/detail.html", project=project)
+
+@project.route("/project/detail/get_data", methods=["POST"])
+def data_detail_get():
+    project_id = request.json.get("id")
+    device = request.json.get("device")
+    status = request.json.get("status")
+    search = request.json.get("search")
+    
+    print(project_id, device, status)
+    
+    query = {"project_id": ObjectId(project_id)}
+    
+    if device:
+        query["device"] = {"$regex": device, "$options": "i"}
+    if status:
+        query["status"] = status
+        
+    if search:
+        query["profile"] = {"$regex": search, "$options": "i"}
+        
+
+    project_detail_data = current_app.project_detail.find(query).sort("_id", -1)
+    
+    data = []
+    for detail in project_detail_data:
+        detail["_id"] = str(detail["_id"])
+        detail["project_id"] = str(detail["project_id"])
+        data.append(detail)
+        
+    print(len(data))
+        
+    return jsonify({"code": 200, "data": data}), 200
+    
+
+@project.route("/project/detail/delete", methods=["GET"])
+def delete_detail():
+    id = request.args.get("id")
+    current_app.project_detail.delete_one({"_id": ObjectId(id)})
+    return jsonify({"code": 200, "message": "Delete detail successfully"}), 200

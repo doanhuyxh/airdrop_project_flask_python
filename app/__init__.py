@@ -3,9 +3,12 @@
 from flask import Flask, jsonify
 from pymongo import MongoClient, ASCENDING
 from werkzeug.exceptions import HTTPException
+from flask_swagger_ui import get_swaggerui_blueprint
 import logging
+
 from app.ultils.clear_cache import clear_all_pycache
 from config import Config
+
 #from app.cronjob.run_check_proxy_job import run_check_proxy_job
 
 logging.basicConfig(level=logging.ERROR)
@@ -21,6 +24,7 @@ def create_app():
     app.user_system = app.db["user_system"]
     app.project = app.db["project"]
     app.profile_gpm = app.db["profile_gpm"]
+    app.project_detail = app.db["project_detail"]
     
     # Register the schedule job
     # run_check_proxy_job()
@@ -44,12 +48,15 @@ def create_app():
     from .routes.project import project
     from .routes.upload import upload
     from .routes.profile_gpm import profile_gpm
+    from .routes.api import api
     app.register_blueprint(main)
     app.register_blueprint(auth)
     app.register_blueprint(dashboard)
     app.register_blueprint(project)
     app.register_blueprint(upload)
     app.register_blueprint(profile_gpm)
+    app.register_blueprint(api)
+    
     clear_all_pycache()
     
     return app

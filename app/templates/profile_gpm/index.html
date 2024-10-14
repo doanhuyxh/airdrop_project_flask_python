@@ -25,14 +25,19 @@ ${% block breadcrumb %}
 
 <div class="container-fluid px-4">
     <div class="mx-5 mb-3 d-flex justify-content-between">
-        <a href="/profile_gpm/form" class="btn btn-primary">
+        <a href="/profile_gpm/form" class="btn btn-primary" data-coreui-toggle="tooltip" data-coreui-placement="top" data-coreui-title="Thêm 1 profile mới">
             <i class="fa-solid fa-plus"></i>
         </a>
 
-        <div class="btn-group" role="group" aria-label="Basic mixed styles example">
-            <button type="button" class="btn btn-success" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Tooltip on top">
+        <div class="d-flex gap-5">
+            <button type="button" class="btn btn-success" data-coreui-toggle="tooltip" data-coreui-placement="top" data-coreui-title="Nhập profile bằng excell">
                 <i class="fa-regular fa-file-excel"></i>
             </button>
+            
+            <button type="button" class="btn btn-danger" data-coreui-toggle="tooltip" data-coreui-placement="top" data-coreui-title="Xoá tất cả profile đã chọn">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+
           </div>
 
     </div>

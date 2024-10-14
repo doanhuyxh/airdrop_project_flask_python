@@ -84,6 +84,8 @@
                         Swal.fire({
                             title: 'Đăng nhập thành công',
                             icon: 'success',
+                            showConfirmButton: false,
+                            timer:1600
                         }).then(() => {
                             window.location.href = '/dashboard';
                         });

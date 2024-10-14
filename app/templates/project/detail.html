@@ -23,16 +23,216 @@ ${% block breadcrumb %}
 {% block content %}
 
 
-<div class="container-fluid px-4">
+<div class="container-fluid">
+    <h3 class="text-center text-danger">{{project.project_name}}</h3>
+
+    <div class="container shadow-lg bg-light rounded p-4 mt-5">
+        <div class="d-flex justify-content-between">
+            <div class="w-75 d-flex gap-2">
+                <div>
+                    <select class="form-select" v-model="filter_status" v-on:change="getProjects">
+                        <option value="" selected>Trạng thái</option>
+                        <option v-for="(item, index) in status" :value="item" :key="index" v-html="item"></option>
+                    </select>
+                </div>
+                <div>
+                    <select class="form-select" v-model="filter_device" v-on:change="getProjects">
+                        <option value="" selected>Server(Thiết bị)</option>
+                        <option v-for="(item, index) in device" :value="item" :key="index" v-html="item"></option>
+                    </select>
+                </div>
+                <div>
+                    <input type="text" class="form-control w-100" placeholder="Tìm kiếm profile" v-model="search"
+                        v-on:keyup="getProjects">
+                </div>
+            </div>
+            <div class="d-flex justify-content-end gap-3 mb-4">
+                <span class="btn btn-success" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                    data-coreui-title="Mẫu dữ liệu api bắn lên server" v-on:click="ShowPostDataKeyServer">
+                    <i class="fa-solid fa-code"></i>
+                </span>
+                <span class="btn btn-info" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                    data-coreui-title="Xuất data đang có thành excel" v-on:click="ExportExcel">
+                    <i class="fa-solid fa-file-excel"></i>
+                </span>
+                <span class="btn btn-danger" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                    data-coreui-title="Xoá tất cả bản ghi dang hiển thị" v-on:click="Delete">
+                    <i class="fa-solid fa-trash"></i>
+                </span>
+            </div>
+        </div>
 
 
+        <div class="w-100">
+            <textarea name="" id="" rows="20" class="form-control" v-model="formattedData"></textarea>
+        </div>
+    </div>
+
+</div>
+
+
+<div class="modal fade" id="staticBackdropPostServer" data-coreui-backdrop="static" data-coreui-keyboard="false"
+    tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Các key cần có để push lên server thông tin chạy của profile với dự án
+                    {{project.project_name}}</h5>
+                <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Dữ liệu post lên dạng json</p>
+                <p>
+                    <span class="btn btn-secondary" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                        data-coreui-title="Copy link api" v-on:click="CopyURL">
+                        <i class="fa-regular fa-copy"></i>
+                    </span>
+                    <span id="url" v-html="api_url"></span>
+                </p>
+                <span class="btn btn-primary" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                    data-coreui-title="Copy mẫu dữ liệu bắn lên" v-on:click="CopyTemplateData">
+                    <i class="fa-regular fa-copy"></i>
+                </span>
+                <pre>
+                    <code>
+                    {
+                        "profile": "Tên profile",
+                        "device": "Tên thiết bị (pc1, pc2, pc3,...)",
+                        "status": "Trạng thái (Đã hoàn thành, Chưa hoàn thành)",
+                        "project": "{{project.project_slug}}",
+                    }
+                </code></pre>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-coreui-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 {% endblock %}
 {% block script %}
 
 <script>
-    
+    var app_vue = new Vue({
+        el: '#app',
+        data: {
+            data_project: [],
+            status: [],
+            device: [],
+            filter_status: "",
+            filter_device: "",
+            search: "",
+            api_url: `${window.location.origin}/api/project/detail/push`
+        },
+        mounted() {
+            this.getProjects();
+        },
+        computed: {
+            formattedData() {
+                console.log(this.data_project.length)
+                return this.data_project.map(item => {
+
+                    this.status.find(s => s == item.status) ? null : this.status.push(item.status)
+                    this.device.find(d => d == item.device) ? null : this.device.push(item.device)
+
+                    return item.device + " || " + item.status
+                }).join('\n\n');
+            }
+        },
+        methods: {
+            getProjects() {
+                fetch('/project/detail/get_data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        "id": "{{project._id}}",
+                        "status": this.filter_status,
+                        "device": this.filter_device,
+                        "search": this.search
+                    })
+                })
+                    .then(response => response.json())
+                    .then(response => {
+                        this.data_project = response.data;
+                    })
+            },
+            ShowPostDataKeyServer() {
+                $('#staticBackdropPostServer').modal('show');
+            },
+            CopyURL() {
+                navigator.clipboard.writeText(this.api_url)
+                    .then(() => {
+                        Toast.fire({
+                            icon: "success",
+                            title: "Copy link thành công"
+                        });
+                    })
+                    .catch(() => {
+                        Toast.fire({
+                            icon: "error",
+                            title: "Copy link thất bại"
+                        });
+                    });
+            },
+            CopyTemplateData() {
+                navigator.clipboard.writeText(`{
+                        "profile": "Tên profile",
+                        "device": "Tên thiết bị (pc1, pc2, pc3,...)",
+                        "status": "Trạng thái (Đã hoàn thành, Chưa hoàn thành)",
+                        "project": "moonbix"
+                    }`)
+                    .then(() => {
+                        Toast.fire({
+                            icon: "success",
+                            title: "Copy mẫu dữ liệu thành công"
+                        });
+                    })
+                    .catch(() => {
+                        Toast.fire({
+                            icon: "error",
+                            title: "Copy mẫu dữ liệu thất bại"
+                        });
+                    });;
+            },
+            async Delete() {
+                if (this.data_project.length == 0) {
+                    Toast.fire({
+                        icon: "error",
+                        title: "Không có dữ liệu để xoá"
+                    });
+                    return;
+                }
+
+                this.data_project.forEach(async item => {
+                    await fetch("/project/detail/delete?id=" + item._id)
+                });
+
+                Toast.fire({
+                    icon: "success",
+                    title: "Xoá thành công"
+                });
+                this.getProjects();
+            },
+            ExportExcel() {
+                let data = this.data_project.map(item => {
+                    return {
+                        "Profile": item.profile,
+                        "Device": item.device,
+                        "Trạng thái": item.status
+                    }
+                });
+
+                let ws = XLSX.utils.json_to_sheet(data);
+                let wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+                XLSX.writeFile(wb, "data.xlsx");
+            }
+        }
+    });
 </script>
 
 {% endblock %}

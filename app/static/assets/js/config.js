@@ -7,14 +7,14 @@ async function uploadFile(file_element) {
         body: formData
     });
     const result = await response.json();
-    
+
     if (result.code == 200) {
         return result.file_path;
     } else {
         return result.message;
     }
 
-    
+
 }
 
 function removeVietnameseTones(str) {
@@ -22,3 +22,15 @@ function removeVietnameseTones(str) {
     str = str.replace(/đ/g, 'd').replace(/Đ/g, 'D'); // Chuyển đổi 'đ' và 'Đ'
     return str;
 }
+
+const Toast = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+    }
+});
