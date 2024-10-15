@@ -42,7 +42,7 @@ ${% block breadcrumb %}
                 </div>
                 <div>
                     <select class="form-select" v-model="filter_device" v-on:change="getProjects">
-                        <option value="" selected>Server(Thiết bị)</option>
+                        <option value="" selected>Server (Thiết bị)</option>
                         <option v-for="(item, index) in device" :value="item" :key="index" v-html="item"></option>
                     </select>
                 </div>
@@ -252,6 +252,11 @@ ${% block breadcrumb %}
                         this.data_project = response.data;
                         this.totalPages = response.totalPages;
                         this.totalResults = response.totalResults;
+
+                        response.data.forEach(item => {
+                            this.status.find(s => s == item.status) ? null : this.status.push(item.status)
+                            this.device.find(d => d == item.device) ? null : this.device.push(item.device)
+                        });
                     })
             },
             changePage(page) {
