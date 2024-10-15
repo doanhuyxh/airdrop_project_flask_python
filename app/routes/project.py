@@ -13,6 +13,7 @@ from app.ultils.time_ultils import convertTime
 from bson import ObjectId
 from datetime import datetime, timedelta
 import logging
+from math import ceil
 
 project = Blueprint("project", __name__)
 
@@ -169,6 +170,9 @@ def data_detail_get():
     device = request.json.get("device")
     status = request.json.get("status")
     search = request.json.get("search")
+    page = request.json.get("page")
+    pageSize = request.json.get("pageSize")
+    order_by = request.json.get("order_by")
 
     query = {"project_id": ObjectId(project_id)}
 
@@ -180,7 +184,20 @@ def data_detail_get():
     if search:
         query["profile"] = {"$regex": search, "$options": "i"}
 
-    project_detail_data = current_app.project_detail.find(query).sort("_id", -1)
+    if order_by is None:
+        order_by = "_id"
+        
+
+    total_results = current_app.project_detail.count_documents(query)
+    total_pages = ceil(total_results / pageSize)
+    skip = (page - 1) * pageSize
+    
+    project_detail_data = (
+        current_app.project_detail.find(query)
+        .sort(order_by, -1)
+        .skip(skip)
+        .limit(pageSize)
+    )
 
     data = []
     for detail in project_detail_data:
@@ -188,7 +205,33 @@ def data_detail_get():
         detail["project_id"] = str(detail["project_id"])
         data.append(detail)
 
-    return jsonify({"code": 200, "data": data}), 200
+    return (
+        jsonify(
+            {
+                "code": 200,
+                "data": data,
+                "page": page,
+                "pageSize": pageSize,
+                "totalPages": total_pages,
+                "totalResults": total_results,
+            }
+        ),
+        200,
+    )
+
+
+@project.route("/project/detail/update", methods=["POST"])
+def update_project_detail():
+    data = request.json
+    project_detail_id = data.get("id")
+    field = data.get("field")
+    value = data.get("value")
+
+    current_app.project_detail.find_one_and_update(
+        {"_id": ObjectId(project_detail_id)}, {"$set": {field: value}}
+    )
+
+    return jsonify({"code": 200, "message": "Update project detail successfully"}), 200
 
 
 @project.route("/project/detail/delete", methods=["GET"])
@@ -196,6 +239,13 @@ def delete_detail():
     id = request.args.get("id")
     current_app.project_detail.delete_one({"_id": ObjectId(id)})
     return jsonify({"code": 200, "message": "Delete detail successfully"}), 200
+
+
+@project.route("/project/detail/delete_all", methods=["GET"])
+def deleteAll_detail():
+    project_id = request.args.get("id")
+    current_app.project_detail.delete_many({"project_id": ObjectId(project_id)})
+    return jsonify({"code": 200, "message": "Delete all detail successfully"}), 200
 
 
 @project.route("/project/detail/point", methods=["GET"])

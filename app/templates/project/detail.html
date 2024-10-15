@@ -9,6 +9,19 @@
 
 ${% block breadcrumb %}
 
+<style>
+    .selected-row * {
+        background-color: #f9b115 !important;
+    }
+
+    .pointer {
+        cursor: pointer;
+    }
+    .pointer:hover {
+        background-color: #f9b115;
+    }
+</style>
+
 <div class="container-fluid px-4">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb my-0">
@@ -51,7 +64,7 @@ ${% block breadcrumb %}
                         v-on:keyup="getProjects">
                 </div>
                 <div>
-                    <p>Tổng cộng profile hiện có: <span class="text-danger fw-bold" v-html="data_project.length"></span></p>
+                    <p>Tổng cộng profile hiện có: <span class="text-danger fw-bold" v-html="totalResults"></span></p>
                 </div>
             </div>
             <div class="d-flex justify-content-end gap-3 mb-4">
@@ -63,16 +76,89 @@ ${% block breadcrumb %}
                     data-coreui-title="Xuất data đang có thành excel" v-on:click="ExportExcel">
                     <i class="fa-solid fa-file-excel"></i>
                 </span>
-                <span class="btn btn-danger" data-coreui-toggle="tooltip" data-coreui-placement="top"
-                    data-coreui-title="Xoá tất cả bản ghi dang hiển thị" v-on:click="Delete">
+                <span class="btn btn-warning" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                    data-coreui-title="Xoá tất cả bản ghi đang chọn" v-on:click="Delete">
                     <i class="fa-solid fa-trash"></i>
                 </span>
+                <span class="btn btn-danger" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                    data-coreui-title="Xoá tất cả bản ghi trong csdl" v-on:click="DeleteALL">
+                    <i class="fa-solid fa-trash"></i>
+                </span>
+
             </div>
         </div>
 
-
         <div class="w-100">
-            <textarea name="" id="" rows="20" class="form-control" v-model="formattedData"></textarea>
+            <table class="table table-bordered table-hover" @mousedown="startDrag" @mouseup="stopDrag">
+                <thead class="table-primary">
+                    <tr>
+                        <th @click="sort('_id')" class="pointer" style="width: 5em;">
+                            STT
+                            <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                        </th>
+                        <th @click="sort('profile')" class="pointer">
+                            Profile
+                            <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                        </th>
+                        <th @click="sort('device')" class="pointer">
+                            Thiết bị
+                            <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                        </th>
+                        <th @click="sort('status')" class="pointer">
+                            Trạng thái
+                            <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                        </th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(item, index) in data_project" :key="item._id" @click="selectRow(item._id)"
+                        @mouseover="isDragging ? selectRow(item._id) : null"
+                        :class="{ 'selected-row': selectedRows.includes(item._id) }">
+                        <td>
+                            <div v-html="index + 1"></div>
+                        </td>
+                        <td>
+                            <div contenteditable="true" class="form-control"
+                                @keyup="Update($event, item._id, 'profile')" v-html="item.profile">
+                            </div>
+                        </td>
+                        <td>
+                            <div contenteditable="true" class="form-control" @keyup="Update($event, item._id, 'device')"
+                                v-html="item.device">
+                            </div>
+                        </td>
+                        <td>
+                            <div contenteditable="true" class="form-control" @keyup="Update($event, item._id, 'status')"
+                                v-html="item.status">
+                            </div>
+                        </td>
+
+                    </tr>
+
+                </tbody>
+            </table>
+            <div class="my-4 d-flex justify-content-between">
+                <div>
+                    <p>hiển thị: <span class="text-danger fw-bold" v-html="data_project.length"></span> của <span
+                            class="text-danger fw-bold" v-html="totalResults"></span> kết quả</p>
+                </div>
+                <div v-if="totalPages > 1" class="btn-group gap-2">
+                    <button @click="changePage(current_page - 1)" :disabled="current_page === 1" class="btn btn-info">
+                        Trước
+                    </button>
+
+                    <button v-for="page in totalPages" :key="page" @click="changePage(page)"
+                        :class="{ 'btn-danger': current_page === page, btn: true }" class="btn">
+                        <span v-html="page"></span>
+                    </button>
+
+                    <button @click="changePage(current_page + 1)" :disabled="current_page === totalPages"
+                        class="btn btn-info">
+                        Tiếp
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -132,6 +218,13 @@ ${% block breadcrumb %}
             filter_status: "",
             filter_device: "",
             search: "",
+            current_page: 1,
+            pageSize: 25,
+            totalPages: 0,
+            totalResults: 0,
+            order_by: "_id",
+            selectedRows: [],
+            isDragging: false,
             api_url: `${window.location.origin}/api/project/detail/push`
         },
         mounted() {
@@ -160,33 +253,49 @@ ${% block breadcrumb %}
                         "id": "{{project._id}}",
                         "status": this.filter_status,
                         "device": this.filter_device,
-                        "search": this.search
+                        "search": this.search,
+                        "page": this.current_page,
+                        "pageSize": this.pageSize,
+                        "order_by": this.order_by
                     })
                 })
                     .then(response => response.json())
                     .then(response => {
                         this.data_project = response.data;
+                        this.totalPages = response.totalPages;
+                        this.totalResults = response.totalResults;
                     })
+            },
+            changePage(page) {
+                if (page >= 1 && page <= this.totalPages) {
+                    this.current_page = page;
+                    this.getProjects();
+                }
+            },
+            sort(field) {
+                this.order_by = field;
+                this.page = 1;
+                this.getProjects();
             },
             ShowPostDataKeyServer() {
                 $('#staticBackdropPostServer').modal('show');
             },
             CopyURL() {
                 if (navigator.clipboard) {
-                navigator.clipboard.writeText(this.api_url)
-                    .then(() => {
-                        Toast.fire({
-                            icon: "success",
-                            title: "Copy link thành công"
+                    navigator.clipboard.writeText(this.api_url)
+                        .then(() => {
+                            Toast.fire({
+                                icon: "success",
+                                title: "Copy link thành công"
+                            });
+                        })
+                        .catch(() => {
+                            Toast.fire({
+                                icon: "error",
+                                title: "Copy link thất bại"
+                            });
                         });
-                    })
-                    .catch(() => {
-                        Toast.fire({
-                            icon: "error",
-                            title: "Copy link thất bại"
-                        });
-                    });
-                }else{
+                } else {
                     Toast.fire({
                         icon: "error",
                         title: "Trình duyệt không hỗ trợ"
@@ -195,25 +304,25 @@ ${% block breadcrumb %}
             },
             CopyTemplateData() {
                 if (navigator.clipboard) {
-                navigator.clipboard.writeText(`{
+                    navigator.clipboard.writeText(`{
                         "profile": "Tên profile",
                         "device": "Tên thiết bị (pc1, pc2, pc3,...)",
                         "status": "Trạng thái (Đã hoàn thành, Chưa hoàn thành)",
                         "project": "{{project.project_slug}}"
                     }`)
-                    .then(() => {
-                        Toast.fire({
-                            icon: "success",
-                            title: "Copy mẫu dữ liệu thành công"
-                        });
-                    })
-                    .catch(() => {
-                        Toast.fire({
-                            icon: "error",
-                            title: "Copy mẫu dữ liệu thất bại"
-                        });
-                    })
-                }else{
+                        .then(() => {
+                            Toast.fire({
+                                icon: "success",
+                                title: "Copy mẫu dữ liệu thành công"
+                            });
+                        })
+                        .catch(() => {
+                            Toast.fire({
+                                icon: "error",
+                                title: "Copy mẫu dữ liệu thất bại"
+                            });
+                        })
+                } else {
                     Toast.fire({
                         icon: "error",
                         title: "Trình duyệt không hỗ trợ"
@@ -221,7 +330,7 @@ ${% block breadcrumb %}
                 }
             },
             async Delete() {
-                if (this.data_project.length == 0) {
+                if (this.selectedRows.length == 0) {
                     Toast.fire({
                         icon: "error",
                         title: "Không có dữ liệu để xoá"
@@ -229,15 +338,19 @@ ${% block breadcrumb %}
                     return;
                 }
 
-                this.data_project.forEach(async item => {
+                this.selectedRows.forEach(async item => {
                     await fetch("/project/detail/delete?id=" + item._id)
                 });
 
+                this.getProjects();
                 Toast.fire({
                     icon: "success",
                     title: "Xoá thành công"
                 });
-                this.getProjects();
+
+            },
+            DeleteALL() {
+                fetch("/project/detail/delete_all?id={{project._id}}")
             },
             ExportExcel() {
                 let data = this.data_project.map(item => {
@@ -251,8 +364,35 @@ ${% block breadcrumb %}
                 let ws = XLSX.utils.json_to_sheet(data);
                 let wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-                XLSX.writeFile(wb, "data.xlsx");
-            }
+                XLSX.writeFile(wb, "{{project.project_name}}.xlsx");
+            },
+            Update(event, id, field) {
+                let value = event.target.innerText;
+                fetch("/project/detail/update", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        id: id,
+                        field: field,
+                        value: value
+                    })
+                })
+            },
+            selectRow(id) {
+                if (this.selectedRows.includes(id)) {
+                    this.selectedRows = this.selectedRows.filter((rowId) => rowId !== id);
+                } else {
+                    this.selectedRows.push(id);
+                }
+            },
+            startDrag() {
+                this.isDragging = true;
+            },
+            stopDrag() {
+                this.isDragging = false;
+            },
         }
     });
 </script>
