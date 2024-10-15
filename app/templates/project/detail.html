@@ -134,19 +134,20 @@ ${% block breadcrumb %}
                     <button @click="changePage(current_page - 1)" :disabled="current_page === 1" class="btn btn-info">
                         Trước
                     </button>
-
-                    <button v-for="page in totalPages" :key="page" @click="changePage(page)"
+                
+                    <button v-for="page in pagesToShow" :key="page" @click="changePage(page)"
                         :class="{ 'btn-danger': current_page === page, btn: true }" class="btn">
                         <span v-html="page"></span>
                     </button>
-
+                
                     <button @click="changePage(current_page + 1)" :disabled="current_page === totalPages"
                         class="btn btn-info">
                         Tiếp
                     </button>
                 </div>
+                
             </div>
-            
+
         </div>
     </div>
 
@@ -228,6 +229,17 @@ ${% block breadcrumb %}
 
                     return item.profile + " || " + item.device + " || " + item.status
                 }).join('\n\n');
+            },
+            pagesToShow() {
+                const pages = [];
+                const startPage = Math.max(1, this.current_page - 3);
+                const endPage = Math.min(this.totalPages, this.current_page + 3);
+
+                for (let i = startPage; i <= endPage; i++) {
+                    pages.push(i);
+                }
+
+                return pages;
             }
         },
         methods: {
@@ -346,9 +358,9 @@ ${% block breadcrumb %}
             },
             DeleteALL() {
                 fetch("/project/detail/delete_all?id={{project._id}}")
-                .then(() => {
-                    this.getProjects();
-                })
+                    .then(() => {
+                        this.getProjects();
+                    })
             },
             ExportExcel() {
                 let data = this.data_project.map(item => {
