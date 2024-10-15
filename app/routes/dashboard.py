@@ -11,6 +11,5 @@ def check_token():
 
 @dashboard.route('/dashboard', methods=['GET'])
 def index():
-    print('dashboard: ', request.current_user_id)
     return render_template('dashboard/index.html')
 

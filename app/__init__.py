@@ -6,6 +6,7 @@ from werkzeug.exceptions import HTTPException
 from flask_swagger_ui import get_swaggerui_blueprint
 import logging
 
+from app.middlewares.auth import token_update
 from app.ultils.clear_cache import clear_all_pycache
 from config import Config
 
@@ -30,7 +31,11 @@ def create_app():
     # Register the schedule job
     # run_check_proxy_job()
 
-
+    @app.after_request
+    @token_update
+    def after_request(response):
+        return response
+    
     @app.errorhandler(Exception)
     def handle_exception(e):
         if isinstance(e, HTTPException):

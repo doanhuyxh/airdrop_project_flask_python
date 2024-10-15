@@ -13,7 +13,7 @@ from bson import ObjectId
 import threading
 
 from app.ultils.time_ultils import get_current_time, check_time_difference
-from app.ultils.jwt_token import create_token
+from app.ultils.jwt_token import create_token, create_refresh_token
 
 auth = Blueprint("auth", __name__)
 
@@ -37,8 +37,11 @@ def login_post():
         return jsonify({"code": 405, "message": "Tài khoản không tồn tại"}), 200
     
     token = create_token(str(user.get("_id")), user.get("username"))
+    refresh_token = create_refresh_token(str(user.get("_id")), user.get("username"))
     response = jsonify({"code": 200, "message": "Login successfully", "token": token})
     response.set_cookie('token', token, httponly=True, secure=False)
+    response.set_cookie('refresh_token', refresh_token, httponly=True, secure=False)
+    
     
     return response, 200
     

@@ -138,40 +138,56 @@
                 $('#staticBackdropPostServer').modal('show');
             },
             CopyURL() {
-                navigator.clipboard.writeText(this.api_url)
-                    .then(() => {
-                        Toast.fire({
-                            icon: "success",
-                            title: "Copy link thành công"
-                        });
-                    })
-                    .catch(() => {
-                        Toast.fire({
-                            icon: "error",
-                            title: "Copy link thất bại"
-                        });
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(this.api_url)
+                        .then(() => {
+                            Toast.fire({
+                                icon: "success",
+                                title: "Copy link thành công"
+                            });
+                        })
+                        .catch(() => {
+                            Toast.fire({
+                                icon: "error",
+                                title: "Copy link thất bại"
+                            });
+                        })
+                }
+                else {
+                    Toast.fire({
+                        icon: "error",
+                        title: "Trình duyệt không hỗ trợ"
                     });
+                }
             },
             CopyTemplateData() {
-                navigator.clipboard.writeText(`{
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(`{
                         "profile": "Tên profile",
                         "device": "Tên thiết bị (pc1, pc2, pc3,...)",
                         "point": "Điểm số",
                         "project": "{{project.project_slug}}",
                         "status":"thông tin nếu có lỗi"
                     }`)
-                    .then(() => {
-                        Toast.fire({
-                            icon: "success",
-                            title: "Copy mẫu dữ liệu thành công"
-                        });
-                    })
-                    .catch(() => {
-                        Toast.fire({
-                            icon: "error",
-                            title: "Copy mẫu dữ liệu thất bại"
-                        });
-                    });;
+                        .then(() => {
+                            Toast.fire({
+                                icon: "success",
+                                title: "Copy mẫu dữ liệu thành công"
+                            });
+                        })
+                        .catch(() => {
+                            Toast.fire({
+                                icon: "error",
+                                title: "Copy mẫu dữ liệu thất bại"
+                            });
+                        })
+                }
+                else {
+                    Toast.fire({
+                        icon: "error",
+                        title: "Trình duyệt không hỗ trợ"
+                    });
+                }
             },
         }
     });

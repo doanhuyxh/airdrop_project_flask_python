@@ -13,6 +13,7 @@ profile_gpm = Blueprint('profile_gpm', __name__)
 def check_token():
     pass
 
+
 @profile_gpm.route('/profile_gpm')
 def index():
     return render_template('profile_gpm/index.html')
