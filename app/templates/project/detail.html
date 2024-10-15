@@ -9,19 +9,6 @@
 
 ${% block breadcrumb %}
 
-<style>
-    .selected-row * {
-        background-color: #f9b115 !important;
-    }
-
-    .pointer {
-        cursor: pointer;
-    }
-    .pointer:hover {
-        background-color: #f9b115;
-    }
-</style>
-
 <div class="container-fluid px-4">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb my-0">
@@ -159,6 +146,7 @@ ${% block breadcrumb %}
                     </button>
                 </div>
             </div>
+            
         </div>
     </div>
 
@@ -339,18 +327,23 @@ ${% block breadcrumb %}
                 }
 
                 this.selectedRows.forEach(async item => {
-                    await fetch("/project/detail/delete?id=" + item._id)
+                    await fetch("/project/detail/delete?id=" + item)
                 });
 
-                this.getProjects();
                 Toast.fire({
                     icon: "success",
                     title: "Xoá thành công"
+                }).then(() => {
+                    this.getProjects();
+                    this.selectedRows = [];
                 });
 
             },
             DeleteALL() {
                 fetch("/project/detail/delete_all?id={{project._id}}")
+                .then(() => {
+                    this.getProjects();
+                })
             },
             ExportExcel() {
                 let data = this.data_project.map(item => {

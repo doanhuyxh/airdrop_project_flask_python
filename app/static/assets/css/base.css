@@ -228,3 +228,14 @@
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
+
+.selected-row * {
+  background-color: #f9b115 !important;
+}
+
+.pointer {
+  cursor: pointer;
+}
+.pointer:hover {
+  background-color: #f9b115;
+}

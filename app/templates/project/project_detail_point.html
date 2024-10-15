@@ -33,7 +33,8 @@
     <div class="container shadow-lg bg-light rounded p-4 mt-5">
         <div class="d-flex justify-content-between mb-3">
             <div>
-                <input class="form-control" v-model="search" v-on:keyup="getProjectsDetailPoint" placeholder="Nhập từ khoá" />
+                <input class="form-control" v-model="search" v-on:keyup="getProjectsDetailPoint"
+                    placeholder="Nhập từ khoá" />
             </div>
             <span class="btn btn-success" data-coreui-toggle="tooltip" data-coreui-placement="top"
                 data-coreui-title="Mẫu dữ liệu api bắn lên server" v-on:click="ShowPostDataKeyServer">
@@ -43,19 +44,43 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>STT</th>
-                    <th>Profile</th>
-                    <th>Điểm</th>
-                    <th>Trạng thái</th>
+                    <th @click="sort('_id')" class="pointer" style="width: 5em;">
+                        STT
+                        <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                    </th>
+                    <th @click="sort('profile')" class="pointer">
+                        Profile
+                        <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                    </th>
+                    <th @click="sort('point')" class="pointer">
+                        Điểm
+                        <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                    </th>
+                    <th @click="sort('status')" class="pointer">
+                        Trạng thái
+                        <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                    </th>
                     <td></td>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="(item, index) in data_project" :key="item._id">
                     <td v-html="index + 1"></td>
-                    <td v-html="item.profile"></td>
-                    <td v-html="item.point"></td>
-                    <td v-html="item.status"></td>
+                    <td>
+                        <div contenteditable="true" class="form-control" @keyup="Update($event, item._id, 'profile')"
+                            v-html="item.profile">
+                        </div>
+                    </td>
+                    <td>
+                        <div contenteditable="true" class="form-control" @keyup="Update($event, item._id, 'point')"
+                            v-html="item.point">
+                        </div>
+                    </td>
+                    <td>
+                        <div contenteditable="true" class="form-control" @keyup="Update($event, item._id, 'status')"
+                            v-html="item.status">
+                        </div>
+                    </td>
                     <td>
                         <span class="btn btn-danger" data-coreui-toggle="tooltip" data-coreui-placement="top"
                             data-coreui-title="Xóa điểm" v-on:click="Delete(item._id)">
@@ -65,6 +90,27 @@
                 </tr>
             </tbody>
         </table>
+        <div class="my-4 d-flex justify-content-between">
+            <div>
+                <p>hiển thị: <span class="text-danger fw-bold" v-html="data_project.length"></span> của <span
+                        class="text-danger fw-bold" v-html="totalResults"></span> kết quả</p>
+            </div>
+            <div v-if="totalPages > 1" class="btn-group gap-2">
+                <button @click="changePage(current_page - 1)" :disabled="current_page === 1" class="btn btn-info">
+                    Trước
+                </button>
+
+                <button v-for="page in totalPages" :key="page" @click="changePage(page)"
+                    :class="{ 'btn-danger': current_page === page, btn: true }" class="btn">
+                    <span v-html="page"></span>
+                </button>
+
+                <button @click="changePage(current_page + 1)" :disabled="current_page === totalPages"
+                    class="btn btn-info">
+                    Tiếp
+                </button>
+            </div>
+        </div>
     </div>
 
 </div>
@@ -122,6 +168,13 @@
         data: {
             data_project: [],
             search: "",
+            current_page: 1,
+            pageSize: 25,
+            totalPages: 0,
+            totalResults: 0,
+            order_by: "_id",
+            selectedRows: [],
+            isDragging: false,
             api_url: `${window.location.origin}/api/project/detail/point/push`
         },
         mounted() {
@@ -132,16 +185,36 @@
         },
         methods: {
             getProjectsDetailPoint() {
-                fetch('/project/detail/point/get_data?id={{project._id}}&search=' + this.search, {
-                    method: 'GET',
+                fetch('/project/detail/point/get_data', {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify({
+                        "id": "{{project._id}}",
+                        "search": this.search,
+                        "page": this.current_page,
+                        "pageSize": this.pageSize,
+                        "order_by": this.order_by
+                    })
                 })
                     .then(response => response.json())
                     .then(response => {
                         this.data_project = response.data;
+                        this.totalPages = response.totalPages;
+                        this.totalResults = response.totalResults;
                     })
+            },
+            changePage(page) {
+                if (page >= 1 && page <= this.totalPages) {
+                    this.current_page = page;
+                    this.getProjectsDetailPoint();
+                }
+            },
+            sort(field) {
+                this.order_by = field;
+                this.page = 1;
+                this.getProjectsDetailPoint();
             },
             ShowPostDataKeyServer() {
                 $('#staticBackdropPostServer').modal('show');
@@ -221,7 +294,21 @@
                             });
                         }
                     })
-            }
+            },
+            Update(event, id, field) {
+                let value = event.target.innerText;
+                fetch("/project/detail/point/update", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        id: id,
+                        field: field,
+                        value: value
+                    })
+                })
+            },
         }
     });
 
