@@ -49,12 +49,15 @@ def project_detail_point_push():
     project_slug = data.get("project")
     status = data.get("status")
 
+
+    project = current_app.project.find_one({"project_slug": str(project_slug).lower()})
+    
     check_exit = current_app.project_detail_point.find_one(
-        {"profile": profiles, "device": device}
+        {"profile": profiles, "device": device, "project_id": ObjectId(project["_id"])}
     )
     if check_exit:
         current_app.project_detail_point.update_one(
-            {"profile": profiles, "device": device},
+            {"profile": profiles, "device": device, "project_id": ObjectId(project["_id"])},
             {"$set": {"point": point, "last_time": datetime.now(), "status": status}},
         )
         return (
@@ -65,7 +68,7 @@ def project_detail_point_push():
         )
 
     # tạo mới dữ liệu
-    project = current_app.project.find_one({"project_slug": str(project_slug).lower()})
+    
     if project is None:
         current_app.project_detail_point.insert_one(
             {

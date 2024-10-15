@@ -50,6 +50,9 @@ ${% block breadcrumb %}
                     <input type="text" class="form-control w-100" placeholder="Tìm kiếm profile" v-model="search"
                         v-on:keyup="getProjects">
                 </div>
+                <div>
+                    <p>Tổng cộng profile hiện có: <span class="text-danger fw-bold" v-html="data_project.length"></span></p>
+                </div>
             </div>
             <div class="d-flex justify-content-end gap-3 mb-4">
                 <span class="btn btn-success" data-coreui-toggle="tooltip" data-coreui-placement="top"
@@ -142,7 +145,7 @@ ${% block breadcrumb %}
                     this.status.find(s => s == item.status) ? null : this.status.push(item.status)
                     this.device.find(d => d == item.device) ? null : this.device.push(item.device)
 
-                    return item.device + " || " + item.status
+                    return item.profile + " || " + item.device + " || " + item.status
                 }).join('\n\n');
             }
         },
@@ -169,6 +172,7 @@ ${% block breadcrumb %}
                 $('#staticBackdropPostServer').modal('show');
             },
             CopyURL() {
+                if (navigator.clipboard) {
                 navigator.clipboard.writeText(this.api_url)
                     .then(() => {
                         Toast.fire({
@@ -182,8 +186,15 @@ ${% block breadcrumb %}
                             title: "Copy link thất bại"
                         });
                     });
+                }else{
+                    Toast.fire({
+                        icon: "error",
+                        title: "Trình duyệt không hỗ trợ"
+                    });
+                }
             },
             CopyTemplateData() {
+                if (navigator.clipboard) {
                 navigator.clipboard.writeText(`{
                         "profile": "Tên profile",
                         "device": "Tên thiết bị (pc1, pc2, pc3,...)",
@@ -201,7 +212,13 @@ ${% block breadcrumb %}
                             icon: "error",
                             title: "Copy mẫu dữ liệu thất bại"
                         });
-                    });;
+                    })
+                }else{
+                    Toast.fire({
+                        icon: "error",
+                        title: "Trình duyệt không hỗ trợ"
+                    });
+                }
             },
             async Delete() {
                 if (this.data_project.length == 0) {

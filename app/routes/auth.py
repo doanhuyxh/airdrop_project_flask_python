@@ -33,13 +33,12 @@ def login_post():
         return jsonify({"code": 400, "message": "Thiếu username hoặc password"}), 200
     
     user = current_app.user_system.find_one({"username": username, "password": password})
-    print(user)
     if not user:
-        return jsonify({"code": 202, "message": "Tài khoản không tồn tại"}), 200
+        return jsonify({"code": 405, "message": "Tài khoản không tồn tại"}), 200
     
     token = create_token(str(user.get("_id")), user.get("username"))
     response = jsonify({"code": 200, "message": "Login successfully", "token": token})
-    response.set_cookie('token', token, httponly=True, secure=True)
+    response.set_cookie('token', token, httponly=True, secure=False)
     
     return response, 200
     
