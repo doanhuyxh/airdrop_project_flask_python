@@ -33,7 +33,7 @@
     <div class="container shadow-lg bg-light rounded p-4 mt-5">
         <div class="d-flex justify-content-between mb-3">
             <div>
-                <input class="form-control" v-model="search" v-on:keyup="getProjectsPoint" placeholder="Nhập từ khoá" />
+                <input class="form-control" v-model="search" v-on:keyup="getProjectsDetailPoint" placeholder="Nhập từ khoá" />
             </div>
             <span class="btn btn-success" data-coreui-toggle="tooltip" data-coreui-placement="top"
                 data-coreui-title="Mẫu dữ liệu api bắn lên server" v-on:click="ShowPostDataKeyServer">
@@ -43,9 +43,11 @@
         <table class="table">
             <thead>
                 <tr>
-                    <td>STT</td>
-                    <td>Profile</td>
-                    <td>Điểm</td>
+                    <th>STT</th>
+                    <th>Profile</th>
+                    <th>Điểm</th>
+                    <th>Trạng thái</th>
+                    <td></td>
                 </tr>
             </thead>
             <tbody>
@@ -53,6 +55,13 @@
                     <td v-html="index + 1"></td>
                     <td v-html="item.profile"></td>
                     <td v-html="item.point"></td>
+                    <td v-html="item.status"></td>
+                    <td>
+                        <span class="btn btn-danger" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                            data-coreui-title="Xóa điểm" v-on:click="Delete(item._id)">
+                            <i class="fa-solid fa-trash"></i>
+                        </span>
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -116,13 +125,13 @@
             api_url: `${window.location.origin}/api/project/detail/point/push`
         },
         mounted() {
-            this.getProjectsPoint();
+            this.getProjectsDetailPoint();
         },
         computed: {
 
         },
         methods: {
-            getProjectsPoint() {
+            getProjectsDetailPoint() {
                 fetch('/project/detail/point/get_data?id={{project._id}}&search=' + this.search, {
                     method: 'GET',
                     headers: {
@@ -189,7 +198,34 @@
                     });
                 }
             },
+            Delete(id) {
+                fetch('/project/detail/point/delete?id=' + id, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(response => {
+                        if (response.code == 200) {
+                            this.getProjectsDetailPoint();
+                            Toast.fire({
+                                icon: "success",
+                                title: "Xóa điểm thành công"
+                            });
+                        }
+                        else {
+                            Toast.fire({
+                                icon: "error",
+                                title: response.message
+                            });
+                        }
+                    })
+            }
         }
     });
+
 </script>
+
+
 {% endblock %}

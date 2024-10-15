@@ -27,60 +27,64 @@ def check_token():
 def index():
     return render_template("project/index.html")
 
+
 @project.route("/project/list", methods=["GET"])
 def get_data():
-    
+
     page = int(request.args.get("page", 1))
     pageSize = int(request.args.get("pageSize", 10))
-    
+
     projects = current_app.project.find().skip((page - 1) * pageSize).limit(pageSize)
     data = []
     for project in projects:
         project["_id"] = str(project["_id"])
         project["created_at"] = project["created_at"].strftime("%d-%m-%Y")
-      
-        
+
         if project["created_at"] is not None:
             project["created_at"] = project["created_at"]
         else:
             project["created_at"] = None
-            
+
         if project["start_date"] is not None:
             project["start_date"] = project["start_date"].strftime("%d-%m-%Y")
         else:
             project["end_date"] = None
-            
+
         if project["end_date"] is not None:
             project["end_date"] = project["end_date"].strftime("%d-%m-%Y")
         else:
             project["end_date"] = None
 
-        project["created_by"] = current_app.user_system.find_one({"_id": project["created_by"]}).get("username")
+        project["created_by"] = current_app.user_system.find_one(
+            {"_id": project["created_by"]}
+        ).get("username")
         data.append(project)
     return jsonify({"code": 200, "data": data}), 200
+
 
 @project.route("/project/form", methods=["GET"])
 def create():
     id = request.args.get("id")
-    
+
     if id is None:
         return render_template("project/form.html")
-    
+
     project = current_app.project.find_one({"_id": ObjectId(id)})
-    
+
     if project is None:
         return render_template("project/form.html")
-    
+
     project["id"] = str(project["_id"])
     project["start_date"] = project["start_date"].strftime("%Y-%m-%d")
     project["end_date"] = project["end_date"].strftime("%Y-%m-%d")
-    
+
     print(project)
     return render_template("project/form.html", project=project)
-    
+
+
 @project.route("/project/save", methods=["POST"])
 def store():
-    
+
     admin_id = request.current_user_id
     data = request.form
     project_id = data.get("project_id")
@@ -91,20 +95,20 @@ def store():
     end_date = data.get("end_date")  # yyyy-mm-dd
     token_name = data.get("token_name")
     project_image = data.get("project_image")
-    
+
     project_slug = project_slug.lower()
     if start_date is None:
         start_date = datetime.now()
-    
+
     if end_date is None:
         start_date = datetime.now().__add__(timedelta(days=60))
-        
+
     if token_name is None or len(token_name) < 1:
         token_name = "Chưa rõ"
-    
+
     if project_image is None or len(project_image) < 3:
         project_image = "https://via.placeholder.com/150"
-    
+
     if project_id is None or len(project_id) < 3:
         current_app.project.insert_one(
             {
@@ -137,6 +141,7 @@ def store():
 
     return jsonify({"code": 200, "message": "Create project successfully"}), 200
 
+
 @project.route("/project/delete", methods=["GET"])
 def delete():
     id = request.args.get("id")
@@ -152,8 +157,11 @@ def detail():
     project["created_at"] = project["created_at"].strftime("%d-%m-%Y")
     project["start_date"] = project["start_date"].strftime("%d-%m-%Y")
     project["end_date"] = project["end_date"]
-    project["created_by"] = current_app.user_system.find_one({"_id": project["created_by"]}).get("username")
+    project["created_by"] = current_app.user_system.find_one(
+        {"_id": project["created_by"]}
+    ).get("username")
     return render_template("project/detail.html", project=project)
+
 
 @project.route("/project/detail/get_data", methods=["POST"])
 def data_detail_get():
@@ -161,30 +169,27 @@ def data_detail_get():
     device = request.json.get("device")
     status = request.json.get("status")
     search = request.json.get("search")
-    
-    print(project_id, device, status)
-    
+
     query = {"project_id": ObjectId(project_id)}
-    
+
     if device:
         query["device"] = {"$regex": device, "$options": "i"}
     if status:
         query["status"] = status
-        
+
     if search:
         query["profile"] = {"$regex": search, "$options": "i"}
-        
 
     project_detail_data = current_app.project_detail.find(query).sort("_id", -1)
-    
+
     data = []
     for detail in project_detail_data:
         detail["_id"] = str(detail["_id"])
         detail["project_id"] = str(detail["project_id"])
         data.append(detail)
-        
+
     return jsonify({"code": 200, "data": data}), 200
-    
+
 
 @project.route("/project/detail/delete", methods=["GET"])
 def delete_detail():
@@ -201,7 +206,9 @@ def project_detail_point():
     project["created_at"] = project["created_at"].strftime("%d-%m-%Y")
     project["start_date"] = project["start_date"].strftime("%d-%m-%Y")
     project["end_date"] = project["end_date"]
-    project["created_by"] = current_app.user_system.find_one({"_id": project["created_by"]}).get("username")
+    project["created_by"] = current_app.user_system.find_one(
+        {"_id": project["created_by"]}
+    ).get("username")
     return render_template("project/project_detail_point.html", project=project)
 
 
@@ -209,19 +216,26 @@ def project_detail_point():
 def project_detail_point_get():
     project_id = request.args.get("id")
     search = request.args.get("search")
-    
+
     query = {"project_id": ObjectId(project_id)}
-    
+
     if search:
         query["profile"] = {"$regex": search, "$options": "i"}
-    
-    
-    project_detail_point_data = current_app.project_detail_point.find(query).sort("_id", -1)
+
+    project_detail_point_data = current_app.project_detail_point.find(query).sort(
+        "_id", -1
+    )
     data = []
     for detail in project_detail_point_data:
         detail["_id"] = str(detail["_id"])
         detail["project_id"] = str(detail["project_id"])
         data.append(detail)
-    
-    print(data)
+
     return jsonify({"code": 200, "data": data}), 200
+
+
+@project.route("/project/detail/point/delete", methods=["GET"])
+def delete_detail_point():
+    id = request.args.get("id")
+    current_app.project_detail_point.delete_one({"_id": ObjectId(id)})
+    return jsonify({"code": 200, "message": "Delete detail point successfully"}), 200
