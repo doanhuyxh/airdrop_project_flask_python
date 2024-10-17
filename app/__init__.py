@@ -3,7 +3,7 @@ import traceback
 from flask import Flask, jsonify
 from pymongo import MongoClient, ASCENDING
 from werkzeug.exceptions import HTTPException
-from flask_swagger_ui import get_swaggerui_blueprint
+#from flask_swagger_ui import get_swaggerui_blueprint
 import logging
 
 from app.middlewares.auth import token_update
@@ -20,7 +20,7 @@ def create_app():
     
     # Connect to MongoDB and define the collection
     client = MongoClient(Config.MONGO_URI)
-    app.db = client.get_default_database()
+    app.db = client.get_database(Config.DATABASE)
 
     app.user_system = app.db["user_system"]
     app.project = app.db["project"]

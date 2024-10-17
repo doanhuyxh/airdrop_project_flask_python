@@ -8,7 +8,7 @@ def create_token(obj_id, username):
     token_payload = {
         "id": obj_id,
         'user': username,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=20)
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=20)
     }
     token = jwt.encode(token_payload, Config.SECRET_KEY, algorithm='HS256')
     return token
@@ -18,7 +18,7 @@ def create_refresh_token(obj_id, username):
     refresh_token_payload = {
         "id": obj_id,
         'user': username,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7)
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=2)
     }
     refresh_token = jwt.encode(refresh_token_payload, Config.SECRET_KEY, algorithm='HS256')
     return refresh_token

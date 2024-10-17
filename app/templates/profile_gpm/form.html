@@ -26,30 +26,12 @@ ${% block breadcrumb %}
 <div class="container-lg px-4">
     <div class="card mb-4 mx-4">
         <div class="card-body p-4">
-            <div class="row">
-                <div class="col-md-12">
-                    <input class="d-none" type="text" id="profile_id" value="{{ profile.id if profile else '' }}">
-                    <div class="mb-3">
-                        <label class="form-label">Tên profile</label>
-                        <input class="form-control" type="text" id="profile_name" placeholder="Tên profile"
-                            value="{{ profile.profile_name if profile else '' }}">
-                    </div>
-
-                    <div class=" mb-3">
-                        <label class="form-label">Thiết bị</label>
-                        <input class="form-control" type="text" id="profile_device"
-                            placeholder="Tên thiết bị (pc1, pc2, pc3,...)"
-                            value="{{ profile.profile_device if profile else '' }}">
-                    </div>
-                </div>
+            <div class="mb-3">
+                <p class="h5 text-center">Nhập profile <span class="mx-2 opacity-75">(Mỗi profile 1 dòng)</span></p>
+                <textarea class="form-control" id="profile" rows="20" placeholder="Tên profile || Thiết bị"></textarea>
             </div>
-
-            <div class=" mb-2">
-                <p class="text-danger" id="errors"></p>
-            </div>
-
             <div class="mb-3 d-flex justify-content-end">
-                <button class="btn btn-primary" type="button" onclick="save()">Lưu</button>
+                <button class="btn btn-primary" id="save" type="button" onclick="save()">Lưu</button>
             </div>
         </div>
     </div>
@@ -60,20 +42,54 @@ ${% block breadcrumb %}
 
 <script>
 
+    var isSuccess = false;
+
     async function save() {
-        let errors = [];
-        let profile_id = document.getElementById('profile_id').value;
-        let profileName = document.getElementById('profile_name').value;
-        let profileDevice = document.getElementById('profile_device').value;
+        try {
+            $("#profile").LoadingOverlay("show", {
+                background: "rgba(165, 190, 100, 0.5)"
+            });
+            $("#profile").LoadingOverlay("show")
 
+            $("#save").LoadingOverlay("show", {
+                background: "rgba(165, 190, 100, 0.5)"
+            });
+            $("#save").LoadingOverlay("show")
+            $("#save").attr("disabled", true);
 
-        let errorElement = document.getElementById('errors');
-        if (errors.length > 0) {
-            errorElement.innerHTML = errors.join("<br>");
+            let profile = document.getElementById('profile').value;
+            let profileArray = profile.split('\n');
+            for (let i = 0; i < profileArray.length; i++) {
+                let profileItem = profileArray[i].split('||');
+                let profileName = profileItem[0];
+                let profileDevice = profileItem[1];
+                await saveData(profileName, profileDevice);
+            }
+
+            isSuccess = true;
+
+        } catch (error) {
+            console.log(error);
+        } finally {
+            $("#profile").LoadingOverlay("hide", true);
+            $("#save").LoadingOverlay("hide", true);
+            $("#save").attr("disabled", false);
+            Swal.fire({
+                title: isSuccess ? 'Thành công' : 'Thất bại',
+                icon: isSuccess ? 'success' : 'error',
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                if (isSuccess) {
+                    window.location.href = '/profile_gpm';
+                }
+            });
         }
+    }
+
+    async function saveData(profileName, profileDevice) {
 
         let formData = new FormData();
-        formData.append('profile_id', profile_id);
         formData.append('profile_name', profileName);
         formData.append('profile_device', profileDevice);
 
@@ -82,32 +98,13 @@ ${% block breadcrumb %}
             jsonData[key] = value;
         })
 
-        let response = await fetch('/profile_gpm/save', {
+        await fetch('/profile_gpm/save', {
             method: 'POST',
             body: JSON.stringify(jsonData),
             headers: {
                 'Content-Type': 'application/json'
             }
         })
-            .then(response => response.json())
-            .then(data => {
-                if (data.code == 200) {
-                    Swal.fire({
-                        title: 'Lưu profile thành công',
-                        icon: 'success',
-                    }).then(() => {
-                        window.location.href = '/profile_gpm';
-                    });
-
-                } else {
-                    Swal.fire({
-                        title: 'Lưu profile thất bại',
-                        text: data.message,
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    });
-                }
-            });
 
     }
 </script>

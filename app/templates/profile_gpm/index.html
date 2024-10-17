@@ -30,13 +30,10 @@ ${% block breadcrumb %}
         </a>
 
         <div class="d-flex gap-5">
-            <button type="button" class="btn btn-success" data-coreui-toggle="tooltip" data-coreui-placement="top" data-coreui-title="Nhập profile bằng excell">
-                <i class="fa-regular fa-file-excel"></i>
-            </button>
-            
-            <button type="button" class="btn btn-danger" data-coreui-toggle="tooltip" data-coreui-placement="top" data-coreui-title="Xoá tất cả profile đã chọn">
+                       
+            <!-- <button type="button" class="btn btn-danger" data-coreui-toggle="tooltip" data-coreui-placement="top" data-coreui-title="Xoá tất cả profile đã chọn">
                 <i class="fa-solid fa-trash"></i>
-            </button>
+            </button> -->
 
           </div>
 
@@ -58,9 +55,6 @@ ${% block breadcrumb %}
                     <td v-html="item.profile_name"></td>
                     <td v-html="item.profile_device"></td>
                     <td>
-                        <a :href="'/profile_gpm/form?id='+item._id" class="btn btn-warning">
-                            <i class="fa-regular fa-pen-to-square"></i>
-                        </a>
                         <span class="btn btn-danger" v-on:click="deleteProfiles(item._id)">
                             <i class="fa-solid fa-trash"></i>
                         </span>

@@ -357,7 +357,7 @@ ${% block breadcrumb %}
 
             },
             DeleteALL() {
-                fetch("/project/detail/delete_all?id={{project._id}}")
+                fetch(`/project/detail/delete_all?id={{project._id}}&device=${this.filter_device}`)
                     .then(() => {
                         this.getProjects();
                     })

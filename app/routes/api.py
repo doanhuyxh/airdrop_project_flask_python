@@ -49,6 +49,8 @@ def project_detail_point_push():
     project_slug = data.get("project")
     status = data.get("status")
 
+    print(f"{datetime.now()} - {profiles} - {device} - {point} - {project_slug} - {status}")
+    
     with open("log.txt", "a") as f:
         f.write(f"{datetime.now()} - {profiles} - {device} - {point} - {project_slug} - {status}\n")
 

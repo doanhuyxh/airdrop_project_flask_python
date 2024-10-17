@@ -247,7 +247,14 @@ def delete_detail():
 @project.route("/project/detail/delete_all", methods=["GET"])
 def deleteAll_detail():
     project_id = request.args.get("id")
-    current_app.project_detail.delete_many({"project_id": ObjectId(project_id)})
+    device = request.args.get("device")
+    
+    query = {"project_id": ObjectId(project_id)}
+    
+    if device and len(device) > 0:
+        query["device"] = device
+    
+    current_app.project_detail.delete_many(query)
     return jsonify({"code": 200, "message": "Delete all detail successfully"}), 200
 
 
