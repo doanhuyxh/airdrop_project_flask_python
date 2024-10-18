@@ -279,12 +279,16 @@ def project_detail_point_get():
     page = request.json.get("page")
     pageSize = request.json.get("pageSize")
     order_by = request.json.get("order_by")
+    device = request.json.get("device")
 
     query = {"project_id": ObjectId(project_id)}
 
     if search:
         query["profile"] = {"$regex": search, "$options": "i"}
-
+    
+    if device is not None:
+        query["device"] = device    
+    
     if order_by is None:
         order_by = "_id"
 
@@ -339,3 +343,18 @@ def delete_detail_point():
     id = request.args.get("id")
     current_app.project_detail_point.delete_one({"_id": ObjectId(id)})
     return jsonify({"code": 200, "message": "Delete detail point successfully"}), 200
+
+@project.route("/project/detail/point/delete_all", methods=["POST"])
+def delete_all_detail_point():
+    project = request.json.get("project")
+    device = request.json.get("device")
+    
+    if project is None:
+        return jsonify({"code": 400, "message": "Project is required"}), 200
+    
+    if device is None:
+        return jsonify({"code": 400, "message": "Device is required"}), 200
+    
+    current_app.project_detail_point.delete_many({"project_id": ObjectId(project), "device": device})
+    return jsonify({"code": 200, "message": "Delete All detail point successfully"}), 200
+

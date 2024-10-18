@@ -23,23 +23,23 @@ ${% block breadcrumb %}
 {% block content %}
 
 
-<div class="container-fluid px-4">
-    <div class="mx-5 mb-3 d-flex justify-content-between">
-        <a href="/profile_gpm/form" class="btn btn-primary" data-coreui-toggle="tooltip" data-coreui-placement="top" data-coreui-title="Thêm 1 profile mới">
-            <i class="fa-solid fa-plus"></i>
-        </a>
-
-        <div class="d-flex gap-5">
-                       
-            <!-- <button type="button" class="btn btn-danger" data-coreui-toggle="tooltip" data-coreui-placement="top" data-coreui-title="Xoá tất cả profile đã chọn">
-                <i class="fa-solid fa-trash"></i>
-            </button> -->
-
-          </div>
-
-    </div>
-
+<div class="container shadow-lg bg-body rounded px-5 pt-4 pb-5">
+  
     <div class="table-responsive">
+        
+            <div class="d-flex justify-content-between gap-3 mb-3">
+                <div class="">
+                    <select class="form-control" id="filter_device" v-model="filter_device" @change="getProfiles()">
+                        <option value="">Thiết bị (tất cả)</option>
+                        <option v-for="item in device" :key="item" :value="item" v-html="item"></option>
+                    </select>
+                </div>
+                <a href="/profile_gpm/form" class="btn btn-primary" data-coreui-toggle="tooltip" data-coreui-placement="top" data-coreui-title="Tạo profile mới">
+                    <i class="fa-solid fa-plus"></i>
+                </a>
+            </div>
+        
+
         <table class="table table-hover table-striped table-bordered">
             <thead>
                 <tr>
@@ -62,7 +62,28 @@ ${% block breadcrumb %}
                 </tr>
             </tbody>
         </table>
-
+        <div class="my-4 d-flex justify-content-between">
+            <div>
+                <p>hiển thị: <span class="text-danger fw-bold" v-html="profiles.length"></span> của <span
+                        class="text-danger fw-bold" v-html="totalResults"></span> kết quả</p>
+            </div>
+            <div v-if="totalPages > 1" class="btn-group gap-2">
+                <button @click="changePage(current_page - 1)" :disabled="current_page === 1" class="btn btn-info">
+                    Trước
+                </button>
+            
+                <button v-for="page in pagesToShow" :key="page" @click="changePage(page)"
+                    :class="{ 'btn-danger': current_page === page, btn: true }" class="btn">
+                    <span v-html="page"></span>
+                </button>
+            
+                <button @click="changePage(current_page + 1)" :disabled="current_page === totalPages"
+                    class="btn btn-info">
+                    Tiếp
+                </button>
+            </div>
+            
+        </div>
     </div>
 </div>
 
@@ -72,18 +93,60 @@ ${% block breadcrumb %}
     var app_vue = new Vue({
         "el": "#app",
         "data": {
-            "profiles": []
+            "profiles": [],
+            current_page: 1,
+            device: [],
+            filter_device: "",
+            pageSize: 25,
+            totalPages: 0,
+            totalResults: 0,
+            order_by: "_id",
         },
         "mounted": function () {
             this.getProfiles();
         },
+        computed: {
+            pagesToShow() {
+                const pages = [];
+                const startPage = Math.max(1, this.current_page - 3);
+                const endPage = Math.min(this.totalPages, this.current_page + 3);
+
+                for (let i = startPage; i <= endPage; i++) {
+                    pages.push(i);
+                }
+
+                return pages;
+            }
+        },
         "methods": {
             "getProfiles": function () {
-                fetch("/profile_gpm/list").then(response => {
+                fetch("/profile_gpm/list",{
+                    method:"POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        "page": this.current_page,
+                        "pageSize": this.pageSize,
+                        "order_by": this.order_by,
+                        "device": this.filter_device
+                    })
+                }).then(response => {
                     return response.json();
                 }).then(data => {
                     this.profiles = data.data;
+                    this.totalPages = data.totalPages;
+                    this.totalResults = data.totalResults;
+                    data.data.forEach(item => {
+                            this.device.find(d => d == item.profile_device) ? null : this.device.push(item.profile_device)
+                        });
                 });
+            },
+            changePage(page) {
+                if (page >= 1 && page <= this.totalPages) {
+                    this.current_page = page;
+                    this.getProjects();
+                }
             },
             deleteProfiles(id) {
                 Swal.fire({

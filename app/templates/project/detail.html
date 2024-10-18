@@ -68,10 +68,9 @@ ${% block breadcrumb %}
                     <i class="fa-solid fa-trash"></i>
                 </span>
                 <span class="btn btn-danger" data-coreui-toggle="tooltip" data-coreui-placement="top"
-                    data-coreui-title="Xoá tất cả bản ghi trong csdl" v-on:click="DeleteALL">
+                    data-coreui-title="Xoá tất cả bản ghi theo server (thiết bị) đang chọn" v-on:click="DeleteALL">
                     <i class="fa-solid fa-trash"></i>
                 </span>
-
             </div>
         </div>
 
@@ -309,12 +308,7 @@ ${% block breadcrumb %}
             },
             CopyTemplateData() {
                 if (navigator.clipboard) {
-                    navigator.clipboard.writeText(`{
-                        "profile": "Tên profile",
-                        "device": "Tên thiết bị (pc1, pc2, pc3,...)",
-                        "status": "Trạng thái (Đã hoàn thành, Chưa hoàn thành)",
-                        "project": "{{project.project_slug}}"
-                    }`)
+                    navigator.clipboard.writeText(`{"profile":"Tên profile","device":"Tên thiết bị (pc1, pc2, pc3,...)","status":"Trạng thái (Đã hoàn thành, Chưa hoàn thành)","project":"{{project.project_slug}}"}`)
                         .then(() => {
                             Toast.fire({
                                 icon: "success",
@@ -349,7 +343,8 @@ ${% block breadcrumb %}
 
                 Toast.fire({
                     icon: "success",
-                    title: "Xoá thành công"
+                    title: "Xoá thành công",
+                    timer:1000
                 }).then(() => {
                     this.getProjects();
                     this.selectedRows = [];

@@ -48,12 +48,7 @@ def project_detail_point_push():
     point = data.get("point")
     project_slug = data.get("project")
     status = data.get("status")
-
-    print(f"{datetime.now()} - {profiles} - {device} - {point} - {project_slug} - {status}")
     
-    with open("log.txt", "a") as f:
-        f.write(f"{datetime.now()} - {profiles} - {device} - {point} - {project_slug} - {status}\n")
-
     project = current_app.project.find_one({"project_slug": str(project_slug).lower()})
     
     check_exit = current_app.project_detail_point.find_one(
@@ -81,7 +76,7 @@ def project_detail_point_push():
                 "device": device,
                 "point": point,
                 "last_time": datetime.now(),
-                "status": None,
+                "status": status,
             }
         )
     else:
@@ -92,7 +87,7 @@ def project_detail_point_push():
                 "device": device,
                 "point": point,
                 "last_time": datetime.now(),
-                "status": None,
+                "status": status,
             }
         )
 
