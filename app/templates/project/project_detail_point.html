@@ -231,10 +231,7 @@
                         this.data_project = response.data;
                         this.totalPages = response.totalPages;
                         this.totalResults = response.totalResults;
-
-                        response.data.forEach(item => {
-                            this.device.find(d => d == item.device) ? null : this.device.push(item.device)
-                        });
+                        this.device = response.list_devices;
 
                     })
             },

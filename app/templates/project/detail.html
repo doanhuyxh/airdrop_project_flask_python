@@ -263,11 +263,7 @@ ${% block breadcrumb %}
                         this.data_project = response.data;
                         this.totalPages = response.totalPages;
                         this.totalResults = response.totalResults;
-
-                        response.data.forEach(item => {
-                            this.status.find(s => s == item.status) ? null : this.status.push(item.status)
-                            this.device.find(d => d == item.device) ? null : this.device.push(item.device)
-                        });
+                        this.device = response.list_devices;
                     })
             },
             changePage(page) {

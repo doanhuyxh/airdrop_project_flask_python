@@ -191,6 +191,8 @@ def data_detail_get():
     if order_by is None:
         order_by = "_id"
 
+    list_devices = current_app.project_detail.distinct("device", {"project_id": ObjectId(project_id)})
+    
     total_results = current_app.project_detail.count_documents(query)
     total_pages = ceil(total_results / pageSize)
     skip = (page - 1) * pageSize
@@ -217,6 +219,7 @@ def data_detail_get():
                 "pageSize": pageSize,
                 "totalPages": total_pages,
                 "totalResults": total_results,
+                "list_devices": list_devices,
             }
         ),
         200,
@@ -280,17 +283,21 @@ def project_detail_point_get():
     pageSize = request.json.get("pageSize")
     order_by = request.json.get("order_by")
     device = request.json.get("device")
-
+    
     query = {"project_id": ObjectId(project_id)}
 
     if search:
         query["profile"] = {"$regex": search, "$options": "i"}
     
-    if device is not None:
+    if device is not None and len(device) > 0:
         query["device"] = device    
     
     if order_by is None:
         order_by = "_id"
+
+    print(query)
+
+    list_devices = current_app.project_detail_point.distinct("device", {"project_id": ObjectId(project_id)})
 
     total_results = current_app.project_detail_point.count_documents(query)
     total_pages = ceil(total_results / pageSize)
@@ -318,6 +325,7 @@ def project_detail_point_get():
                 "pageSize": pageSize,
                 "totalPages": total_pages,
                 "totalResults": total_results,
+                "list_devices": list_devices,
             }
         ),
         200,
