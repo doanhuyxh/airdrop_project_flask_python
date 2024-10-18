@@ -8,9 +8,10 @@ from flask import (
     Blueprint,
     current_app,
 )
+import json
 from app.middlewares.auth import token_required
 from app.ultils.time_ultils import convertTime
-from bson import ObjectId
+from bson import ObjectId, json_util
 from datetime import datetime, timedelta
 import logging
 from math import ceil
@@ -54,12 +55,10 @@ def get_data():
             project["end_date"] = project["end_date"].strftime("%d-%m-%Y")
         else:
             project["end_date"] = None
-
-        project["created_by"] = current_app.user_system.find_one(
-            {"_id": project["created_by"]}
-        ).get("username")
+            
         data.append(project)
-    return jsonify({"code": 200, "data": data}), 200
+        
+    return jsonify({"code": 200, "data": json.loads(json_util.dumps(data))}), 200
 
 
 @project.route("/project/form", methods=["GET"])
@@ -161,9 +160,7 @@ def detail():
         project["start_date"] = project["start_date"].strftime("%d-%m-%Y")
     if project["end_date"] is not None:
         project["end_date"] = project["end_date"].strftime("%d-%m-%Y")
-    project["created_by"] = current_app.user_system.find_one(
-        {"_id": project["created_by"]}
-    ).get("username")
+    
     return render_template("project/detail.html", project=project)
 
 
@@ -266,12 +263,9 @@ def project_detail_point():
     project_id = request.args.get("id")
     project = current_app.project.find_one({"_id": ObjectId(project_id)})
     project["_id"] = str(project["_id"])
-    project["created_at"] = project["created_at"].strftime("%d-%m-%Y")
-    project["start_date"] = project["start_date"].strftime("%d-%m-%Y")
+    project["created_at"] = project["created_at"]
+    project["start_date"] = project["start_date"]
     project["end_date"] = project["end_date"]
-    project["created_by"] = current_app.user_system.find_one(
-        {"_id": project["created_by"]}
-    ).get("username")
     return render_template("project/project_detail_point.html", project=project)
 
 

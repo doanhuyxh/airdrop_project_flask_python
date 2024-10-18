@@ -75,6 +75,8 @@ def register_post():
             "username": username,
             "email": email,
             "password": password,
+            "role":"user",
+            "status":"de_active",
             "created_at": datetime.now(),
         }
     )
