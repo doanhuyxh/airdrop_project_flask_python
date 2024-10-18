@@ -57,6 +57,7 @@ def create_app():
     from .routes.upload import upload
     from .routes.profile_gpm import profile_gpm
     from .routes.api import api
+    from .routes.user_system import user_system
     app.register_blueprint(main)
     app.register_blueprint(auth)
     app.register_blueprint(dashboard)
@@ -64,6 +65,7 @@ def create_app():
     app.register_blueprint(upload)
     app.register_blueprint(profile_gpm)
     app.register_blueprint(api)
+    app.register_blueprint(user_system)
     
     clear_all_pycache()
     

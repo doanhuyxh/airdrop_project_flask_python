@@ -7,21 +7,21 @@ from flask import (
     render_template,
     current_app,
     Blueprint,
+    make_response
 )
-from datetime import datetime
+from datetime import datetime, timedelta
 from bson import ObjectId
 import threading
 
 from app.ultils.time_ultils import get_current_time, check_time_difference
 from app.ultils.jwt_token import create_token, create_refresh_token
+from app.middlewares.auth import clear_cookies
 
 auth = Blueprint("auth", __name__)
-
 
 @auth.route("/login", methods=["GET"])
 def login():
     return render_template("auth/login.html")
-
 
 @auth.route("/login", methods=["POST"])
 def login_post():
@@ -36,11 +36,18 @@ def login_post():
     if not user:
         return jsonify({"code": 405, "message": "Tài khoản không tồn tại"}), 200
     
+    
+    if user.get("status") == "de_active":
+        return jsonify({"code": 405, "message": "Tài khoản chưa kích hoạt"}), 200
+    
+    if user.get("status") == "block":
+        return jsonify({"code": 405, "message": "Tài khoản đã bị khóa"}), 200
+    
     token = create_token(str(user.get("_id")), user.get("username"))
     refresh_token = create_refresh_token(str(user.get("_id")), user.get("username"))
     response = jsonify({"code": 200, "message": "Login successfully", "token": token})
-    response.set_cookie('token', token, httponly=True, secure=False)
-    response.set_cookie('refresh_token', refresh_token, httponly=True, secure=False)
+    response.set_cookie('token', token, httponly=True, secure=False, path='/', expires=datetime.now() + timedelta(minutes=10))
+    response.set_cookie('refresh_token', refresh_token, httponly=True, secure=False,  path='/', expires=datetime.now() + timedelta(days=1))
     
     
     return response, 200
@@ -82,3 +89,9 @@ def register_post():
     )
 
     return jsonify({"code": 200, "message": "Register successfully"}), 200
+
+
+@auth.route("/logout", methods=["GET"])
+@clear_cookies
+def logout():
+    return redirect("/login")

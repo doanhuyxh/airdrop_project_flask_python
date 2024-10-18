@@ -1,4 +1,4 @@
-from flask import request, jsonify, redirect, g
+from flask import request, jsonify, redirect, g, make_response
 from functools import wraps
 from app.ultils.jwt_token import verify_token, create_refresh_token, create_token
 
@@ -40,4 +40,17 @@ def token_update(f):
             response.set_cookie('refresh_token', g.new_refresh_token, httponly=True, secure=False, samesite='Strict')
         return response
     
+    return decorated
+
+
+def clear_cookies(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        response = f(*args, **kwargs)
+    
+        if isinstance(response, str):
+            response = make_response(response)
+        response.delete_cookie('token')
+        response.delete_cookie('refresh_token')
+        return response
     return decorated

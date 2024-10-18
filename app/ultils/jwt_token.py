@@ -30,3 +30,4 @@ def verify_token(token):
         return None, 'Signature has expired'
     except jwt.InvalidTokenError:
         return None, 'Invalid token'
+    
