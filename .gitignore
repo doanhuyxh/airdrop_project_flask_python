@@ -4,3 +4,4 @@
 **/*.pyc
 **/*.pyo
 **/*.pyd
+config.py
