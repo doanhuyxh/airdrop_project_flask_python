@@ -1,0 +1,416 @@
+{% extends "share/Main_Layout.html" %}
+
+{% block title %}
+
+{{wallet.name}}
+
+{% endblock %}
+
+
+${% block breadcrumb %}
+
+<div class="container-fluid px-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb my-0">
+            <li class="breadcrumb-item"><a href="/wallet">Quản lý ví</a></li>
+            <li class="breadcrumb-item"><span>{{wallet.name}}</span></li>
+        </ol>
+    </nav>
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+
+<div class="container-fluid">
+    <h3 class="text-center text-danger">{{wallet.name}}</h3>
+
+    <div class="container shadow-lg bg-light rounded p-4 mt-5">
+        <div class="d-flex justify-content-between">
+            <div class="w-75 d-flex gap-2">
+                <div>
+                    <select class="form-select" v-model="filter_status" v-on:change="getWallet">
+                        <option value="" selected>Trạng thái</option>
+                        <option v-for="(item, index) in status" :value="item" :key="index" v-html="item"></option>
+                    </select>
+                </div>
+                <div>
+                    <select class="form-select" v-model="filter_device" v-on:change="getWallet">
+                        <option value="" selected>Server (Thiết bị)</option>
+                        <option v-for="(item, index) in device" :value="item" :key="index" v-html="item"></option>
+                    </select>
+                </div>
+                <div>
+                    <input type="text" class="form-control w-100" placeholder="Tìm kiếm profile" v-model="search"
+                        v-on:keyup="getWallet">
+                </div>
+                <div>
+                    <p>Tổng cộng profile hiện có: <span class="text-danger fw-bold" v-html="totalResults"></span></p>
+                </div>
+            </div>
+            <div class="d-flex justify-content-end gap-3 mb-4">
+                <span class="btn btn-success" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                    data-coreui-title="Mẫu dữ liệu api bắn lên server" v-on:click="ShowPostDataKeyServer">
+                    <i class="fa-solid fa-code"></i>
+                </span>
+                <span class="btn btn-info" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                    data-coreui-title="Xuất data đang có thành excel" v-on:click="ExportExcel">
+                    <i class="fa-solid fa-file-excel"></i>
+                </span>
+                <span class="btn btn-warning" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                    data-coreui-title="Xoá tất cả bản ghi đang chọn" v-on:click="Delete">
+                    <i class="fa-solid fa-trash"></i>
+                </span>
+                <span class="btn btn-danger" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                    data-coreui-title="Xoá tất cả bản ghi theo server (thiết bị) đang chọn" v-on:click="DeleteALL">
+                    <i class="fa-solid fa-trash"></i>
+                </span>
+            </div>
+        </div>
+
+        <div class="w-100">
+            <table class="table table-bordered table-hover" @mousedown="startDrag" @mouseup="stopDrag">
+                <thead class="table-primary">
+                    <tr>
+                        <th @click="sort('_id')" class="pointer" style="width: 5em;">
+                            STT
+                            <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                        </th>
+                        <th @click="sort('profile')" class="pointer">
+                            Profile
+                            <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                        </th>
+                        <th @click="sort('device')" class="pointer">
+                            Thiết bị
+                            <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                        </th>
+                        <th @click="sort('status')" class="pointer">
+                            Địa chỉ
+                            <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                        </th>
+                        <th @click="sort('status')" class="pointer">
+                            Mật khẩu
+                            <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                        </th>
+                        <th @click="sort('status')" class="pointer">
+                            Mã 12 ký tự
+                            <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                        </th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(item, index) in data_wallet" :key="item._id" @click="selectRow(item._id)"
+                        @mouseover="isDragging ? selectRow(item._id) : null"
+                        :class="{ 'selected-row': selectedRows.includes(item._id) }">
+                        <td>
+                            <div v-html="index + 1"></div>
+                        </td>
+                        <td>
+                            <div contenteditable="true" class="form-control"
+                                @keyup="Update($event, item._id, 'profile')" v-html="item.profile">
+                            </div>
+                        </td>
+                        <td>
+                            <div contenteditable="true" class="form-control" @keyup="Update($event, item._id, 'device')"
+                                v-html="item.device">
+                            </div>
+                        </td>
+                        <td>
+                            <div contenteditable="true" class="form-control" @keyup="Update($event, item._id, 'address')"
+                                v-html="item.address">
+                            </div>
+                        </td>
+                        <td>
+                            <div contenteditable="true" class="form-control" @keyup="Update($event, item._id, 'password')"
+                                v-html="item.password">
+                            </div>
+                        </td>
+                        <td>
+                            <div contenteditable="true" class="form-control" @keyup="Update($event, item._id, 'recovery_phrase')"
+                                v-html="item.recovery_phrase">
+                            </div>
+                        </td>
+
+                    </tr>
+
+                </tbody>
+            </table>
+            <div class="my-4 d-flex justify-content-between">
+                <div>
+                    <p>hiển thị: <span class="text-danger fw-bold" v-html="data_wallet.length"></span> của <span
+                            class="text-danger fw-bold" v-html="totalResults"></span> kết quả</p>
+                </div>
+                <div v-if="totalPages > 1" class="btn-group gap-2">
+                    <button @click="changePage(current_page - 1)" :disabled="current_page === 1" class="btn btn-info">
+                        Trước
+                    </button>
+                
+                    <button v-for="page in pagesToShow" :key="page" @click="changePage(page)"
+                        :class="{ 'btn-danger': current_page === page, btn: true }" class="btn">
+                        <span v-html="page"></span>
+                    </button>
+                
+                    <button @click="changePage(current_page + 1)" :disabled="current_page === totalPages"
+                        class="btn btn-info">
+                        Tiếp
+                    </button>
+                </div>
+                
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+<div class="modal fade" id="staticBackdropPostServer" data-coreui-backdrop="static" data-coreui-keyboard="false"
+    tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Các key cần có để push lên server thông tin chạy của ví
+                    {{wallet.name}}</h5>
+                <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Dữ liệu post lên dạng json</p>
+                <p>
+                    <span class="btn btn-secondary" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                        data-coreui-title="Copy link api" v-on:click="CopyURL">
+                        <i class="fa-regular fa-copy"></i>
+                    </span>
+                    <span id="url" v-html="api_url"></span>
+                </p>
+                <span class="btn btn-primary" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                    data-coreui-title="Copy mẫu dữ liệu bắn lên" v-on:click="CopyTemplateData">
+                    <i class="fa-regular fa-copy"></i>
+                </span>
+                <pre>
+                    <code>
+                    {
+                        "profile": "Tên profile",
+                        "device": "Tên thiết bị (pc1, pc2, pc3,...)",
+                        "wallet": "{{wallet.slug}}",
+                        "address": "địa chỉ ví",
+                        "password":"Mật khẩu ví",
+                        "recovery_phrase":"mã bí mật 12 ký tự"
+                    }
+                </code></pre>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-coreui-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block script %}
+
+<script>
+    var app_vue = new Vue({
+        el: '#app',
+        data: {
+            data_wallet: [],
+            status: [],
+            device: [],
+            filter_status: "",
+            filter_device: "",
+            search: "",
+            current_page: 1,
+            pageSize: 25,
+            totalPages: 0,
+            totalResults: 0,
+            order_by: "_id",
+            selectedRows: [],
+            isDragging: false,
+            api_url: `${window.location.origin}/api/wallet/detail/push`
+        },
+        mounted() {
+            this.getWallet();
+        },
+        computed: {
+            formattedData() {
+                console.log(this.data_wallet.length)
+                return this.data_wallet.map(item => {
+
+                    this.status.find(s => s == item.status) ? null : this.status.push(item.status)
+                    this.device.find(d => d == item.device) ? null : this.device.push(item.device)
+
+                    return item.profile + " || " + item.device + " || " + item.status
+                }).join('\n\n');
+            },
+            pagesToShow() {
+                const pages = [];
+                const startPage = Math.max(1, this.current_page - 3);
+                const endPage = Math.min(this.totalPages, this.current_page + 3);
+
+                for (let i = startPage; i <= endPage; i++) {
+                    pages.push(i);
+                }
+
+                return pages;
+            }
+        },
+        methods: {
+            getWallet() {
+                fetch('/wallet/detail/get_data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        "id": "{{wallet._id}}",
+                        "status": this.filter_status,
+                        "device": this.filter_device,
+                        "search": this.search,
+                        "page": this.current_page,
+                        "pageSize": this.pageSize,
+                        "order_by": this.order_by
+                    })
+                })
+                    .then(response => response.json())
+                    .then(response => {
+                        this.data_wallet = response.data;
+                        this.totalPages = response.totalPages;
+                        this.totalResults = response.totalResults;
+                        this.device = response.list_devices;
+                    })
+            },
+            changePage(page) {
+                if (page >= 1 && page <= this.totalPages) {
+                    this.current_page = page;
+                    this.getWallet();
+                }
+            },
+            sort(field) {
+                this.order_by = field;
+                this.page = 1;
+                this.getWallet();
+            },
+            ShowPostDataKeyServer() {
+                $('#staticBackdropPostServer').modal('show');
+            },
+            CopyURL() {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(this.api_url)
+                        .then(() => {
+                            Toast.fire({
+                                icon: "success",
+                                title: "Copy link thành công"
+                            });
+                        })
+                        .catch(() => {
+                            Toast.fire({
+                                icon: "error",
+                                title: "Copy link thất bại"
+                            });
+                        });
+                } else {
+                    Toast.fire({
+                        icon: "error",
+                        title: "Trình duyệt không hỗ trợ"
+                    });
+                }
+            },
+            CopyTemplateData() {
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(`{"profile":"Tên profile","device":"Tên thiết bị (pc1, pc2, pc3,...)","wallet":"{{wallet.slug}}","address":"địa chỉ ví","password":"Mật khẩu ví","recovery_phrase":"mã bí mật 12 ký tự"}`)
+                        .then(() => {
+                            Toast.fire({
+                                icon: "success",
+                                title: "Copy mẫu dữ liệu thành công"
+                            });
+                        })
+                        .catch(() => {
+                            Toast.fire({
+                                icon: "error",
+                                title: "Copy mẫu dữ liệu thất bại"
+                            });
+                        })
+                } else {
+                    Toast.fire({
+                        icon: "error",
+                        title: "Trình duyệt không hỗ trợ"
+                    });
+                }
+            },
+            async Delete() {
+                if (this.selectedRows.length == 0) {
+                    Toast.fire({
+                        icon: "error",
+                        title: "Không có dữ liệu để xoá"
+                    });
+                    return;
+                }
+
+                this.selectedRows.forEach(async item => {
+                    await fetch("/project/detail/delete?id=" + item)
+                });
+
+                Toast.fire({
+                    icon: "success",
+                    title: "Xoá thành công",
+                    timer:1000
+                }).then(() => {
+                    this.getWallet();
+                    this.selectedRows = [];
+                });
+
+            },
+            DeleteALL() {
+                fetch(`/project/wallet/delete_all?id={{wallet._id}}&device=${this.filter_device}`)
+                    .then(() => {
+                        this.getWallet();
+                    })
+            },
+            ExportExcel() {
+                let data = this.data_wallet.map(item => {
+                    return {
+                        "Profile": item.profile,
+                        "Device": item.device,
+                        "Trạng thái": item.status
+                    }
+                });
+
+                let ws = XLSX.utils.json_to_sheet(data);
+                let wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+                XLSX.writeFile(wb, "{{wallet.name}}.xlsx");
+            },
+            Update(event, id, field) {
+                let value = event.target.innerText;
+                fetch("/wallet/detail/update", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        id: id,
+                        field: field,
+                        value: value
+                    })
+                })
+            },
+            selectRow(id) {
+                if (this.selectedRows.includes(id)) {
+                    this.selectedRows = this.selectedRows.filter((rowId) => rowId !== id);
+                } else {
+                    this.selectedRows.push(id);
+                }
+            },
+            startDrag() {
+                this.isDragging = true;
+            },
+            stopDrag() {
+                this.isDragging = false;
+            },
+        }
+    });
+</script>
+
+{% endblock %}

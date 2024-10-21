@@ -21,12 +21,17 @@ def create_app():
     # Connect to MongoDB and define the collection
     client = MongoClient(Config.MONGO_URI)
     app.db = client.get_database(Config.DATABASE)
-
-    app.user_system = app.db["user_system"]
-    app.project = app.db["project"]
+    
     app.profile_gpm = app.db["profile_gpm"]
+    
+    app.user_system = app.db["user_system"]
+
+    app.project = app.db["project"]
     app.project_detail = app.db["project_detail"]
     app.project_detail_point = app.db["project_detail_point"]
+    
+    app.wallet =app.db["wallet"]
+    app.wallet_detail = app.db["wallet_detail"]
     
     # Register the schedule job
     # run_check_proxy_job()
@@ -58,6 +63,7 @@ def create_app():
     from .routes.profile_gpm import profile_gpm
     from .routes.api import api
     from .routes.user_system import user_system
+    from .routes.wallet import wallet
     app.register_blueprint(main)
     app.register_blueprint(auth)
     app.register_blueprint(dashboard)
@@ -66,6 +72,7 @@ def create_app():
     app.register_blueprint(profile_gpm)
     app.register_blueprint(api)
     app.register_blueprint(user_system)
+    app.register_blueprint(wallet)
     
     clear_all_pycache()
     

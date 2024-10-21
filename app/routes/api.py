@@ -48,15 +48,19 @@ def project_detail_point_push():
     point = data.get("point")
     project_slug = data.get("project")
     status = data.get("status")
-    
+
     project = current_app.project.find_one({"project_slug": str(project_slug).lower()})
-    
+
     check_exit = current_app.project_detail_point.find_one(
         {"profile": profiles, "device": device, "project_id": ObjectId(project["_id"])}
     )
     if check_exit:
         current_app.project_detail_point.update_one(
-            {"profile": profiles, "device": device, "project_id": ObjectId(project["_id"])},
+            {
+                "profile": profiles,
+                "device": device,
+                "project_id": ObjectId(project["_id"]),
+            },
             {"$set": {"point": point, "last_time": datetime.now(), "status": status}},
         )
         return (
@@ -67,7 +71,7 @@ def project_detail_point_push():
         )
 
     # tạo mới dữ liệu
-    
+
     if project is None:
         current_app.project_detail_point.insert_one(
             {
@@ -93,5 +97,78 @@ def project_detail_point_push():
 
     return (
         jsonify({"code": 200, "message": "Push project detail point successfully"}),
+        200,
+    )
+
+
+@api.route("/api/wallet/detail/push", methods=["POST"])
+def wallet_detail_push():
+    data = request.json
+    profile = data.get("profile")
+    device = data.get("device")
+    wallet_type = data.get("wallet")
+    address = data.get("address")
+    password = data.get("password")
+    recovery_phrase = data.get("recovery_phrase")
+
+    wallet = current_app.wallet.find_one({"slug": str(wallet_type).lower()})
+
+    if wallet is None:
+        current_app.wallet_detail.insert_one(
+            {
+                "profile": profile,
+                "device": device,
+                "wallet_id": None,
+                "address": address,
+                "password": password,
+                "recovery_phrase": recovery_phrase,
+                "last_time": datetime.now(),
+            }
+        )
+
+        return (
+            jsonify({"code": 200, "message": "Create wallet successfully"}),
+            200,
+        )
+
+    check_exit = current_app.wallet_detail.find_one(
+        {"profile": profile, "device": device, "wallet_id": ObjectId(wallet["_id"])}
+    )
+
+    if check_exit:
+        current_app.wallet_detail.update_one(
+            {
+                "profile": profile,
+                "device": device,
+                "wallet_id": ObjectId(wallet["_id"]),
+            },
+            {
+                "$set": {
+                    "address": address,
+                    "password": password,
+                    "recovery_phrase": recovery_phrase,
+                    "last_time": datetime.now(),
+                }
+            },
+        )
+        return (
+            jsonify({"code": 200, "message": "Update wallet successfully"}),
+            200,
+        )
+
+    current_app.wallet_detail.insert_one(
+        {
+            "profile": profile,
+            "device": device,
+            "wallet_id": ObjectId(wallet["_id"]),
+            "address": address,
+            "password": password,
+            "recovery_phrase": recovery_phrase,
+            "last_time": datetime.now(),
+        }
+    )
+
+    return (
+        jsonify({"code": 200, "message": "Create wallet successfully"}),
         200,
     )

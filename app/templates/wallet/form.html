@@ -1,0 +1,21 @@
+
+<input id="wallet_id" hidden value="{{ wallet.id if wallet else '' }}">
+
+<div class="mb-3">
+    <label class="form-label">Tên ví</label>
+    <input id="name" class="form-control" type="text" value="{{ wallet.name if wallet else '' }}">
+</div>
+
+<div class="mb-3">
+    <label class="form-label">Slug</label>
+    <input class="form-control" id="slug" type="text" value="{{ wallet.slug if wallet else '' }}">
+</div>
+
+
+<script>
+     document.getElementById('name').addEventListener('keyup', function () {
+        let projectName = this.value;
+        let projectSlug = removeVietnameseTones(projectName.toLowerCase()).replace(/[^a-z0-9]/g, '-');
+        document.getElementById('slug').value = projectSlug;
+    });
+</script>

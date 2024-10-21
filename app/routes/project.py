@@ -80,7 +80,6 @@ def create():
     if project["end_date"] is not None:
         project["end_date"] = project["end_date"].strftime("%Y-%m-%d")
 
-    print(project)
     return render_template("project/form.html", project=project)
 
 

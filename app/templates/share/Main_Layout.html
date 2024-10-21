@@ -95,6 +95,14 @@
                                 </li>
                                 
                                 <li class="nav-item">
+                                    <a class="nav-link" href="/wallet">
+                                        <span class="nav-icon">
+                                            <i class="fa-solid fa-wallet"></i>
+                                        </span>
+                                        <span>Quản lý Ví</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link" href="/user">
                                         <span class="nav-icon">
                                             <i class="fa-solid fa-user"></i>
@@ -153,6 +161,25 @@
             </div>
         </main>
     </div>
+
+
+    <div class="modal fade" id="staticBackdrop" data-coreui-backdrop="static" data-coreui-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="staticBackdropLabel"></h5>
+              <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="ModelBody">
+              
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-coreui-dismiss="modal">Đóng</button>
+              <button type="button" class="btn btn-primary" onclick="Save_Modal()">Lưu</button>
+            </div>
+          </div>
+        </div>
+      </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
