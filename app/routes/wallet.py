@@ -30,6 +30,7 @@ def check_token():
 def index():
     return render_template("wallet/index.html")
 
+
 @wallet.route("/wallet/list")
 def wallet_get_data():
     page = int(request.args.get("page", 1))
@@ -38,10 +39,11 @@ def wallet_get_data():
     projects = current_app.wallet.find().skip((page - 1) * pageSize).limit(pageSize)
     data = []
     for project in projects:
-        project["_id"] = str(project["_id"])    
+        project["_id"] = str(project["_id"])
         data.append(project)
-        
+
     return jsonify({"code": 200, "data": json.loads(json_util.dumps(data))}), 200
+
 
 @wallet.route("/wallet/form")
 def wallet_form():
@@ -60,6 +62,7 @@ def wallet_form():
 
     return render_template("wallet/form.html", wallet=wallet)
 
+
 @wallet.route("/wallet/save", methods=["POST"])
 def wallet_save():
 
@@ -75,20 +78,22 @@ def wallet_save():
         current_app.wallet.insert_one(
             {"name": name, "slug": slug, "created_at": datetime.now()}
         )
-        
+
     return jsonify({"code": 200, "message": "Create project successfully"}), 200
+
 
 @wallet.route("/wallet/delete")
 def wallet_delete():
-    id= request.args.get("id")
+    id = request.args.get("id")
     current_app.wallet.delete_one({"_id": ObjectId(id)})
     return jsonify({"code": 200, "message": "Delete project successfully"}), 200
 
+
 @wallet.route("/wallet/detail")
 def wallet_detail():
-    wallet_id= request.args.get("id")
+    wallet_id = request.args.get("id")
     wallet = current_app.wallet.find_one({"_id": ObjectId(wallet_id)})
-    wallet["_id"] = str(wallet["_id"])    
+    wallet["_id"] = str(wallet["_id"])
     return render_template("wallet/detail.html", wallet=wallet)
 
 
@@ -105,7 +110,7 @@ def wallet_detail_get_data():
     query = {"wallet_id": ObjectId(wallet_id)}
 
     if device:
-        query["device"] = {"$regex": device, "$options": "i"}
+        query["device"] = device
 
     if status:
         query["status"] = status
@@ -116,12 +121,16 @@ def wallet_detail_get_data():
     if order_by is None:
         order_by = "_id"
 
-    list_devices = current_app.wallet_detail.distinct("device", {"wallet_id": ObjectId(wallet_id)})
-    
+    list_devices = current_app.wallet_detail.distinct(
+        "device", {"wallet_id": ObjectId(wallet_id)}
+    )
+
     total_results = current_app.wallet_detail.count_documents(query)
     total_pages = ceil(total_results / pageSize)
     skip = (page - 1) * pageSize
 
+    print(query)
+    
     wallet_detail_data = (
         current_app.wallet_detail.find(query)
         .sort(order_by, -1)
@@ -149,7 +158,8 @@ def wallet_detail_get_data():
         ),
         200,
     )
-    
+
+
 @wallet.route("/wallet/detail/update", methods=["POST"])
 def wallet_detail_update():
     data = request.json
@@ -161,4 +171,28 @@ def wallet_detail_update():
         {"_id": ObjectId(wallet_detail_id)}, {"$set": {field: value}}
     )
 
-    return jsonify({"code": 200, "message": "Update project detail successfully"}), 200
+    return jsonify({"code": 200, "message": "Update wallet detail successfully"}), 200
+
+
+@wallet.route("/wallet/detail/delete", methods=["GET"])
+def wallet_detail_delete():
+    wallet_detail_id = request.args.get("id")
+
+    current_app.wallet_detail.delete_one({"_id": ObjectId(wallet_detail_id)})
+    
+    return jsonify({"code": 200, "message": "Delete wallet detail successfully"}), 200
+
+@wallet.route("/wallet/detail/delete_all", methods=["GET"])
+def wallet_detail_delete_all():
+    wallet = request.args.get("id")
+    device = request.args.get("device")
+    
+    if wallet is None:
+        return jsonify({"code": 400, "message": "wallet is required"}), 200
+    
+    if device is None:
+        return jsonify({"code": 400, "message": "Device is required"}), 200
+    
+    current_app.wallet_detail.delete_many({"wallet_id": ObjectId(wallet), "device": device})
+    return jsonify({"code": 200, "message": "Delete All detail point successfully"}), 200
+

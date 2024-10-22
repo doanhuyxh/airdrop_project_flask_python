@@ -349,7 +349,7 @@ ${% block breadcrumb %}
                 }
 
                 this.selectedRows.forEach(async item => {
-                    await fetch("/project/detail/delete?id=" + item)
+                    await fetch("/wallet/detail/delete?id=" + item)
                 });
 
                 Toast.fire({
@@ -363,7 +363,7 @@ ${% block breadcrumb %}
 
             },
             DeleteALL() {
-                fetch(`/project/wallet/delete_all?id={{wallet._id}}&device=${this.filter_device}`)
+                fetch(`/wallet/detail/delete_all?id={{wallet._id}}&device=${this.filter_device}`)
                     .then(() => {
                         this.getWallet();
                     })
