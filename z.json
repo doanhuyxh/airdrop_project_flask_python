@@ -1,0 +1,9 @@
+{
+    "profile": "Tên profile",
+    "device": "Tên thiết bị (pc1, pc2, pc3,...)",
+    "wallet": "bitget",
+    "address": "địa chỉ ví",
+    "password": "Mật khẩu ví",
+    "recovery_phrase": "mã bí mật 12 ký tự",
+    "status": "thong tin neu co loi"
+}

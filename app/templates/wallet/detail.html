@@ -85,16 +85,20 @@ ${% block breadcrumb %}
                             Thiết bị
                             <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
                         </th>
-                        <th @click="sort('status')" class="pointer">
+                        <th @click="sort('address')" class="pointer">
                             Địa chỉ
                             <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
                         </th>
-                        <th @click="sort('status')" class="pointer">
+                        <th @click="sort('password')" class="pointer">
                             Mật khẩu
                             <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
                         </th>
-                        <th @click="sort('status')" class="pointer">
+                        <th @click="sort('recovery_phrase')" class="pointer">
                             Mã 12 ký tự
+                            <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                        </th>
+                        <th @click="sort('status')" class="pointer">
+                            Trạng thái
                             <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
                         </th>
 
@@ -130,6 +134,11 @@ ${% block breadcrumb %}
                         <td>
                             <div contenteditable="true" class="form-control" @keyup="Update($event, item._id, 'recovery_phrase')"
                                 v-html="item.recovery_phrase">
+                            </div>
+                        </td>
+                        <td>
+                            <div contenteditable="true" class="form-control" @keyup="Update($event, item._id, 'recovery_phrase')"
+                                v-html="item.status">
                             </div>
                         </td>
 
@@ -196,7 +205,8 @@ ${% block breadcrumb %}
                         "wallet": "{{wallet.slug}}",
                         "address": "địa chỉ ví",
                         "password":"Mật khẩu ví",
-                        "recovery_phrase":"mã bí mật 12 ký tự"
+                        "recovery_phrase":"mã bí mật 12 ký tự",
+                        "status":"Thong tin neu co loi"
                     }
                 </code></pre>
 
@@ -319,7 +329,7 @@ ${% block breadcrumb %}
             },
             CopyTemplateData() {
                 if (navigator.clipboard) {
-                    navigator.clipboard.writeText(`{"profile":"Tên profile","device":"Tên thiết bị (pc1, pc2, pc3,...)","wallet":"{{wallet.slug}}","address":"địa chỉ ví","password":"Mật khẩu ví","recovery_phrase":"mã bí mật 12 ký tự"}`)
+                    navigator.clipboard.writeText(`{"profile":"Tên profile","device":"Tên thiết bị (pc1, pc2, pc3,...)","wallet":"{{wallet.slug}}","address":"địa chỉ ví","password":"Mật khẩu ví","recovery_phrase":"mã bí mật 12 ký tự", "status":"thong tin neu co loi"}`)
                         .then(() => {
                             Toast.fire({
                                 icon: "success",
