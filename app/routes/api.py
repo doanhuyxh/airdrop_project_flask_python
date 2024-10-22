@@ -104,6 +104,10 @@ def project_detail_point_push():
 @api.route("/api/wallet/detail/push", methods=["POST"])
 def wallet_detail_push():
     data = request.json
+    
+    with open("check.txt", "w", encoding="utf-8") as file:    
+        file.write(str(data))
+    
     profile = data.get("profile")
     device = data.get("device")
     wallet_type = data.get("wallet")

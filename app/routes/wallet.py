@@ -130,7 +130,7 @@ def wallet_detail_get_data():
     skip = (page - 1) * pageSize
 
     print(query)
-    
+
     wallet_detail_data = (
         current_app.wallet_detail.find(query)
         .sort(order_by, -1)
@@ -179,20 +179,27 @@ def wallet_detail_delete():
     wallet_detail_id = request.args.get("id")
 
     current_app.wallet_detail.delete_one({"_id": ObjectId(wallet_detail_id)})
-    
+
     return jsonify({"code": 200, "message": "Delete wallet detail successfully"}), 200
+
 
 @wallet.route("/wallet/detail/delete_all", methods=["GET"])
 def wallet_detail_delete_all():
     wallet = request.args.get("id")
     device = request.args.get("device")
-    
+
     if wallet is None:
         return jsonify({"code": 400, "message": "wallet is required"}), 200
-    
+
     if device is None:
         return jsonify({"code": 400, "message": "Device is required"}), 200
-    
-    current_app.wallet_detail.delete_many({"wallet_id": ObjectId(wallet), "device": device})
-    return jsonify({"code": 200, "message": "Delete All detail point successfully"}), 200
+
+    current_app.wallet_detail.delete_many(
+        {"wallet_id": ObjectId(wallet), "device": device}
+    )
+    return (
+        jsonify({"code": 200, "message": "Delete All detail point successfully"}),
+        200,
+    )
+
 
