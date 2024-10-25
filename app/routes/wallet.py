@@ -124,6 +124,9 @@ def wallet_detail_get_data():
     list_devices = current_app.wallet_detail.distinct(
         "device", {"wallet_id": ObjectId(wallet_id)}
     )
+    list_status = current_app.wallet_detail.distinct(
+        "status", {"wallet_id": ObjectId(wallet_id)}
+    )
 
     total_results = current_app.wallet_detail.count_documents(query)
     total_pages = ceil(total_results / pageSize)
@@ -154,6 +157,7 @@ def wallet_detail_get_data():
                 "totalPages": total_pages,
                 "totalResults": total_results,
                 "list_devices": list_devices,
+                "list_status": list_status,
             }
         ),
         200,

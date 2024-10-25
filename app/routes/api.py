@@ -58,6 +58,7 @@ def data_detail_push():
                 "profile": profile,
                 "device": device,
                 "status": status,
+                "status_qr":status_qr,
                 "last_time": datetime.now(),
             }
         )
