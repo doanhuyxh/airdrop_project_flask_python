@@ -1,1 +1,1 @@
-{'profile': 'telegram_16206809362', 'device': '123213213', 'wallet': 'bitget', 'address': '', 'password': 'Biproaz123...', 'recovery_phrase': 'unveil||invite||margin||prepare||leisure||fire||govern||task||there||address||plate||photo', 'status': 'Da tao vi tahnh cong, chua co dia chi'}
+{'profile': 'telegram_18592876175', 'device': 'Máy 1', 'wallet': 'bitget', 'address': '0xBBF108160a15480C7c0cC580D291598048d18B7e', 'status': 'Lấy thành công'}

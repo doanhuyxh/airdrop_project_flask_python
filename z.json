@@ -1,9 +1,33 @@
 {
-    "profile": "Tên profile",
-    "device": "Tên thiết bị (pc1, pc2, pc3,...)",
-    "wallet": "bitget",
-    "address": "địa chỉ ví",
-    "password": "Mật khẩu ví",
-    "recovery_phrase": "mã bí mật 12 ký tự",
-    "status": "thong tin neu co loi"
-}
+    "_id": {
+      "$oid": "67177c75245b43d633cfb429"
+    },
+    "profile": "telegram_18592876175",
+    "device": "Máy 1",
+    "wallet_id": {
+      "$oid": "67161dff58d788a5ec573301"
+    },
+    "address": "0xBBF108160a15480C7c0cC580D291598048d18B7e",
+    "password": null,
+    "recovery_phrase": null,
+    "last_time": {
+      "$date": "2024-10-25T10:10:42.918Z"
+    },
+    "status": "Lấy thành công",
+    "project":[
+        {
+            "name":"project1",
+            "status":"Nối thành công",
+            "time": {
+                "$date": "2024-10-25T10:10:42.918Z"
+            }
+        },
+        {
+            "name":"project2",
+            "status":"Nối thành công",
+            "time": {
+                "$date": "2024-10-25T10:10:42.918Z"
+            }
+        }
+    ]
+  }
