@@ -94,6 +94,10 @@ ${% block breadcrumb %}
                             Trạng thái
                             <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
                         </th>
+                        <th @click="sort('status_qr')" class="pointer">
+                            Trạng thái QR code
+                            <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                        </th>
 
                     </tr>
                 </thead>
@@ -117,6 +121,11 @@ ${% block breadcrumb %}
                         <td>
                             <div contenteditable="true" class="form-control" @keyup="Update($event, item._id, 'status')"
                                 v-html="item.status">
+                            </div>
+                        </td>
+                        <td>
+                            <div contenteditable="true" class="form-control" @keyup="Update($event, item._id, 'status_qr')"
+                                v-html="item.status_qr">
                             </div>
                         </td>
 

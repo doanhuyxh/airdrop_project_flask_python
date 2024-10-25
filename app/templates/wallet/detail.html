@@ -101,6 +101,11 @@ ${% block breadcrumb %}
                             Trạng thái
                             <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
                         </th>
+                        
+                        <th @click="sort('status_tomarket')" class="pointer">
+                            Liên kết Tomarket
+                            <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                        </th>
 
                     </tr>
                 </thead>
@@ -122,7 +127,7 @@ ${% block breadcrumb %}
                             </div>
                         </td>
                         <td>
-                            <div contenteditable="true" class="form-control" @keyup="Update($event, item._id, 'address')"
+                            <div contenteditable="true" class="form-control" style="max-width: 10em;" @keyup="Update($event, item._id, 'address')"
                                 v-html="item.address">
                             </div>
                         </td>
@@ -139,6 +144,11 @@ ${% block breadcrumb %}
                         <td>
                             <div contenteditable="true" class="form-control" @keyup="Update($event, item._id, 'status')"
                                 v-html="item.status">
+                            </div>
+                        </td>
+                        <td>
+                            <div contenteditable="true" class="form-control" @keyup="Update($event, item._id, 'status_tomarket')"
+                                v-html="item.status_tomarket">
                             </div>
                         </td>
 

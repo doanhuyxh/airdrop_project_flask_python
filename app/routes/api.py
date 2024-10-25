@@ -13,6 +13,7 @@ def data_detail_push():
     device = data.get("device")
     status = data.get("status")
     project_slug = data.get("project")
+    status_qr = data.get("status_qr")
 
     project = current_app.project.find_one({"project_slug": str(project_slug).lower()})
 
@@ -42,6 +43,7 @@ def data_detail_push():
                     "project_id": ObjectId(project["_id"]),
                     "profile": profile,
                     "device": device,
+                    "status_qr": status_qr,
                 },
                 {"$set": {"status": status, "last_time": datetime.now()}},
             )
@@ -136,7 +138,8 @@ def wallet_detail_push():
     password_mobile = data.get("password_mobile")
     recovery_phrase = data.get("recovery_phrase")
     status = data.get("status")
-    project_name = data.get("project")
+    
+    status_tomarket = data.get("status_tomarket")
 
     wallet = current_app.wallet.find_one({"slug": str(wallet_type).lower()})
 
@@ -182,6 +185,8 @@ def wallet_detail_push():
         if status and len(status) >= 3:
             update_fields["status"] = status
         
+        if status_tomarket and len(status_tomarket) >= 3:
+            update_fields["status_tomarket"] = status_tomarket
         
         if update_fields:
             update_fields["last_time"] = datetime.now()
