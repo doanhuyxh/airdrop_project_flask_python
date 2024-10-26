@@ -5,3 +5,4 @@
 **/*.pyo
 **/*.pyd
 config.py
+.vscode

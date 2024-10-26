@@ -24,14 +24,14 @@ ${% block breadcrumb %}
 {% block content %}
 
 <div class="container-lg px-4">
+    <p class="h5 text-center mb-4">Nhập profile <span class="mx-2 opacity-75">(Mỗi profile 1 dòng)</span></p>
     <div class="card mb-4 mx-4">
         <div class="card-body p-4">
-            <div class="mb-3">
-                <p class="h5 text-center">Nhập profile <span class="mx-2 opacity-75">(Mỗi profile 1 dòng)</span></p>
-                <textarea class="form-control" id="profile" rows="20" placeholder="Tên profile || Thiết bị"></textarea>
+            <div class="mb-3 d-flex jus">
+                <button class="btn btn-success text-white px-5" id="save" type="button" onclick="save()">Lưu</button>
             </div>
-            <div class="mb-3 d-flex justify-content-end">
-                <button class="btn btn-primary" id="save" type="button" onclick="save()">Lưu</button>
+            <div class="mb-3">
+                <textarea class="form-control" id="profile" rows="20" placeholder="Tên profile"></textarea>
             </div>
         </div>
     </div>

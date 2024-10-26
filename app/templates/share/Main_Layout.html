@@ -14,9 +14,9 @@
     <script src="/static/lib/sweetalert2@11.js"></script>
     <script src="/static/lib/vue.js"></script>
     <script src="/static/lib/xlsx.full.min.js"></script>
-    
+
     <script src="/static/lib/loadingoverlay.min.js"></script>
-    
+
     <link
         href="https://cdn.datatables.net/v/zf/dt-2.1.8/af-2.7.0/b-3.1.2/b-colvis-3.1.2/cr-2.0.4/date-1.5.4/fc-5.0.3/fh-4.0.1/kt-2.12.1/r-3.0.3/rg-1.5.0/rr-1.5.0/sb-1.8.1/sp-2.3.3/sl-2.1.0/datatables.min.css"
         rel="stylesheet">
@@ -93,7 +93,7 @@
                                         </li>
                                     </ul>
                                 </li>
-                                
+
                                 <li class="nav-item">
                                     <a class="nav-link" href="/wallet">
                                         <span class="nav-icon">
@@ -139,7 +139,7 @@
     </div>
 
     <div class="wrapper d-flex flex-column min-vh-100">
-        <header class="header header-sticky p-0 mb-4">
+        <header class="header header-sticky p-0">
             <div class="container-fluid border-bottom px-4">
                 <button class="header-toggler" type="button"
                     onclick="coreui.Sidebar.getInstance(document.querySelector('#sidebar')).toggle()"
@@ -163,23 +163,24 @@
     </div>
 
 
-    <div class="modal fade" id="staticBackdrop" data-coreui-backdrop="static" data-coreui-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal fade" id="staticBackdrop" data-coreui-backdrop="static" data-coreui-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="staticBackdropLabel"></h5>
-              <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="staticBackdropLabel"></h5>
+                    <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="ModelBody">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-coreui-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" onclick="Save_Modal()">Lưu</button>
+                </div>
             </div>
-            <div class="modal-body" id="ModelBody">
-              
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-coreui-dismiss="modal">Đóng</button>
-              <button type="button" class="btn btn-primary" onclick="Save_Modal()">Lưu</button>
-            </div>
-          </div>
         </div>
-      </div>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {

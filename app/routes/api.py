@@ -138,8 +138,7 @@ def wallet_detail_push():
     password = data.get("password")
     password_mobile = data.get("password_mobile")
     recovery_phrase = data.get("recovery_phrase")
-    status = data.get("status")
-    
+    status = data.get("status")    
     status_tomarket = data.get("status_tomarket")
 
     wallet = current_app.wallet.find_one({"slug": str(wallet_type).lower()})
@@ -156,6 +155,7 @@ def wallet_detail_push():
                 "recovery_phrase": recovery_phrase,
                 "last_time": datetime.now(),
                 "status": status,
+                "status_tomarket": status_tomarket,
             }
         )
 
@@ -216,6 +216,7 @@ def wallet_detail_push():
             "password_mobile": password_mobile,
             "last_time": datetime.now(),
             "status": status,
+            "status_tomarket": status_tomarket,
         }
     )
 
@@ -231,6 +232,7 @@ def wallet_detail_get():
     profile = data.get("profile")
     device = data.get("device")
     wallet_type = data.get("wallet")
+    
     
     wallet = current_app.wallet.find_one({"slug": str(wallet_type).lower()})
     if wallet is None:
@@ -248,5 +250,6 @@ def wallet_detail_get():
     data = {
         "recovery_phrase": wallet_detail.get("recovery_phrase"),
         "profile": wallet_detail.get("profile"),
+        "status_tomarket": wallet_detail.get("status_tomarket"),
     }
     return jsonify({"code": 200, "message": "Get wallet detail successfully", "data": data}), 200
