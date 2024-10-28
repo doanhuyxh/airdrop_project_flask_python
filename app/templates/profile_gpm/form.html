@@ -10,7 +10,7 @@ ${% block breadcrumb %}
 <div class="container-fluid px-4">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb my-0">
-            <li class="breadcrumb-item"><a href="/profile_gpm">Quản lý profile</a>
+            <li class="breadcrumb-item"><a href="/profile_gpm">Quản lý profile GPM</a>
             </li>
             <li class="breadcrumb-item"><span>
                     {{ "Cập nhật profile" if profile else 'Tạo profile Mới' }}
@@ -27,8 +27,36 @@ ${% block breadcrumb %}
     <p class="h5 text-center mb-4">Nhập profile <span class="mx-2 opacity-75">(Mỗi profile 1 dòng)</span></p>
     <div class="card mb-4 mx-4">
         <div class="card-body p-4">
-            <div class="mb-3 d-flex jus">
-                <button class="btn btn-success text-white px-5" id="save" type="button" onclick="save()">Lưu</button>
+            <div class="mb-5 d-flex justify-content-between">
+                <div class="mx-2 d-flex justify-content-start">
+                    <div>
+                        <select class="form-select" style="max-width: 300px !important;" id="profile_type"></select>
+                    </div>
+                    <div class="mx-2 d-flex justify-content-start gap-2">
+
+                        <span class="btn btn-outline-info" id="btn_add_devices" data-coreui-toggle="tooltip"
+                            data-coreui-placement="top" onclick="ActiveAddDevices()"
+                            data-coreui-title="Tạo devices mới">
+                            <i class="fa-solid fa-plus"></i>
+                        </span>
+
+                        <div class="d-flex justify-content-start gap-2 d-none" id="form-add-device">
+                            <input class="form-control w-50" type="text" id="new_device" placeholder="Tên device">
+                            <span class="btn btn-outline-success" onclick="SaveDevices()">
+                                <i class="fa-solid fa-floppy-disk"></i>
+                            </span>
+                            <span class="btn btn-outline-danger" onclick="ActiveAddDevices()">
+                                <i class="fa-solid fa-xmark"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+                <div>
+                    <button class="btn btn-success text-white" id="save" type="button" onclick="save()">
+                        <i class="fa-solid fa-floppy-disk"></i>
+                    </button>
+                </div>
             </div>
             <div class="mb-3">
                 <textarea class="form-control" id="profile" rows="20" placeholder="Tên profile"></textarea>
@@ -42,7 +70,50 @@ ${% block breadcrumb %}
 
 <script>
 
+    var devices = [
+        "Vui lòng chọn devices"
+    ];
     var isSuccess = false;
+    var isAddDevice = false;
+
+    function RenderMenuDevices() {
+        let profileType = document.getElementById('profile_type');
+        profileType.innerHTML = '';
+        devices.forEach(device => {
+            let option = document.createElement('option');
+            option.value = device;
+            option.text = device;
+            profileType.appendChild(option);
+        });
+    }
+
+    function ActiveAddDevices() {
+        isAddDevice = !isAddDevice;
+        $('#form-add-device').toggleClass('d-none');
+        $('#btn_add_devices').toggleClass('d-none');
+        $("#new_device").val('');
+    }
+
+    function SaveDevices() {
+        devices.push($("#new_device").val());
+        ActiveAddDevices();
+        RenderMenuDevices();
+    }
+
+    $(document).ready(function () {
+
+        fetch("/profile_gpm/get_devices")
+            .then(response => response.json())
+            .then(data => {
+                data = data.data;
+                for (let i = 0; i < data.length; i++) {
+                    devices.push(data[i]);
+                }
+                RenderMenuDevices()
+
+            });
+
+    });
 
     async function save() {
         try {
@@ -60,9 +131,11 @@ ${% block breadcrumb %}
             let profile = document.getElementById('profile').value;
             let profileArray = profile.split('\n');
             for (let i = 0; i < profileArray.length; i++) {
-                let profileItem = profileArray[i].split('||');
-                let profileName = profileItem[0];
-                let profileDevice = profileItem[1];
+                let profileName = profileArray[i];
+                if (profileName.trim() == '') {
+                    continue;
+                }
+                let profileDevice = document.getElementById('profile_type').value;
                 await saveData(profileName, profileDevice);
             }
 

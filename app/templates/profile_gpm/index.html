@@ -12,7 +12,7 @@ ${% block breadcrumb %}
 <div class="container-fluid px-4">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb my-0">
-            <li class="breadcrumb-item"><a href="/project">Quản lý dự án</a></li>
+            <li class="breadcrumb-item"><a href="/project">Quản lý profile</a></li>
             <li class="breadcrumb-item"><span>Profile GPM</span></li>
         </ol>
     </nav>
@@ -145,7 +145,7 @@ ${% block breadcrumb %}
             changePage(page) {
                 if (page >= 1 && page <= this.totalPages) {
                     this.current_page = page;
-                    this.getProjects();
+                    this.getProfiles();
                 }
             },
             deleteProfiles(id) {

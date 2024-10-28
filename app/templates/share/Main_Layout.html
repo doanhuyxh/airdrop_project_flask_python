@@ -102,6 +102,21 @@
                                         <span>Quản lý Ví</span>
                                     </a>
                                 </li>
+                                <li class="nav-group" aria-expanded="false">
+                                    <a class="nav-link nav-group-toggle" href="#">
+                                        <span class="nav-icon">
+                                            <i class="fa-brands fa-google-wallet"></i>
+                                        </span>
+                                        <span>Thông tin ví</span>
+                                    </a>
+                                    <ul class="nav-group-items compact" style="height: 0px;">
+                                        <li class="nav-item" v-for="(item, index) in wallets">
+                                            <a class="nav-link" :href="'/wallet/detail?id='+item._id">
+                                                <span data-coreui-i18n="accordion" v-html="item.name"></span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="/user">
                                         <span class="nav-icon">
@@ -191,11 +206,13 @@
         new Vue({
             "el": "#sidebar",
             data: {
-                "projects": []
+                "projects": [],
+                "wallets": []
             },
             mounted() {
 
                 this.getProjects();
+                this.getWallets();
             },
             methods: {
                 getProjects() {
@@ -203,6 +220,13 @@
                         .then(response => response.json())
                         .then(data => {
                             this.projects = data.data;
+                        })
+                },
+                getWallets() {
+                    fetch(`/wallet/list`)
+                        .then(response => response.json())
+                        .then(data => {
+                            this.wallets = data.data;
                         })
                 }
             }

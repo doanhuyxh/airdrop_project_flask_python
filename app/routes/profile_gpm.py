@@ -28,6 +28,10 @@ def check_token():
 def index():
     return render_template("profile_gpm/index.html")
 
+@profile_gpm.route("/profile_gpm/get_devices", methods=["GET"])
+def get_devices():
+    devices = current_app.profile_gpm.distinct("profile_device")
+    return jsonify({"code": 200, "data": devices}), 200
 
 @profile_gpm.route("/profile_gpm/list", methods=["POST"])
 def get_data():
