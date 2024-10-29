@@ -102,6 +102,7 @@ def wallet_detail_get_data():
     wallet_id = request.json.get("id")
     device = request.json.get("device")
     status = request.json.get("status")
+    status_tomarket = request.json.get("status_tomarket")
     search = request.json.get("search")
     page = request.json.get("page")
     pageSize = request.json.get("pageSize")
@@ -115,6 +116,9 @@ def wallet_detail_get_data():
     if status:
         query["status"] = status
 
+    if status_tomarket:
+        query["status_tomarket"] = status_tomarket
+
     if search:
         query["profile"] = {"$regex": search, "$options": "i"}
 
@@ -126,6 +130,9 @@ def wallet_detail_get_data():
     )
     list_status = current_app.wallet_detail.distinct(
         "status", {"wallet_id": ObjectId(wallet_id)}
+    )
+    list_status_tomarket = current_app.wallet_detail.distinct(
+        "status_tomarket", {"wallet_id": ObjectId(wallet_id)}
     )
 
     total_results = current_app.wallet_detail.count_documents(query)
@@ -158,6 +165,42 @@ def wallet_detail_get_data():
                 "totalResults": total_results,
                 "list_devices": list_devices,
                 "list_status": list_status,
+                "list_status_tomarket": list_status_tomarket,
+            }
+        ),
+        200,
+    )
+
+
+@wallet.route("/wallet/detail/get_data_filter")
+def wallet_detail_get_data_filter():
+    wallet_id = request.args.get("id")
+    device = request.args.get("device")
+    status = request.args.get("status")
+    status_tomarket = request.args.get("status_tomarket")
+
+    query = {"wallet_id": ObjectId(wallet_id)}
+
+    if device:
+        query["device"] = device
+
+    if status:
+        query["status"] = status
+
+    if status_tomarket:
+        query["status_tomarket"] = status_tomarket
+
+    wallet_detail_data = current_app.wallet_detail.find(query)
+
+    data = []
+    for detail in wallet_detail_data:
+        data.append(detail["profile"])
+
+    return (
+        jsonify(
+            {
+                "code": 200,
+                "data": data,
             }
         ),
         200,
@@ -205,5 +248,3 @@ def wallet_detail_delete_all():
         jsonify({"code": 200, "message": "Delete All detail point successfully"}),
         200,
     )
-
-

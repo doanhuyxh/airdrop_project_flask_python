@@ -258,8 +258,7 @@ def data_detail_get_filter():
     
     data = []
     for detail in project_detail_data:
-        detail["profile"] = str(detail["profile"])
-        data.append(detail)
+        data.append(detail["profile"])
         
     return jsonify({"code": 200, "data": data}), 200
 

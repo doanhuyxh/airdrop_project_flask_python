@@ -35,6 +35,14 @@ ${% block breadcrumb %}
                         <option v-for="(item, index) in status" :value="item" :key="index" v-html="item"></option>
                     </select>
                 </div>
+                
+                <div>
+                    <select class="form-select" v-model="filter_status_tomarket" v-on:change="getWallet">
+                        <option value="" selected>Liên kết tomarket</option>
+                        <option v-for="(item, index) in status_tomarket" :value="item" :key="index" v-html="item"></option>
+                    </select>
+                </div>
+
                 <div>
                     <select class="form-select" v-model="filter_device" v-on:change="getWallet">
                         <option value="" selected>Server (Thiết bị)</option>
@@ -50,6 +58,10 @@ ${% block breadcrumb %}
                 </div>
             </div>
             <div class="d-flex justify-content-end gap-3 mb-4">
+                <span class="btn btn-outline-success" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                    data-coreui-title="Lọc dữ liệu" v-on:click="ShowFilter">
+                    <i class="fa-solid fa-filter"></i>
+                </span>
                 <span class="btn btn-success" data-coreui-toggle="tooltip" data-coreui-placement="top"
                     data-coreui-title="Mẫu dữ liệu api bắn lên server" v-on:click="ShowPostDataKeyServer">
                     <i class="fa-solid fa-code"></i>
@@ -228,6 +240,70 @@ ${% block breadcrumb %}
     </div>
 </div>
 
+
+
+<div class="modal fade" id="filter" data-coreui-backdrop="static" data-coreui-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-body">
+                <p class="h5 text-center mb-5">Lọc và tải xuống dữ liệu hiện tại so với dữ liệu gốc ở danh sách profile
+                </p>
+                <hr>
+                <div class="container">
+                    <div class="mb-3">
+                        <select class="form-control" v-model="filter_device" v-on:change="ChoseDeviceGpm">
+                            <option value="" selected>Chọn thiết bị</option>
+                            <option v-for="(item, index) in device_gpm" :value="item" :key="index" v-html="item">
+                            </option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <div class="">
+                            <div class="mb-3 w-100 h-100">
+                                <p class="m-auto">Tổng profile đang có ở thiết bị: <span id="total_gpm">0</span></p>
+                            </div>
+
+                            <div class="w-100 h-100 mt-4">
+                                <textarea class="form-control" v-model="formattedData" rows="12"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <p class="text-center">Vui lòng chọn điều kiện lọc ở dưới</p>
+                        <div class="d-flex gap-2 ">
+                            <select class="form-select" v-model="filter_status" v-on:change="getWalletFilter">
+                                <option value="" selected>Trạng thái</option>
+                                <option v-for="(item, index) in status" :value="item" :key="index" v-html="item">
+                                </option>
+                            </select>
+
+                            <select class="form-select" v-model="filter_status_tomarket" v-on:change="getWalletFilter">
+                                <option value="" selected>Liên kết Tomarket</option>
+                                <option v-for="(item, index) in status_tomarket" :value="item" :key="index" v-html="item">
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="mt-3">
+                            <textarea class="form-control" v-model="formattedDataGPMFilter" rows="10"></textarea>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" v-on:click="DownloadFile">
+                    Tải xuống profile có không có ở bên lọc
+                </button>
+                <button type="button" class="btn btn-secondary" data-coreui-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 {% block script %}
 
@@ -238,8 +314,10 @@ ${% block breadcrumb %}
             data_wallet: [],
             status: [],
             device: [],
+            status_tomarket: [],
             filter_status: "",
             filter_device: "",
+            filter_status_tomarket: "",
             search: "",
             current_page: 1,
             pageSize: 25,
@@ -248,21 +326,28 @@ ${% block breadcrumb %}
             order_by: "_id",
             selectedRows: [],
             isDragging: false,
+            profileGpm: [],
+            profileGpmFilter: [],
             api_url: `${window.location.origin}/api/wallet/detail/push`
         },
         mounted() {
             this.getWallet();
+            fetch("/profile_gpm/get_devices")
+                .then(response => response.json())
+                .then(response => {
+                    this.device_gpm = response.data;
+                });
         },
         computed: {
             formattedData() {
-                console.log(this.data_wallet.length)
-                return this.data_wallet.map(item => {
-
-                    this.status.find(s => s == item.status) ? null : this.status.push(item.status)
-                    this.device.find(d => d == item.device) ? null : this.device.push(item.device)
-
-                    return item.profile + " || " + item.device + " || " + item.status
-                }).join('\n\n');
+                return this.profileGpm.map(item => {
+                    return item;
+                }).join('\n');
+            },
+            formattedDataGPMFilter() {
+                return this.profileGpmFilter.map(item => {
+                    return item;
+                }).join('\n');
             },
             pagesToShow() {
                 const pages = [];
@@ -290,7 +375,8 @@ ${% block breadcrumb %}
                         "search": this.search,
                         "page": this.current_page,
                         "pageSize": this.pageSize,
-                        "order_by": this.order_by
+                        "order_by": this.order_by,
+                        "status_tomarket": this.filter_status_tomarket
                     })
                 })
                     .then(response => response.json())
@@ -300,6 +386,7 @@ ${% block breadcrumb %}
                         this.totalResults = response.totalResults;
                         this.device = response.list_devices;
                         this.status = response.list_status;
+                        this.status_tomarket = response.list_status_tomarket;
                     })
             },
             changePage(page) {
@@ -430,6 +517,58 @@ ${% block breadcrumb %}
             stopDrag() {
                 this.isDragging = false;
             },
+            ShowFilter() {
+                $('#filter').modal('show');
+            },
+            ChoseDeviceGpm() {
+                fetch('/profile_gpm/get_profile?device=' + this.filter_device, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+
+                })
+                    .then(response => response.json())
+                    .then(response => {
+                        this.profileGpm = response.data;
+                        document.getElementById('total_gpm').innerText = response.data.length;
+                    })
+            },
+            getWalletFilter() {
+                fetch("/wallet/detail/get_data_filter", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        "id": "{{wallet._id}}",
+                        "status": this.filter_status,
+                        "device": this.filter_device,
+                        "order_by": this.order_by,
+                        "status_tomarket": this.filter_status_tomarket
+                    })
+                })
+                    .then(response => response.json())
+                    .then(response => {
+                        this.profileGpmFilter = response.data;
+                    })
+            },
+            DownloadFile() {
+                let data_result = []
+                for (let i = 0; i < this.profileGpm.length; i++) {
+                    if (!this.profileGpmFilter.includes(this.profileGpm[i])) {
+                        data_result.push([this.profileGpm[i]]);
+                    }
+                }
+
+                let ws = XLSX.utils.json_to_sheet(data_result);
+                let wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+                // Tải file Excel xuống
+                XLSX.writeFile(wb, `${"wallet"}.xlsx`);
+
+            }
         }
     });
 </script>
