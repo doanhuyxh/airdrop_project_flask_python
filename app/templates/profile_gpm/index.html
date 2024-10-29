@@ -24,41 +24,50 @@ ${% block breadcrumb %}
 
 
 <div class="container shadow-lg bg-body rounded px-5 pt-4 pb-5">
-  
+
     <div class="table-responsive">
-        
-            <div class="d-flex justify-content-between gap-3 mb-3">
-                <div class="">
-                    <select class="form-control" id="filter_device" v-model="filter_device" @change="getProfiles()">
-                        <option value="">Thiết bị (tất cả)</option>
-                        <option v-for="item in device" :key="item" :value="item" v-html="item"></option>
-                    </select>
-                </div>
-                <a href="/profile_gpm/form" class="btn btn-primary" data-coreui-toggle="tooltip" data-coreui-placement="top" data-coreui-title="Tạo profile mới">
+
+        <div class="d-flex gap-3 mb-3">
+            <div class="">
+                <select class="form-control" id="filter_device" v-model="filter_device" @change="getProfiles()">
+                    <option value="">Thiết bị (tất cả)</option>
+                    <option v-for="item in device" :key="item" :value="item" v-html="item"></option>
+                </select>
+            </div>
+            <div>
+                <input type="text" class="form-control" v-model="name" placeholder="Tìm kiếm" v-on:change="getProfiles()"/>
+            </div>
+            <div class="d-flex gap-3 mb-3">
+                <a href="/profile_gpm/form" class="btn btn-primary" data-coreui-toggle="tooltip"
+                    data-coreui-placement="top" data-coreui-title="Tạo profile mới">
                     <i class="fa-solid fa-plus"></i>
                 </a>
+                
+                <span class="btn btn-danger" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                    data-coreui-title="Xoá profile đang chọn" v-on:click="deleteProfiles()">
+                    <i class="fa-solid fa-trash"></i>
+                </span>
+                
             </div>
-        
+        </div>
 
-        <table class="table table-hover table-striped table-bordered">
+
+        <table class="table table-hover table-striped table-bordered" @mousedown="startDrag" @mouseup="stopDrag">
             <thead>
                 <tr>
                     <th>STT</th>
                     <th>Tên profile</th>
                     <th>Thiết bị</th>
-                    <th>Thao tác</th>
+
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="(item, index) in profiles" :key="item.id">
+                <tr v-for="(item, index) in profiles" :key="item.id" v-for="(item, index) in data_project"
+                    :key="item._id" @click="selectRow(item._id)" @mouseover="isDragging ? selectRow(item._id) : null"
+                    :class="{ 'selected-row': selectedRows.includes(item._id) }">
                     <td v-html="index + 1"></td>
                     <td v-html="item.profile_name"></td>
                     <td v-html="item.profile_device"></td>
-                    <td>
-                        <span class="btn btn-danger" v-on:click="deleteProfiles(item._id)">
-                            <i class="fa-solid fa-trash"></i>
-                        </span>
-                    </td>
                 </tr>
             </tbody>
         </table>
@@ -71,18 +80,18 @@ ${% block breadcrumb %}
                 <button @click="changePage(current_page - 1)" :disabled="current_page === 1" class="btn btn-info">
                     Trước
                 </button>
-            
+
                 <button v-for="page in pagesToShow" :key="page" @click="changePage(page)"
                     :class="{ 'btn-danger': current_page === page, btn: true }" class="btn">
                     <span v-html="page"></span>
                 </button>
-            
+
                 <button @click="changePage(current_page + 1)" :disabled="current_page === totalPages"
                     class="btn btn-info">
                     Tiếp
                 </button>
             </div>
-            
+
         </div>
     </div>
 </div>
@@ -101,6 +110,9 @@ ${% block breadcrumb %}
             totalPages: 0,
             totalResults: 0,
             order_by: "_id",
+            selectedRows: [],
+            isDragging: false,
+            name: ""
         },
         "mounted": function () {
             this.getProfiles();
@@ -120,8 +132,8 @@ ${% block breadcrumb %}
         },
         "methods": {
             "getProfiles": function () {
-                fetch("/profile_gpm/list",{
-                    method:"POST",
+                fetch("/profile_gpm/list", {
+                    method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
@@ -129,7 +141,8 @@ ${% block breadcrumb %}
                         "page": this.current_page,
                         "pageSize": this.pageSize,
                         "order_by": this.order_by,
-                        "device": this.filter_device
+                        "device": this.filter_device,
+                        "name": this.name
                     })
                 }).then(response => {
                     return response.json();
@@ -138,8 +151,8 @@ ${% block breadcrumb %}
                     this.totalPages = data.totalPages;
                     this.totalResults = data.totalResults;
                     data.data.forEach(item => {
-                            this.device.find(d => d == item.profile_device) ? null : this.device.push(item.profile_device)
-                        });
+                        this.device.find(d => d == item.profile_device) ? null : this.device.push(item.profile_device)
+                    });
                 });
             },
             changePage(page) {
@@ -148,7 +161,7 @@ ${% block breadcrumb %}
                     this.getProfiles();
                 }
             },
-            deleteProfiles(id) {
+            deleteProfiles() {
                 Swal.fire({
                     title: "Bạn chắc chắn chứ?",
                     text: "Sẽ xoá tất cả dữ liệu liên quan, không thể khôi phục lại!",
@@ -160,28 +173,41 @@ ${% block breadcrumb %}
                     cancelButtonText: "Huỷ",
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        fetch("/profile_gpm/delete?id=" + id)
-                            .then(response => {
-                                return response.json();
-                            }).then(data => {
-                                if (data.code == 200) {
-                                    Swal.fire({
-                                        title: "Xoá thành công",
-                                        icon: "success"
-                                    }).then(() => {
-                                        this.getProfiles();
-                                    });
-                                } else {
-                                    Swal.fire({
-                                        title: "Xoá thất bại",
-                                        text: data.message,
-                                        icon: "error"
-                                    });
-                                }
+
+                        if (this.selectedRows.length == 0) {
+                            Toast.fire({
+                                icon: "error",
+                                title: "Không có dữ liệu để xoá"
                             });
+                            return;
+                        }
+
+                        this.selectedRows.forEach(async item => {
+                            await fetch("/profile_gpm/delete?id=" + item)
+                        });
+
+                        Swal.fire({
+                            title: "Xoá thành công",
+                            icon: "success"
+                        }).then(() => {
+                            this.getProfiles();
+                        });
                     }
                 });
-            }
+            },
+            selectRow(id) {
+                if (this.selectedRows.includes(id)) {
+                    this.selectedRows = this.selectedRows.filter((rowId) => rowId !== id);
+                } else {
+                    this.selectedRows.push(id);
+                }
+            },
+            startDrag() {
+                this.isDragging = true;
+            },
+            stopDrag() {
+                this.isDragging = false;
+            },
         }
     })
 </script>

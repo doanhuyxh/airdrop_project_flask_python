@@ -55,9 +55,9 @@ def get_data():
             project["end_date"] = project["end_date"].strftime("%d-%m-%Y")
         else:
             project["end_date"] = None
-            
+
         data.append(project)
-        
+
     return jsonify({"code": 200, "data": json.loads(json_util.dumps(data))}), 200
 
 
@@ -159,7 +159,7 @@ def detail():
         project["start_date"] = project["start_date"].strftime("%d-%m-%Y")
     if project["end_date"] is not None:
         project["end_date"] = project["end_date"].strftime("%d-%m-%Y")
-    
+
     return render_template("project/detail.html", project=project)
 
 
@@ -168,6 +168,7 @@ def data_detail_get():
     project_id = request.json.get("id")
     device = request.json.get("device")
     status = request.json.get("status")
+    status_qr = request.json.get("status_qr")
     search = request.json.get("search")
     page = request.json.get("page")
     pageSize = request.json.get("pageSize")
@@ -181,14 +182,25 @@ def data_detail_get():
     if status:
         query["status"] = status
 
+    if status_qr:
+        query["status_qr"] = status_qr
+
     if search:
         query["profile"] = {"$regex": search, "$options": "i"}
 
     if order_by is None:
         order_by = "_id"
 
-    list_devices = current_app.project_detail.distinct("device", {"project_id": ObjectId(project_id)})
-    
+    list_devices = current_app.project_detail.distinct(
+        "device", {"project_id": ObjectId(project_id)}
+    )
+    list_status_qr = current_app.project_detail_point.distinct(
+        "status_qr", {"project_id": ObjectId(project_id)}
+    )
+    list_status = current_app.project_detail_point.distinct(
+        "status", {"project_id": ObjectId(project_id)}
+    )
+
     total_results = current_app.project_detail.count_documents(query)
     total_pages = ceil(total_results / pageSize)
     skip = (page - 1) * pageSize
@@ -216,10 +228,40 @@ def data_detail_get():
                 "totalPages": total_pages,
                 "totalResults": total_results,
                 "list_devices": list_devices,
+                "list_status": list_status,
+                "list_status_qr": list_status_qr,
             }
         ),
         200,
     )
+
+
+@project.route("/project/detail/get_data_filter", methods=["POST"])
+def data_detail_get_filter():
+    project_id = request.json.get("id")
+    device = request.json.get("device")
+    status = request.json.get("status")
+    status_qr = request.json.get("status_qr")
+
+    query = {"project_id": ObjectId(project_id)}
+
+    if device:
+        query["device"] = {"$regex": device, "$options": "i"}
+
+    if status_qr:
+        query["status_qr"] = status_qr
+
+    if status:
+        query["status"] = status
+
+    project_detail_data = current_app.project_detail.find(query)
+    
+    data = []
+    for detail in project_detail_data:
+        detail["profile"] = str(detail["profile"])
+        data.append(detail)
+        
+    return jsonify({"code": 200, "data": data}), 200
 
 
 @project.route("/project/detail/update", methods=["POST"])
@@ -247,12 +289,12 @@ def delete_detail():
 def deleteAll_detail():
     project_id = request.args.get("id")
     device = request.args.get("device")
-    
+
     query = {"project_id": ObjectId(project_id)}
-    
+
     if device and len(device) > 0:
         query["device"] = device
-    
+
     current_app.project_detail.delete_many(query)
     return jsonify({"code": 200, "message": "Delete all detail successfully"}), 200
 
@@ -276,21 +318,21 @@ def project_detail_point_get():
     pageSize = request.json.get("pageSize")
     order_by = request.json.get("order_by")
     device = request.json.get("device")
-    
+
     query = {"project_id": ObjectId(project_id)}
 
     if search:
         query["profile"] = {"$regex": search, "$options": "i"}
-    
+
     if device is not None and len(device) > 0:
-        query["device"] = device    
-    
+        query["device"] = device
+
     if order_by is None:
         order_by = "_id"
 
-    print(query)
-
-    list_devices = current_app.project_detail_point.distinct("device", {"project_id": ObjectId(project_id)})
+    list_devices = current_app.project_detail_point.distinct(
+        "device", {"project_id": ObjectId(project_id)}
+    )
 
     total_results = current_app.project_detail_point.count_documents(query)
     total_pages = ceil(total_results / pageSize)
@@ -336,7 +378,10 @@ def update_project_detail_point():
         {"_id": ObjectId(project_detail_point_id)}, {"$set": {field: value}}
     )
 
-    return jsonify({"code": 200, "message": "Update project detail point successfully"}), 200
+    return (
+        jsonify({"code": 200, "message": "Update project detail point successfully"}),
+        200,
+    )
 
 
 @project.route("/project/detail/point/delete", methods=["GET"])
@@ -345,17 +390,22 @@ def delete_detail_point():
     current_app.project_detail_point.delete_one({"_id": ObjectId(id)})
     return jsonify({"code": 200, "message": "Delete detail point successfully"}), 200
 
+
 @project.route("/project/detail/point/delete_all", methods=["POST"])
 def delete_all_detail_point():
     project = request.json.get("project")
     device = request.json.get("device")
-    
+
     if project is None:
         return jsonify({"code": 400, "message": "Project is required"}), 200
-    
+
     if device is None:
         return jsonify({"code": 400, "message": "Device is required"}), 200
-    
-    current_app.project_detail_point.delete_many({"project_id": ObjectId(project), "device": device})
-    return jsonify({"code": 200, "message": "Delete All detail point successfully"}), 200
 
+    current_app.project_detail_point.delete_many(
+        {"project_id": ObjectId(project), "device": device}
+    )
+    return (
+        jsonify({"code": 200, "message": "Delete All detail point successfully"}),
+        200,
+    )

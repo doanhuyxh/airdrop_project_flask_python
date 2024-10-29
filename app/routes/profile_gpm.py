@@ -39,6 +39,7 @@ def get_data():
     pageSize = int(request.json.get("pageSize", 10))
     order_by = request.json.get("order_by")
     device = request.json.get("device")
+    name = request.json.get("name")
     query = {}
 
     if device is not None and len(device) > 0:
@@ -46,6 +47,9 @@ def get_data():
         
     if order_by is None:
         order_by = "_id"
+        
+    if name is not None and len(name) > 0:
+        query["profile_name"] = {"$regex": name, "$options": "i"}
 
     
     total_results = current_app.profile_gpm.count_documents(query)
@@ -126,3 +130,24 @@ def deteleData():
     current_app.profile_gpm.delete_one({"_id": ObjectId(profile_id)})
 
     return jsonify({"code": 200, "message": "Success"}), 200
+
+@profile_gpm.route("/profile_gpm/get_profile", methods=["GET"])
+def get_profile():
+    device = request.args.get("device")
+    
+    if not device:
+        return jsonify({"code": 400, "message": "Device is required", "data": []}), 400
+
+    try:
+        profile = current_app.profile_gpm.find({"profile_device": device}, {"_id": 0, "profile_name": 1})
+        profile_data = []
+        for p in profile:
+            profile_data.append(p["profile_name"])
+        
+        if not profile_data:
+            return jsonify({"code": 404, "message": "Profile not found", "data": []}), 404
+
+        return jsonify({"code": 200, "data": profile_data}), 200
+
+    except Exception as e:
+        return jsonify({"code": 500, "message": "An error occurred while fetching the profile", "error": str(e)}), 500
