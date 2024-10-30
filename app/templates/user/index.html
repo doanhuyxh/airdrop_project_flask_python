@@ -18,6 +18,59 @@ ${% block breadcrumb %}
 
 {% block content %}
 
+<div class="container-fluid">
+    <h1 class="mt-4 text-center">Quản lý nhân viên</h1>
+
+    <div class="card my-4">
+        <div class="card-header">
+            <i class="fas fa-table me-1"></i>
+            Danh sách nhân viên
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Tên nhân viên</th>
+                            <th>Chức vụ</th>
+                            <th>Ngày sinh</th>
+                            <th>Giới tính</th>
+                            <th>Địa chỉ</th>
+                            <th>Số điện thoại</th>
+                            <th>Email</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Nguyễn Văn A</td>
+                            <td>Nhân viên</td>
+                            <td>01/01/1990</td>
+                            <td>Nam</td>
+                            <td>123 Đường ABC, Quận 1, TP.HCM</td>
+                            <td>0123456789</td>
+                            <td>
+                            </td>
+                            <td>
+                                <span class="badge bg-success">Đang làm việc</span>
+                            </td>
+                            <td>
+                                <a href="javascript:void(0)" class="btn btn-primary btn-sm">Sửa</a>
+                                <a href="javascript:void(0)" class="btn btn-danger btn-sm">Xóa</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+
+
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}
 {% block script %}
