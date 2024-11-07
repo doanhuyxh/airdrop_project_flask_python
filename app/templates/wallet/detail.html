@@ -35,11 +35,12 @@ ${% block breadcrumb %}
                         <option v-for="(item, index) in status" :value="item" :key="index" v-html="item"></option>
                     </select>
                 </div>
-                
+
                 <div>
                     <select class="form-select" v-model="filter_status_tomarket" v-on:change="getWallet">
                         <option value="" selected>Liên kết tomarket</option>
-                        <option v-for="(item, index) in status_tomarket" :value="item" :key="index" v-html="item"></option>
+                        <option v-for="(item, index) in status_tomarket" :value="item" :key="index" v-html="item">
+                        </option>
                     </select>
                 </div>
 
@@ -113,7 +114,7 @@ ${% block breadcrumb %}
                             Trạng thái
                             <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
                         </th>
-                        
+
                         <th @click="sort('status_tomarket')" class="pointer">
                             Liên kết Tomarket
                             <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
@@ -139,18 +140,18 @@ ${% block breadcrumb %}
                             </div>
                         </td>
                         <td>
-                            <div contenteditable="true" class="form-control" style="max-width: 10em;" @keyup="Update($event, item._id, 'address')"
-                                v-html="item.address">
+                            <div contenteditable="true" class="form-control" style="max-width: 10em;"
+                                @keyup="Update($event, item._id, 'address')" v-html="item.address">
                             </div>
                         </td>
                         <td>
-                            <div contenteditable="true" class="form-control" @keyup="Update($event, item._id, 'password')"
-                                v-html="item.password">
+                            <div contenteditable="true" class="form-control"
+                                @keyup="Update($event, item._id, 'password')" v-html="item.password">
                             </div>
                         </td>
                         <td>
-                            <div contenteditable="true" class="form-control" style="max-width: 300px;" @keyup="Update($event, item._id, 'recovery_phrase')"
-                                v-html="item.recovery_phrase">
+                            <div contenteditable="true" class="form-control" style="max-width: 300px;"
+                                @keyup="Update($event, item._id, 'recovery_phrase')" v-html="item.recovery_phrase">
                             </div>
                         </td>
                         <td>
@@ -159,8 +160,8 @@ ${% block breadcrumb %}
                             </div>
                         </td>
                         <td>
-                            <div contenteditable="true" class="form-control" @keyup="Update($event, item._id, 'status_tomarket')"
-                                v-html="item.status_tomarket">
+                            <div contenteditable="true" class="form-control"
+                                @keyup="Update($event, item._id, 'status_tomarket')" v-html="item.status_tomarket">
                             </div>
                         </td>
 
@@ -177,18 +178,18 @@ ${% block breadcrumb %}
                     <button @click="changePage(current_page - 1)" :disabled="current_page === 1" class="btn btn-info">
                         Trước
                     </button>
-                
+
                     <button v-for="page in pagesToShow" :key="page" @click="changePage(page)"
                         :class="{ 'btn-danger': current_page === page, btn: true }" class="btn">
                         <span v-html="page"></span>
                     </button>
-                
+
                     <button @click="changePage(current_page + 1)" :disabled="current_page === totalPages"
                         class="btn btn-info">
                         Tiếp
                     </button>
                 </div>
-                
+
             </div>
 
         </div>
@@ -282,7 +283,8 @@ ${% block breadcrumb %}
 
                             <select class="form-select" v-model="filter_status_tomarket" v-on:change="getWalletFilter">
                                 <option value="" selected>Liên kết Tomarket</option>
-                                <option v-for="(item, index) in status_tomarket" :value="item" :key="index" v-html="item">
+                                <option v-for="(item, index) in status_tomarket" :value="item" :key="index"
+                                    v-html="item">
                                 </option>
                             </select>
                         </div>
@@ -463,7 +465,7 @@ ${% block breadcrumb %}
                 Toast.fire({
                     icon: "success",
                     title: "Xoá thành công",
-                    timer:1000
+                    timer: 1000
                 }).then(() => {
                     this.getWallet();
                     this.selectedRows = [];
@@ -477,18 +479,34 @@ ${% block breadcrumb %}
                     })
             },
             ExportExcel() {
-                let data = this.data_wallet.map(item => {
-                    return {
-                        "Profile": item.profile,
-                        "Device": item.device,
-                        "Trạng thái": item.status
-                    }
-                });
+                fetch('/wallet/detail/get_data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        "id": "{{wallet._id}}",
+                        "pageSize": 1000000,
+                        "page": 1,
 
-                let ws = XLSX.utils.json_to_sheet(data);
-                let wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-                XLSX.writeFile(wb, "{{wallet.name}}.xlsx");
+                    })
+                }).then(response => response.json())
+                    .then(response => {
+                        let data_wallet = response.data;
+
+                        let data = data_wallet.map(item => {
+                            return {
+                                "Profile": item.profile,
+                                "Device": item.device,
+                                "Parser": item.recovery_phrase
+                            }
+                        });
+                        let ws = XLSX.utils.json_to_sheet(data);
+                        let wb = XLSX.utils.book_new();
+                        XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+                        XLSX.writeFile(wb, "{{wallet.name}}.xlsx");
+                    });
+
             },
             Update(event, id, field) {
                 let value = event.target.innerText;

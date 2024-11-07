@@ -6,6 +6,48 @@ from datetime import datetime
 api = Blueprint("api", __name__)
 
 
+@api.route("/api/profile/push", methods=["POST"])
+def profile_push():
+    data = request.json
+    profile_name = data.get("profile_name")
+    profile_device = data.get("profile_device")
+    status = data.get("status")
+    session = data.get("session")
+
+    check = current_app.profile_gpm.find_one(
+        {"profile_name": profile_name, "profile_device": profile_device}
+    )
+    if check:
+        
+        update_data = {
+            "last_time": datetime.now(),
+            "status": status,
+        }
+        if session and len(session) >= 3:
+            update_data["session"] = session
+            
+        if status and len(status) >= 3:
+            update_data["status"] = session
+        
+        current_app.profile_gpm.update_one(
+            {"profile_name": profile_name, "profile_device": profile_device},
+            {"$set": update_data},
+        )
+        return jsonify({"code": 200, "message": "Update profile successfully"}), 200
+
+    # Tạo profile mới nếu không tồn tại
+    current_app.profile_gpm.insert_one(
+        {
+            "profile_name": profile_name,
+            "profile_device": profile_device,
+            "last_time": datetime.now(),
+            "status": "live",
+            "session": session,
+        }
+    )
+    return jsonify({"code": 201, "message": "Profile created successfully"}), 201
+
+
 @api.route("/api/project/detail/push", methods=["POST"])
 def data_detail_push():
     data = request.json
@@ -28,7 +70,7 @@ def data_detail_push():
             }
         )
     else:
-        
+
         check = current_app.project_detail.find_one(
             {
                 "project_id": ObjectId(project["_id"]),
@@ -36,7 +78,7 @@ def data_detail_push():
                 "device": device,
             }
         )
-        
+
         if check:
             current_app.project_detail.update_one(
                 {
@@ -51,14 +93,14 @@ def data_detail_push():
                 jsonify({"code": 200, "message": "Update data detail successfully"}),
                 200,
             )
-        
+
         current_app.project_detail.insert_one(
             {
                 "project_id": ObjectId(project["_id"]),
                 "profile": profile,
                 "device": device,
                 "status": status,
-                "status_qr":status_qr,
+                "status_qr": status_qr,
                 "last_time": datetime.now(),
             }
         )
@@ -138,7 +180,7 @@ def wallet_detail_push():
     password = data.get("password")
     password_mobile = data.get("password_mobile")
     recovery_phrase = data.get("recovery_phrase")
-    status = data.get("status")    
+    status = data.get("status")
     status_tomarket = data.get("status_tomarket")
 
     wallet = current_app.wallet.find_one({"slug": str(wallet_type).lower()})
@@ -179,16 +221,16 @@ def wallet_detail_push():
 
         if recovery_phrase and len(recovery_phrase) >= 3:
             update_fields["recovery_phrase"] = recovery_phrase
-            
+
         if password_mobile and len(password_mobile) >= 3:
             update_fields["password_mobile"] = password_mobile
 
         if status and len(status) >= 3:
             update_fields["status"] = status
-        
+
         if status_tomarket and len(status_tomarket) >= 3:
             update_fields["status_tomarket"] = status_tomarket
-        
+
         if update_fields:
             update_fields["last_time"] = datetime.now()
 
@@ -232,24 +274,29 @@ def wallet_detail_get():
     profile = data.get("profile")
     device = data.get("device")
     wallet_type = data.get("wallet")
-    
-    
+
     wallet = current_app.wallet.find_one({"slug": str(wallet_type).lower()})
     if wallet is None:
-        return jsonify({"code": 404, "message": "Wallet not found", "data":""}), 200
-    
-    wallet_detail = current_app.wallet_detail.find_one({
-        "profile": profile,
-        "device": device,
-        "wallet_id": ObjectId(wallet["_id"])
-    })
-    
+        return jsonify({"code": 404, "message": "Wallet not found", "data": ""}), 200
+
+    wallet_detail = current_app.wallet_detail.find_one(
+        {"profile": profile, "device": device, "wallet_id": ObjectId(wallet["_id"])}
+    )
+
     if wallet_detail is None:
-        return jsonify({"code": 404, "message": "Wallet detail not found", "data":""}), 200
-    
+        return (
+            jsonify({"code": 404, "message": "Wallet detail not found", "data": ""}),
+            200,
+        )
+
     data = {
         "recovery_phrase": wallet_detail.get("recovery_phrase"),
         "profile": wallet_detail.get("profile"),
         "status_tomarket": wallet_detail.get("status_tomarket"),
     }
-    return jsonify({"code": 200, "message": "Get wallet detail successfully", "data": data}), 200
+    return (
+        jsonify(
+            {"code": 200, "message": "Get wallet detail successfully", "data": data}
+        ),
+        200,
+    )

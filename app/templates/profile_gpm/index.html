@@ -34,9 +34,22 @@ ${% block breadcrumb %}
                     <option v-for="item in device" :key="item" :value="item" v-html="item"></option>
                 </select>
             </div>
-            <div>
-                <input type="text" class="form-control" v-model="name" placeholder="Tìm kiếm" v-on:change="getProfiles()"/>
+            <div class="">
+                <select class="form-control" id="filter_device" v-model="filter_status" @change="getProfiles()">
+                    <option value="">Trạng thái (tất cả)</option>
+                    <option v-for="item in status" :key="item" :value="item" v-html="item"></option>
+                </select>
             </div>
+            
+            <div>
+                <input type="text" class="form-control" v-model="name" placeholder="Tìm kiếm" v-on:keyup="getProfiles()"/>
+            </div>
+
+            <div>
+                <input type="text" class="form-control" v-model="session" placeholder="session" v-on:keyup="getProfiles()"/>
+            </div>
+
+
             <div class="d-flex gap-3 mb-3">
                 <a href="/profile_gpm/form" class="btn btn-primary" data-coreui-toggle="tooltip"
                     data-coreui-placement="top" data-coreui-title="Tạo profile mới">
@@ -58,6 +71,9 @@ ${% block breadcrumb %}
                     <th>STT</th>
                     <th>Tên profile</th>
                     <th>Thiết bị</th>
+                    <th>Trạng thái</th>
+                    <th>Session</th>
+                    <th>Lần cập nhật cuối</th>
 
                 </tr>
             </thead>
@@ -68,6 +84,9 @@ ${% block breadcrumb %}
                     <td v-html="index + 1"></td>
                     <td v-html="item.profile_name"></td>
                     <td v-html="item.profile_device"></td>
+                    <td v-html="item.status"></td>
+                    <td v-html="item.session"></td>
+                    <td v-html="item.last_time"></td>
                 </tr>
             </tbody>
         </table>
@@ -105,7 +124,10 @@ ${% block breadcrumb %}
             "profiles": [],
             current_page: 1,
             device: [],
+            status:[],
             filter_device: "",
+            filter_status:"",
+            session:"",
             pageSize: 25,
             totalPages: 0,
             totalResults: 0,
@@ -142,7 +164,9 @@ ${% block breadcrumb %}
                         "pageSize": this.pageSize,
                         "order_by": this.order_by,
                         "device": this.filter_device,
-                        "name": this.name
+                        "name": this.name,
+                        "status": this.filter_status,
+                        "session": this.session
                     })
                 }).then(response => {
                     return response.json();
@@ -150,9 +174,8 @@ ${% block breadcrumb %}
                     this.profiles = data.data;
                     this.totalPages = data.totalPages;
                     this.totalResults = data.totalResults;
-                    data.data.forEach(item => {
-                        this.device.find(d => d == item.profile_device) ? null : this.device.push(item.profile_device)
-                    });
+                    this.device = data.device;
+                    this.status = data.status;
                 });
             },
             changePage(page) {

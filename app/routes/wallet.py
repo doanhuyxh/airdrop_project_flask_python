@@ -139,7 +139,6 @@ def wallet_detail_get_data():
     total_pages = ceil(total_results / pageSize)
     skip = (page - 1) * pageSize
 
-    print(query)
 
     wallet_detail_data = (
         current_app.wallet_detail.find(query)

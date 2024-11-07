@@ -11,6 +11,7 @@ from flask import (
 )
 from bson import ObjectId
 from math import ceil
+from datetime import datetime
 
 from app.middlewares.auth import token_required
 
@@ -39,11 +40,16 @@ def get_data():
     pageSize = int(request.json.get("pageSize", 10))
     order_by = request.json.get("order_by")
     device = request.json.get("device")
+    status = request.json.get("status")
     name = request.json.get("name")
+    session = request.json.get("session")
     query = {}
 
     if device is not None and len(device) > 0:
         query["profile_device"] = device
+        
+    if status is not None and len(status) > 0:
+        query["status"] = status
         
     if order_by is None:
         order_by = "_id"
@@ -51,10 +57,17 @@ def get_data():
     if name is not None and len(name) > 0:
         query["profile_name"] = {"$regex": name, "$options": "i"}
 
+    if session is not None and len(session) > 0:
+        query["session"] = {"$regex": session, "$options": "i"}
+
+
+    list_device = current_app.profile_gpm.distinct("profile_device")
+    list_status = current_app.profile_gpm.distinct("status")
     
     total_results = current_app.profile_gpm.count_documents(query)
     total_pages = ceil(total_results / pageSize)
     skip = (page - 1) * pageSize
+    
 
     profile = (
         current_app.profile_gpm.find(query)
@@ -66,6 +79,8 @@ def get_data():
     data = []
     for p in profile:
         p["_id"] = str(p["_id"])
+        if p.get("last_time") is not None:
+            p['last_time'] =  datetime.fromisoformat(str(p['last_time'])).strftime("%Y-%m-%d %H:%M:%S")
         data.append(p)
 
     return (
@@ -77,6 +92,8 @@ def get_data():
                 "pageSize": pageSize,
                 "totalPages": total_pages,
                 "totalResults": total_results,
+                "device": list_device,
+                "status": list_status,
             }
         ),
         200,
