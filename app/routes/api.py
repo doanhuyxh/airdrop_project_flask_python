@@ -247,26 +247,26 @@ def wallet_detail_push():
             jsonify({"code": 200, "message": "Update wallet successfully"}),
             200,
         )
+    else:
+        current_app.wallet_detail.insert_one(
+            {
+                "profile": profile,
+                "device": device,
+                "wallet_id": ObjectId(wallet["_id"]),
+                "address": address,
+                "password": password,
+                "recovery_phrase": recovery_phrase,
+                "password_mobile": password_mobile,
+                "last_time": datetime.now(),
+                "status": status,
+                "status_tomarket": status_tomarket,
+            }
+        )
 
-    current_app.wallet_detail.insert_one(
-        {
-            "profile": profile,
-            "device": device,
-            "wallet_id": ObjectId(wallet["_id"]),
-            "address": address,
-            "password": password,
-            "recovery_phrase": recovery_phrase,
-            "password_mobile": password_mobile,
-            "last_time": datetime.now(),
-            "status": status,
-            "status_tomarket": status_tomarket,
-        }
-    )
-
-    return (
-        jsonify({"code": 200, "message": "Create wallet successfully"}),
-        200,
-    )
+        return (
+            jsonify({"code": 200, "message": "Create wallet successfully"}),
+            200,
+        )
 
 
 @api.route("/api/wallet/detail/get_wallet", methods=["POST"])
@@ -301,3 +301,33 @@ def wallet_detail_get():
         ),
         200,
     )
+
+
+@api.route("/api/wallet/detail/import", methods=["POST"])
+def importVi():
+    data = request.json
+    profile = data.get("profile")
+    paser = data.get("paser")
+    wallet_type = data.get("wallet")
+    sv = current_app.profile_gpm.find_one({"profile_name": profile})
+    if sv is None:
+        return jsonify({"code": 404, "message": "Profile not found"}), 404
+    
+    device = sv.get("profile_device")
+    wallet = current_app.wallet.find_one({"slug": str(wallet_type).lower()})
+    current_app.wallet_detail.insert_one(
+            {
+                "profile": profile,
+                "device": device,
+                "wallet_id": wallet["_id"],
+                "address": "",
+                "password": "",
+                "password_mobile": "",
+                "recovery_phrase": paser,
+                "last_time": datetime.now(),
+                "status": "live",
+                "status_tomarket": '',
+            }
+        )
+
+    return jsonify({"code": 200, "message": "Import wallet successfully"}), 200

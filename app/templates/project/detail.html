@@ -40,12 +40,7 @@ ${% block breadcrumb %}
                         <option v-for="(item, index) in status" :value="item" :key="index" v-html="item"></option>
                     </select>
                 </div>
-                <div>
-                    <select class="form-select" v-model="filter_status_qr" v-on:change="getProjects">
-                        <option value="" selected>Trạng thái QR</option>
-                        <option v-for="(item, index) in status_qr" :value="item" :key="index" v-html="item"></option>
-                    </select>
-                </div>
+
                 <div>
                     <select class="form-select" v-model="filter_device" v-on:change="getProjects">
                         <option value="" selected>Server (Thiết bị)</option>
@@ -100,15 +95,18 @@ ${% block breadcrumb %}
                             Thiết bị
                             <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
                         </th>
+                        <th @click="sort('point')" class="pointer">
+                            Điểm
+                            <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                        </th>
                         <th @click="sort('status')" class="pointer">
                             Trạng thái
                             <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
                         </th>
-                        <th @click="sort('status_qr')" class="pointer">
-                            Trạng thái QR code
+                        <th @click="sort('last_time')" class="pointer">
+                            Lần cập nhật cuối
                             <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
                         </th>
-
                     </tr>
                 </thead>
                 <tbody>
@@ -129,14 +127,17 @@ ${% block breadcrumb %}
                             </div>
                         </td>
                         <td>
+                            <div contenteditable="true" class="form-control" @keyup="Update($event, item._id, 'point')"
+                                v-html="item.point">
+                            </div>
+                        </td>
+                        <td>
                             <div contenteditable="true" class="form-control" @keyup="Update($event, item._id, 'status')"
                                 v-html="item.status">
                             </div>
                         </td>
                         <td>
-                            <div contenteditable="true" class="form-control"
-                                @keyup="Update($event, item._id, 'status_qr')" v-html="item.status_qr">
-                            </div>
+                            <span v-html="item.last_time"></span>
                         </td>
 
                     </tr>
@@ -247,12 +248,6 @@ ${% block breadcrumb %}
                             <select class="form-select" v-model="filter_status" v-on:change="getProjectsFilter">
                                 <option value="" selected>Trạng thái</option>
                                 <option v-for="(item, index) in status" :value="item" :key="index" v-html="item">
-                                </option>
-                            </select>
-
-                            <select class="form-select" v-model="filter_status_qr" v-on:change="getProjectsFilter">
-                                <option value="" selected>Trạng thái QR</option>
-                                <option v-for="(item, index) in status_qr" :value="item" :key="index" v-html="item">
                                 </option>
                             </select>
                         </div>

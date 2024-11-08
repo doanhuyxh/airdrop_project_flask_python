@@ -149,7 +149,7 @@ ${% block breadcrumb %}
                                 @keyup="Update($event, item._id, 'password')" v-html="item.password">
                             </div>
                         </td>
-                        <td>
+                        <td  v-on:hover="showNotify">
                             <div contenteditable="true" class="form-control" style="max-width: 300px;"
                                 @keyup="Update($event, item._id, 'recovery_phrase')" v-html="item.recovery_phrase">
                             </div>
@@ -586,6 +586,12 @@ ${% block breadcrumb %}
                 // Tải file Excel xuống
                 XLSX.writeFile(wb, `${"wallet"}.xlsx`);
 
+            },
+            showNotify() {
+                Toast.fire({
+                    icon: "success",
+                    title: "Thành công"
+                });
             }
         }
     });

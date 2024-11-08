@@ -216,8 +216,11 @@ def data_detail_get():
     for detail in project_detail_data:
         detail["_id"] = str(detail["_id"])
         detail["project_id"] = str(detail["project_id"])
+        if detail["last_time"] is not None:
+            detail["last_time"] = datetime.fromisoformat(str(p["last_time"])).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            )
         data.append(detail)
-
     return (
         jsonify(
             {
@@ -255,11 +258,11 @@ def data_detail_get_filter():
         query["status"] = status
 
     project_detail_data = current_app.project_detail.find(query)
-    
+
     data = []
     for detail in project_detail_data:
         data.append(detail["profile"])
-        
+
     return jsonify({"code": 200, "data": data}), 200
 
 
