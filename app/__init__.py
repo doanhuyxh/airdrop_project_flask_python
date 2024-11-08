@@ -1,6 +1,6 @@
 # app/__init__.py
 import traceback
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from pymongo import MongoClient, ASCENDING
 from werkzeug.exceptions import HTTPException
 #from flask_swagger_ui import get_swaggerui_blueprint
@@ -49,6 +49,7 @@ def create_app():
             code = 500
         
         stack_trace = traceback.format_exc()
+        print(request.get_data(as_text=True))
         return (
             jsonify({"code": code, "message": str(e), "data":[], "stack_trace": stack_trace }),
             200,

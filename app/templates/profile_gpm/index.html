@@ -85,7 +85,13 @@ ${% block breadcrumb %}
                     <th class="text-nowrap">Tên profile</th>
                     <th class="text-nowrap">Thiết bị</th>
                     <th class="text-nowrap">Trạng thái</th>
-                    <th class="text-nowrap">Session</th>
+                    <th class="text-nowrap d-flex gap-2">
+                        Session
+                        <span class="btn btn-sm btn-info" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                            data-coreui-title="Click để copy" v-on:click="CopyData('session')">
+                            <i class="fa-solid fa-copy"></i>
+                        </span>
+                    </th>
                     <th class="text-nowrap">Lần cập nhật cuối</th>
 
                 </tr>
@@ -287,6 +293,30 @@ ${% block breadcrumb %}
                         })
                     }
                 });
+            },
+            CopyData(key) {
+                Toast.fire({
+                    icon: "info",
+                    title: "Đang lấy dữ liệu"
+                });
+
+                console.log(key);
+                fetch("/profile_gpm/get_data?key=" + key)
+                    .then(response => {
+                        return response.json();
+                    }).then(data => {
+                        console.log(data);
+                        navigator.clipboard.writeText(data.data);
+                        Toast.fire({
+                            icon: "success",
+                            title: "Đã copy dữ liệu"
+                        });
+                    }).catch(() => {
+                        Toast.fire({
+                            icon: "error",
+                            title: "Lỗi khi lấy dữ liệu"
+                        });
+                    });
             }
         }
     })

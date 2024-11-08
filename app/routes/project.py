@@ -217,7 +217,7 @@ def data_detail_get():
         detail["_id"] = str(detail["_id"])
         detail["project_id"] = str(detail["project_id"])
         if detail["last_time"] is not None:
-            detail["last_time"] = datetime.fromisoformat(str(p["last_time"])).strftime(
+            detail["last_time"] = datetime.fromisoformat(str(detail["last_time"])).strftime(
                 "%Y-%m-%d %H:%M:%S"
             )
         data.append(detail)

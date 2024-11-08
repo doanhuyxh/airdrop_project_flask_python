@@ -102,6 +102,32 @@ def get_data():
     )
 
 
+@profile_gpm.route("/profile_gpm/get_data", methods=["GET"])
+def getKeyData():
+    key = request.args.get("key")
+
+    if key is None:
+        return jsonify({"code": 400, "message": "Key is required"}), 400
+
+    profiles = current_app.profile_gpm.find({})
+
+    if key == "session":
+        data = []
+        for profile in profiles:
+            if profile.get("session") is not None:
+                data.append(
+                    str(profile["profile_name"])
+                    + " - "
+                    + str(profile["profile_device"])
+                    + " - "
+                    + str(profile["session"])
+                    + "\n\n"
+                )
+        return jsonify({"code": 200, "data": data}), 200
+
+    return jsonify({"code": 200, "data": ""}), 200
+
+
 @profile_gpm.route("/profile_gpm/form")
 def form():
     id = request.args.get("id")
@@ -129,7 +155,7 @@ def update_field():
         return jsonify({"code": 400, "message": "Key and value is required"}), 400
 
     current_app.profile_gpm.update_many({}, {"$set": {key: value}})
-    
+
     return jsonify({"code": 200, "message": "Success"}), 200
 
 

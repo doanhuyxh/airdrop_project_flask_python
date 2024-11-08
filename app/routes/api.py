@@ -15,21 +15,21 @@ def profile_push():
     session = data.get("session")
 
     print(data)
-    
+
     check = current_app.profile_gpm.find_one(
         {"profile_name": profile_name, "profile_device": profile_device}
     )
     if check:
-        
+
         update_data = {
             "last_time": datetime.now(),
         }
         if session and len(session) >= 3:
             update_data["session"] = session
-            
+
         if status and len(status) >= 3:
             update_data["status"] = status
-        
+
         current_app.profile_gpm.update_one(
             {"profile_name": profile_name, "profile_device": profile_device},
             {"$set": update_data},
@@ -51,12 +51,14 @@ def profile_push():
 
 @api.route("/api/project/detail/push", methods=["POST"])
 def data_detail_push():
+
     data = request.json
+    print(data)
     profile = data.get("profile")
     device = data.get("device")
     status = data.get("status")
     project_slug = data.get("project")
-    status_qr = data.get("status_qr")
+    point = data.get("point")
 
     project = current_app.project.find_one({"project_slug": str(project_slug).lower()})
 
@@ -67,6 +69,7 @@ def data_detail_push():
                 "profile": profile,
                 "device": device,
                 "status": status,
+                "point": 0,
                 "last_time": datetime.now(),
             }
         )
@@ -81,14 +84,20 @@ def data_detail_push():
         )
 
         if check:
+            update_fields = {}
+            update_fields["last_time"] = datetime.now()
+            if point is not None:
+                update_fields["point"] = point
+            if status is not None:
+                update_fields["status"] = status
+
             current_app.project_detail.update_one(
                 {
                     "project_id": ObjectId(project["_id"]),
                     "profile": profile,
                     "device": device,
-                    "status_qr": status_qr,
                 },
-                {"$set": {"status": status, "last_time": datetime.now()}},
+                {"$set": update_fields},
             )
             return (
                 jsonify({"code": 200, "message": "Update data detail successfully"}),
@@ -101,7 +110,7 @@ def data_detail_push():
                 "profile": profile,
                 "device": device,
                 "status": status,
-                "status_qr": status_qr,
+                "point": point,
                 "last_time": datetime.now(),
             }
         )
@@ -312,22 +321,22 @@ def importVi():
     sv = current_app.profile_gpm.find_one({"profile_name": profile})
     if sv is None:
         return jsonify({"code": 404, "message": "Profile not found"}), 404
-    
+
     device = sv.get("profile_device")
     wallet = current_app.wallet.find_one({"slug": str(wallet_type).lower()})
     current_app.wallet_detail.insert_one(
-            {
-                "profile": profile,
-                "device": device,
-                "wallet_id": wallet["_id"],
-                "address": "",
-                "password": "",
-                "password_mobile": "",
-                "recovery_phrase": paser,
-                "last_time": datetime.now(),
-                "status": "live",
-                "status_tomarket": '',
-            }
-        )
+        {
+            "profile": profile,
+            "device": device,
+            "wallet_id": wallet["_id"],
+            "address": "",
+            "password": "",
+            "password_mobile": "",
+            "recovery_phrase": paser,
+            "last_time": datetime.now(),
+            "status": "live",
+            "status_tomarket": "",
+        }
+    )
 
     return jsonify({"code": 200, "message": "Import wallet successfully"}), 200
