@@ -199,6 +199,7 @@ ${% block breadcrumb %}
                         "device": "Tên thiết bị (pc1, pc2, pc3,...)",
                         "status": "Trạng thái (Đã hoàn thành, Chưa hoàn thành)",
                         "project": "{{project.project_slug}}",
+                        "point": "123"
                     }
                 </code></pre>
 
@@ -392,7 +393,7 @@ ${% block breadcrumb %}
             },
             CopyTemplateData() {
                 if (navigator.clipboard) {
-                    navigator.clipboard.writeText(`{"profile":"Tên profile","device":"Tên thiết bị (pc1, pc2, pc3,...)","status":"Trạng thái (Đã hoàn thành, Chưa hoàn thành)","project":"{{project.project_slug}}"}`)
+                    navigator.clipboard.writeText(`{"profile":"Tên profile","device":"Tên thiết bị (pc1, pc2, pc3,...)","status":"Trạng thái (Đã hoàn thành, Chưa hoàn thành)","project":"{{project.project_slug}}", "point":""}`)
                         .then(() => {
                             Toast.fire({
                                 icon: "success",
