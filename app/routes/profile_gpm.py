@@ -29,10 +29,12 @@ def check_token():
 def index():
     return render_template("profile_gpm/index.html")
 
+
 @profile_gpm.route("/profile_gpm/get_devices", methods=["GET"])
 def get_devices():
     devices = current_app.profile_gpm.distinct("profile_device")
     return jsonify({"code": 200, "data": devices}), 200
+
 
 @profile_gpm.route("/profile_gpm/list", methods=["POST"])
 def get_data():
@@ -47,27 +49,25 @@ def get_data():
 
     if device is not None and len(device) > 0:
         query["profile_device"] = device
-        
+
     if status is not None and len(status) > 0:
         query["status"] = status
-        
+
     if order_by is None:
-        order_by = "_id"
-        
+        order_by = "last_time"
+
     if name is not None and len(name) > 0:
         query["profile_name"] = {"$regex": name, "$options": "i"}
 
     if session is not None and len(session) > 0:
         query["session"] = {"$regex": session, "$options": "i"}
 
-
     list_device = current_app.profile_gpm.distinct("profile_device")
     list_status = current_app.profile_gpm.distinct("status")
-    
+
     total_results = current_app.profile_gpm.count_documents(query)
     total_pages = ceil(total_results / pageSize)
     skip = (page - 1) * pageSize
-    
 
     profile = (
         current_app.profile_gpm.find(query)
@@ -80,7 +80,9 @@ def get_data():
     for p in profile:
         p["_id"] = str(p["_id"])
         if p.get("last_time") is not None:
-            p['last_time'] =  datetime.fromisoformat(str(p['last_time'])).strftime("%Y-%m-%d %H:%M:%S")
+            p["last_time"] = datetime.fromisoformat(str(p["last_time"])).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            )
         data.append(p)
 
     return (
@@ -117,6 +119,20 @@ def form():
     return render_template("profile_gpm/form.html", profile=profile)
 
 
+@profile_gpm.route("/profile_gpm/update_field", methods=["POST"])
+def update_field():
+    data = request.json
+    key = data.get("key")
+    value = data.get("value")
+
+    if key is None or value is None:
+        return jsonify({"code": 400, "message": "Key and value is required"}), 400
+
+    current_app.profile_gpm.update_many({}, {"$set": {key: value}})
+    
+    return jsonify({"code": 200, "message": "Success"}), 200
+
+
 @profile_gpm.route("/profile_gpm/save", methods=["POST"])
 def saveData():
     data = request.json
@@ -148,23 +164,38 @@ def deteleData():
 
     return jsonify({"code": 200, "message": "Success"}), 200
 
+
 @profile_gpm.route("/profile_gpm/get_profile", methods=["GET"])
 def get_profile():
     device = request.args.get("device")
-    
+
     if not device:
         return jsonify({"code": 400, "message": "Device is required", "data": []}), 400
 
     try:
-        profile = current_app.profile_gpm.find({"profile_device": device}, {"_id": 0, "profile_name": 1})
+        profile = current_app.profile_gpm.find(
+            {"profile_device": device}, {"_id": 0, "profile_name": 1}
+        )
         profile_data = []
         for p in profile:
             profile_data.append(p["profile_name"])
-        
+
         if not profile_data:
-            return jsonify({"code": 404, "message": "Profile not found", "data": []}), 404
+            return (
+                jsonify({"code": 404, "message": "Profile not found", "data": []}),
+                404,
+            )
 
         return jsonify({"code": 200, "data": profile_data}), 200
 
     except Exception as e:
-        return jsonify({"code": 500, "message": "An error occurred while fetching the profile", "error": str(e)}), 500
+        return (
+            jsonify(
+                {
+                    "code": 500,
+                    "message": "An error occurred while fetching the profile",
+                    "error": str(e),
+                }
+            ),
+            500,
+        )

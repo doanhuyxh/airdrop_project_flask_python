@@ -14,6 +14,8 @@ def profile_push():
     status = data.get("status")
     session = data.get("session")
 
+    print(data)
+    
     check = current_app.profile_gpm.find_one(
         {"profile_name": profile_name, "profile_device": profile_device}
     )
@@ -21,13 +23,12 @@ def profile_push():
         
         update_data = {
             "last_time": datetime.now(),
-            "status": status,
         }
         if session and len(session) >= 3:
             update_data["session"] = session
             
         if status and len(status) >= 3:
-            update_data["status"] = session
+            update_data["status"] = status
         
         current_app.profile_gpm.update_one(
             {"profile_name": profile_name, "profile_device": profile_device},
