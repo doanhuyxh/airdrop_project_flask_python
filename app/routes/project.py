@@ -194,10 +194,10 @@ def data_detail_get():
     list_devices = current_app.project_detail.distinct(
         "device", {"project_id": ObjectId(project_id)}
     )
-    list_status_qr = current_app.project_detail_point.distinct(
+    list_status_qr = current_app.project_detail.distinct(
         "status_qr", {"project_id": ObjectId(project_id)}
     )
-    list_status = current_app.project_detail_point.distinct(
+    list_status = current_app.project_detail.distinct(
         "status", {"project_id": ObjectId(project_id)}
     )
 

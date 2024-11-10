@@ -128,6 +128,39 @@ def getKeyData():
     return jsonify({"code": 200, "data": ""}), 200
 
 
+@profile_gpm.route("/profile_gpm/export_excel_data", methods=["POST"])
+def export_excel_data():
+    device = request.json.get("device")
+    status = request.json.get("status")
+    name = request.json.get("name")
+    session = request.json.get("session")
+    query = {}
+
+    if device is not None and len(device) > 0:
+        query["profile_device"] = device
+
+    if status is not None and len(status) > 0:
+        query["status"] = status
+        
+        
+    if name is not None and len(name) > 0:
+        query["profile_name"] = {"$regex": name, "$options": "i"}
+
+    if session is not None and len(session) > 0:
+        query["session"] = {"$regex": session, "$options": "i"}
+
+    profile = current_app.profile_gpm.find(query, {"profile_name":1, "profile_device":1,"_id": 0})
+
+    data = []
+    for p in profile:
+        if p.get("last_time") is not None:
+            p["last_time"] = datetime.fromisoformat(str(p["last_time"])).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            )
+        data.append(p)
+
+    return jsonify({"code": 200, "data": data}), 200
+
 @profile_gpm.route("/profile_gpm/form")
 def form():
     id = request.args.get("id")
