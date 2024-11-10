@@ -32,21 +32,21 @@ ${% block breadcrumb %}
         <div class="d-flex justify-content-between">
             <div class="w-75 d-flex gap-2">
                 <div>
-                    <select class="form-select" v-model="filter_status" v-on:change="getProjects">
+                    <select class="form-select" v-model="filter_status" v-on:change="page = 1; getProjects()">
                         <option value="" selected>Trạng thái</option>
                         <option v-for="(item, index) in status" :value="item" :key="index" v-html="item"></option>
                     </select>
                 </div>
 
                 <div>
-                    <select class="form-select" v-model="filter_device" v-on:change="getProjects">
+                    <select class="form-select" v-model="filter_device" v-on:change="page = 1; getProjects()">
                         <option value="" selected>Server (Thiết bị)</option>
                         <option v-for="(item, index) in device" :value="item" :key="index" v-html="item"></option>
                     </select>
                 </div>
                 <div>
                     <input type="text" class="form-control w-100" placeholder="Tìm kiếm profile" v-model="search"
-                        v-on:keyup="getProjects">
+                        v-on:keyup="debouncedSearch">
                 </div>
                 <div>
                     <p>Tổng cộng profile hiện có: <span class="text-danger fw-bold" v-html="totalResults"></span></p>
@@ -294,9 +294,11 @@ ${% block breadcrumb %}
             device_gpm: [],
             api_url: `${window.location.origin}/api/project/detail/push`
         },
+        created() {
+            this.debouncedSearch = _.debounce(this.getProjects, 300);
+        },
         mounted() {
             this.getProjects();
-
             fetch("/profile_gpm/get_devices")
                 .then(response => response.json())
                 .then(response => {
@@ -329,6 +331,9 @@ ${% block breadcrumb %}
         },
         methods: {
             getProjects() {
+                $("table").LoadingOverlay("show", {
+                    background: "rgba(165, 190, 100, 0.5)"
+                });
                 fetch('/project/detail/get_data', {
                     method: 'POST',
                     headers: {
@@ -347,6 +352,7 @@ ${% block breadcrumb %}
                 })
                     .then(response => response.json())
                     .then(response => {
+                        $("table").LoadingOverlay("hide", true);
                         this.data_project = response.data;
                         this.totalPages = response.totalPages;
                         this.totalResults = response.totalResults;
