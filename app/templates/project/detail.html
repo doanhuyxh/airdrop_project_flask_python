@@ -17,7 +17,7 @@ ${% block breadcrumb %}
         </ol>
     </nav>
 
-    
+
 </div>
 
 {% endblock %}
@@ -449,18 +449,52 @@ ${% block breadcrumb %}
                     })
             },
             ExportExcel() {
-                let data = this.data_project.map(item => {
-                    return {
-                        "Profile": item.profile,
-                        "Device": item.device,
-                        "Trạng thái": item.status
-                    }
-                });
+                fetch('/project/export_excel_data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        "id": "{{project._id}}",
+                        "status": this.filter_status,
+                        "device": this.filter_device,
+                        "search": this.search,
+                    })
+                })
+                    .then(response => response.json())
+                    .then(response => {
+                        if (response.code == 200) {
+                            let res_data = response.data;
+                            let data_result = []
+                            for (let i = 0; i < res_data.length; i++) {
+                                data_result.push({
+                                    "Tên profile": res_data[i].profile,
+                                    "Thiết bị": res_data[i].device,
+                                });
+                            }
+                            let ws = XLSX.utils.json_to_sheet(data_result);
+                            const columnWidths = Object.keys(data_result[0]).map((key) => {
+                                const maxWidth = Math.max(
+                                    ...data_result.map(row => (row[key] ? row[key].toString().length : 0)),
+                                    key.length
+                                );
+                                return { wch: maxWidth + 2 };
+                            });
+                            ws['!cols'] = columnWidths;
 
-                let ws = XLSX.utils.json_to_sheet(data);
-                let wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-                XLSX.writeFile(wb, "{{project.project_name}}.xlsx");
+                            let wb = XLSX.utils.book_new();
+                            XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+                            // Tải file Excel xuống
+                            XLSX.writeFile(wb, `{{project.project_name}}.xlsx`);
+                        } else {
+                            Toast.fire({
+                                icon: "error",
+                                title: "Lỗi khi xuất dữ liệu"
+                            });
+                        }
+                    })
+
             },
             Update(event, id, field) {
                 let value = event.target.innerText;

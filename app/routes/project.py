@@ -239,6 +239,37 @@ def data_detail_get():
     )
 
 
+@project.route("/project/export_excel_data", methods=["POST"])
+def export_excel_data():
+    project_id = request.json.get("id")
+    device = request.json.get("device")
+    status = request.json.get("status")
+    search = request.json.get("search")
+
+    query = {"project_id": ObjectId(project_id)}
+
+    if device:
+        query["device"] = {"$regex": device, "$options": "i"}
+
+    if status:
+        query["status"] = status
+
+    if search:
+        query["profile"] = {"$regex": search, "$options": "i"}
+
+
+    profile = current_app.project_detail.find(query, {"profile":1, "device":1,"_id": 0})
+
+    data = []
+    for p in profile:
+        if p.get("last_time") is not None:
+            p["last_time"] = datetime.fromisoformat(str(p["last_time"])).strftime(
+                "%Y-%m-%d %H:%M:%S"
+            )
+        data.append(p)
+
+    return jsonify({"code": 200, "data": data}), 200
+
 @project.route("/project/detail/get_data_filter", methods=["POST"])
 def data_detail_get_filter():
     project_id = request.json.get("id")
