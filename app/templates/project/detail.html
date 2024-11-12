@@ -32,14 +32,14 @@ ${% block breadcrumb %}
         <div class="d-flex justify-content-between">
             <div class="w-75 d-flex gap-2">
                 <div>
-                    <select class="form-select" v-model="filter_status" v-on:change="page = 1; getProjects()">
+                    <select class="form-select" v-model="filter_status" v-on:change="current_page = 1; getProjects()">
                         <option value="" selected>Trạng thái</option>
                         <option v-for="(item, index) in status" :value="item" :key="index" v-html="item"></option>
                     </select>
                 </div>
 
                 <div>
-                    <select class="form-select" v-model="filter_device" v-on:change="page = 1; getProjects()">
+                    <select class="form-select" v-model="filter_device" v-on:change="current_page = 1; getProjects()">
                         <option value="" selected>Server (Thiết bị)</option>
                         <option v-for="(item, index) in device" :value="item" :key="index" v-html="item"></option>
                     </select>
@@ -48,8 +48,9 @@ ${% block breadcrumb %}
                     <input type="text" class="form-control w-100" placeholder="Tìm kiếm profile" v-model="search"
                         v-on:keyup="debouncedSearch">
                 </div>
-                <div>
-                    <p>Tổng cộng profile hiện có: <span class="text-danger fw-bold" v-html="totalResults"></span></p>
+                <div class="d-flex gap-3">
+                    <p>Tổng profile hiện có: <span class="text-danger fw-bold" v-html="totalResults"></span></p>
+                    <p>Tổng điểm: <span class="text-danger fw-bold" v-html="totalPoint"></span></p>
                 </div>
             </div>
             <div class="d-flex justify-content-end gap-3 mb-4">
@@ -286,6 +287,7 @@ ${% block breadcrumb %}
             pageSize: 25,
             totalPages: 0,
             totalResults: 0,
+            totalPoint: 0,
             order_by: "last_time",
             selectedRows: [],
             profileGpm: [],
@@ -359,6 +361,7 @@ ${% block breadcrumb %}
                         this.device = response.list_devices;
                         this.status = response.list_status;
                         this.status_qr = response.list_status_qr;
+                        this.totalPoint = response.totalPoint;
                     })
             },
             changePage(page) {

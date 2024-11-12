@@ -29,13 +29,13 @@ ${% block breadcrumb %}
 
         <div class="d-flex gap-3 mb-3">
             <div class="">
-                <select class="form-control" id="filter_device" v-model="filter_device" @change="getProfiles()">
+                <select class="form-control" id="filter_device" v-model="filter_device" @change="current_page = 1; getProfiles()">
                     <option value="">Thiết bị (tất cả)</option>
                     <option v-for="item in device" :key="item" :value="item" v-html="item"></option>
                 </select>
             </div>
             <div class="">
-                <select class="form-control" id="filter_device" v-model="filter_status" @change="getProfiles()">
+                <select class="form-control" id="filter_device" v-model="filter_status" @change="current_page = 1; getProfiles()">
                     <option value="">Trạng thái (tất cả)</option>
                     <option v-for="item in status" :key="item" :value="item" v-html="item"></option>
                 </select>

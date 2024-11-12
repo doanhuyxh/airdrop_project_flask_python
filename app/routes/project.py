@@ -211,7 +211,7 @@ def data_detail_get():
         .skip(skip)
         .limit(pageSize)
     )
-
+    totalPoint = 0
     data = []
     for detail in project_detail_data:
         detail["_id"] = str(detail["_id"])
@@ -221,6 +221,22 @@ def data_detail_get():
                 "%Y-%m-%d %H:%M:%S"
             )
         data.append(detail)
+        point = detail.get("point")
+        
+        if point is not None:
+            point = str(point).lower()
+            point = point.replace(",", "")
+            point = point.replace(".", "")
+            if 'm' in point:
+                point = point.replace("m", "000000")
+            elif 'b' in point:
+                point = point.replace("b", "000000000")
+            elif 't' in point:
+                point = point.replace("t", "000000000000")
+            point = int(point)
+            
+        totalPoint += point
+        
     return (
         jsonify(
             {
@@ -233,6 +249,7 @@ def data_detail_get():
                 "list_devices": list_devices,
                 "list_status": list_status,
                 "list_status_qr": list_status_qr,
+                "totalPoint": totalPoint,
             }
         ),
         200,
