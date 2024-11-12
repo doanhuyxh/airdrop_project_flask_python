@@ -115,13 +115,11 @@ ${% block breadcrumb %}
                             <div v-html="index + 1"></div>
                         </td>
                         <td>
-                            <div contenteditable="true" class="form-control"
-                                @keyup="Update($event, item._id, 'profile')" v-html="item.profile">
+                            <div contenteditable="false" class="form-control" v-html="item.profile">
                             </div>
                         </td>
                         <td>
-                            <div contenteditable="true" class="form-control" @keyup="Update($event, item._id, 'device')"
-                                v-html="item.device">
+                            <div contenteditable="false" class="form-control" v-html="item.device">
                             </div>
                         </td>
                         <td>
