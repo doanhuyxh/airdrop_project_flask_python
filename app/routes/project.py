@@ -234,7 +234,8 @@ def data_detail_get():
             elif 't' in point:
                 point = point.replace("t", "000000000000")
             point = int(point)
-            
+        else:
+            point = 0 
         totalPoint += point
         
     return (
