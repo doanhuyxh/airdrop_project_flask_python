@@ -117,6 +117,7 @@ ${% block breadcrumb %}
 
     async function save() {
         try {
+            
             $("#profile").LoadingOverlay("show", {
                 background: "rgba(165, 190, 100, 0.5)"
             });
@@ -132,7 +133,7 @@ ${% block breadcrumb %}
             let mailArray = mail.split('\n');
             for (let i = 0; i < mailArray.length; i++) {
                 let mail_data = mailArray[i];
-                
+
                 let mail_data_array = mail_data.split(' ');
                 let email = mail_data_array[0];
                 let password = mail_data_array[1];
@@ -140,9 +141,18 @@ ${% block breadcrumb %}
 
                 let device = document.getElementById('mail_device').value;
 
+                if (device == devices[0]) {
+                   device = '';
+                }
+
                 if (email.trim() == '' || password.trim() == '') {
                     continue;
                 }
+
+                if (phone.trim() == '' || phone.trim() == 'undefined' || phone.trim() == 'null' || phone.trim() == 'NaN') {
+                    phone = '';
+                }
+
                 await saveData(email, password, phone, device);
             }
 

@@ -173,6 +173,7 @@ def data_detail_get():
     page = request.json.get("page")
     pageSize = request.json.get("pageSize")
     order_by = request.json.get("order_by")
+    order_type = request.json.get("order_type")
 
     query = {"project_id": ObjectId(project_id)}
 
@@ -190,6 +191,9 @@ def data_detail_get():
 
     if order_by is None:
         order_by = "_id"
+    
+    if order_type is None:
+        order_type = -1
 
     list_devices = current_app.project_detail.distinct(
         "device", {"project_id": ObjectId(project_id)}
@@ -207,7 +211,7 @@ def data_detail_get():
 
     project_detail_data = (
         current_app.project_detail.find(query)
-        .sort(order_by, -1)
+        .sort(order_by, order_type)
         .skip(skip)
         .limit(pageSize)
     )

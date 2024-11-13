@@ -287,6 +287,7 @@ ${% block breadcrumb %}
             totalResults: 0,
             totalPoint: 0,
             order_by: "last_time",
+            order_type: -1,
             selectedRows: [],
             profileGpm: [],
             profileGpmFilter: [],
@@ -347,6 +348,7 @@ ${% block breadcrumb %}
                         "page": this.current_page,
                         "pageSize": this.pageSize,
                         "order_by": this.order_by,
+                        "order_type": this.order_type,
                         "status_qr": this.filter_status_qr
                     })
                 })
@@ -370,6 +372,7 @@ ${% block breadcrumb %}
             },
             sort(field) {
                 this.order_by = field;
+                this.order_type = this.order_type === -1 ? 1 : -1;
                 this.page = 1;
                 this.getProjects();
             },

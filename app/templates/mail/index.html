@@ -49,8 +49,8 @@ ${% block breadcrumb %}
             </span>
 
 
-            <span class="btn btn-danger" data-coreui-toggle="tooltip" data-coreui-placement="top" v-on:click="deleteSelectMail"
-                data-coreui-title="Xoá mail đang chọn">
+            <span class="btn btn-danger" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                v-on:click="deleteSelectMail" data-coreui-title="Xoá mail đang chọn">
                 <i class="fa-solid fa-trash"></i>
             </span>
         </div>
@@ -58,30 +58,45 @@ ${% block breadcrumb %}
 
 
     <table class="table table-hover table-striped table-bordered" @mousedown="startDrag" @mouseup="stopDrag">
-        <thead>
+        <thead class="table-primary">
             <tr>
-                <th>STT</th>
-                <th>Email</th>
-                <th>Mật khẩu</th>
-                <th>Số điện thoại</th>
+                <th @click="sort('_id')" class="pointer" style="width: 5em;">
+                    STT
+                    <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                </th>
+                <th>
+                    Email
+                </th>
+                <th>
+                    Mật khẩu
+                </th>
+                <th>
+                    Số điện thoại
+                </th>
                 <th>Thiết bị</th>
-                <th>Ngày tạo</th>
-                <td></td>
+                <th  @click="sort('created_at')" class="pointer text-nowrap" style="width: 5em;">
+                    Ngày tạo
+                    <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                </th>
             </tr>
         </thead>
         <tbody>
             <tr v-for="(item, index) in mail" :key="item._id" @click="selectRow(item._id)"
                 @mouseover="isDragging ? selectRow(item._id) : null"
                 :class="{ 'selected-row': selectedRows.includes(item._id) }">
-                <td v-html="index+1"></td>
                 <td>
-                    <span v-html="item.mail"></span>
+                    <span v-html="index+1"></span>
                 </td>
                 <td>
-                    <div class="form-control" contenteditable="true" v-html="item.password" @keyup="Update($event, item._id, 'password')"></div>
+                    <span @click="CopyData(item.mail)" v-html="item.mail"></span>
                 </td>
                 <td>
-                    <div class="form-control" contenteditable="true" v-html="item.phone" @keyup="Update($event, item._id, 'phone')"></div>
+                    <div class="form-control" contenteditable="true" v-html="item.password"
+                        @keyup="Update($event, item._id, 'password')"></div>
+                </td>
+                <td>
+                    <div class="form-control" contenteditable="true" v-html="item.phone"
+                        @keyup="Update($event, item._id, 'phone')"></div>
                 </td>
                 <td>
                     <span v-html="item.device"></span>
@@ -89,7 +104,6 @@ ${% block breadcrumb %}
                 <td>
                     <span v-html="item.created_at"></span>
                 </td>
-                <td></td>
             </tr>
         </tbody>
     </table>
@@ -134,6 +148,7 @@ ${% block breadcrumb %}
             totalPages: 0,
             totalResults: 0,
             order_by: "created_at",
+            order_type: -1,
             selectedRows: [],
             isDragging: false,
         },
@@ -171,7 +186,8 @@ ${% block breadcrumb %}
                         pageSize: this.pageSize,
                         order_by: this.order_by,
                         search: this.search,
-                        device: this.filter_device
+                        device: this.filter_device,
+                        order_type: this.order_type
                     })
                 })
                     .then(response => response.json())
@@ -182,6 +198,12 @@ ${% block breadcrumb %}
                         this.device = data.list_devices;
                         $("table").LoadingOverlay("hide");
                     });
+            },
+            sort(field) {
+                this.order_by = field;
+                this.order_type = this.order_type === -1 ? 1 : -1;
+                this.page = 1;
+                this.getMail();
             },
             changePage(page) {
                 if (page >= 1 && page <= this.totalPages) {
@@ -203,7 +225,21 @@ ${% block breadcrumb %}
                 this.isDragging = false;
             },
             ExportExcel() {
-
+                fetch(`/mail/get_data`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        page: 1,
+                        pageSize: 1000000,
+                        
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        let res_data = data.data;
+                    });
             },
             Update(event, id, field) {
                 let value = event.target.innerText;
@@ -219,7 +255,7 @@ ${% block breadcrumb %}
                     })
                 })
             },
-            deleteSelectMail(){
+            deleteSelectMail() {
                 Swal.fire({
                     title: "Bạn chắc chắn chứ?",
                     text: "Sẽ xoá tất cả dữ liệu liên quan, không thể khôi phục lại!",
@@ -248,6 +284,14 @@ ${% block breadcrumb %}
                             this.getMail();
                         });
                     }
+                });
+            },
+            CopyData(value) {
+                navigator.clipboard.writeText(value).then(() => {
+                    Toast.fire({
+                        icon: "success",
+                        title: "Đã sao chép"
+                    });
                 });
             }
         }

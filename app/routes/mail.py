@@ -40,6 +40,7 @@ def get_data():
     page = request.json.get("page")
     pageSize = request.json.get("pageSize")
     order_by = request.json.get("order_by")
+    order_type = request.json.get("order_type")
 
     query = {}
 
@@ -51,6 +52,9 @@ def get_data():
 
     if order_by is None:
         order_by = "_id"
+        
+    if order_type is None:
+        order_type = -1
 
     list_devices = current_app.mail.distinct("device")
 
@@ -59,7 +63,7 @@ def get_data():
     skip = (page - 1) * pageSize
 
     mail_data = (
-        current_app.mail.find(query).sort(order_by, -1).skip(skip).limit(pageSize)
+        current_app.mail.find(query).sort(order_by, order_type).skip(skip).limit(pageSize)
     )
 
     data = []
