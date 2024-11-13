@@ -48,7 +48,11 @@ def get_data():
         query["device"] = {"$regex": device, "$options": "i"}
 
     if search:
-        query["mail"] = {"$regex": search, "$options": "i"}
+        query["$or"] = [
+            {"mail": {"$regex": search, "$options": "i"}},
+            {"phone": {"$regex": search, "$options": "i"}}
+        ]
+
 
     if order_by is None:
         order_by = "_id"
@@ -106,6 +110,8 @@ def form_mail():
     phone = request.json.get("phone")
     key = request.json.get("key")
     value_update = request.json.get("value_update")
+    
+    print(_id, device, mail, password, phone, key, value_update)
 
     if _id:
         current_app.mail.update_one(

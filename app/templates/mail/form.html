@@ -149,7 +149,7 @@ ${% block breadcrumb %}
                     continue;
                 }
 
-                if (phone.trim() == '' || phone.trim() == 'undefined' || phone.trim() == 'null' || phone.trim() == 'NaN') {
+                if (phone == undefined || phone.trim() == '' || phone.trim() == 'undefined' || phone.trim() == 'null' || phone.trim() == 'NaN') {
                     phone = '';
                 }
 

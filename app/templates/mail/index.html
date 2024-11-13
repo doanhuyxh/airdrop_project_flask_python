@@ -30,7 +30,7 @@ ${% block breadcrumb %}
             </div>
 
             <div>
-                <input type="text" class="form-control" v-model="search" placeholder="tìm kiếm email"
+                <input type="text" class="form-control" v-model="search" placeholder="tìm kiếm email hoặc số điện thoại"
                     v-on:keyup="debouncedSearch" />
             </div>
 
@@ -73,7 +73,10 @@ ${% block breadcrumb %}
                 <th>
                     Số điện thoại
                 </th>
-                <th>Thiết bị</th>
+                <th @click="sort('device')" class="pointer" style="width: 5em;">
+                    Thiết bị
+                    <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                </th>
                 <th  @click="sort('created_at')" class="pointer text-nowrap" style="width: 5em;">
                     Ngày tạo
                     <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
@@ -99,7 +102,8 @@ ${% block breadcrumb %}
                         @keyup="Update($event, item._id, 'phone')"></div>
                 </td>
                 <td>
-                    <span v-html="item.device"></span>
+                    <div class="form-control" contenteditable="true" v-html="item.device"
+                        @keyup="Update($event, item._id, 'device')"></div>
                 </td>
                 <td>
                     <span v-html="item.created_at"></span>
@@ -239,6 +243,29 @@ ${% block breadcrumb %}
                     .then(response => response.json())
                     .then(data => {
                         let res_data = data.data;
+                        let data_result = []
+                            for (let i = 0; i < res_data.length; i++) {
+                                data_result.push({
+                                    "email": res_data[i].mail,
+                                    "password": res_data[i].password,
+                                    "phone": res_data[i].phone,
+                                });
+                            }
+                            let ws = XLSX.utils.json_to_sheet(data_result);
+                            const columnWidths = Object.keys(data_result[0]).map((key) => {
+                                const maxWidth = Math.max(
+                                    ...data_result.map(row => (row[key] ? row[key].toString().length : 0)),
+                                    key.length
+                                );
+                                return { wch: maxWidth + 2 };
+                            });
+                            ws['!cols'] = columnWidths;
+
+                            let wb = XLSX.utils.book_new();
+                            XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+                            // Tải file Excel xuống
+                            XLSX.writeFile(wb, `${"mail"}.xlsx`);
                     });
             },
             Update(event, id, field) {
