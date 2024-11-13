@@ -239,3 +239,7 @@
 .pointer:hover {
   background-color: #f9b115;
 }
+
+table {
+  user-select: none;
+}

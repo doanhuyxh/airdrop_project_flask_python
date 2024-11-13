@@ -33,6 +33,8 @@ def create_app():
     app.wallet =app.db["wallet"]
     app.wallet_detail = app.db["wallet_detail"]
     
+    app.mail = app.db["mail"]
+    
     # Register the schedule job
     # run_check_proxy_job()
 
@@ -65,6 +67,7 @@ def create_app():
     from .routes.api import api
     from .routes.user_system import user_system
     from .routes.wallet import wallet
+    from .routes.mail import mail 
     app.register_blueprint(main)
     app.register_blueprint(auth)
     app.register_blueprint(dashboard)
@@ -74,6 +77,7 @@ def create_app():
     app.register_blueprint(api)
     app.register_blueprint(user_system)
     app.register_blueprint(wallet)
+    app.register_blueprint(mail)
     
     clear_all_pycache()
     

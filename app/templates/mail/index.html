@@ -1,0 +1,257 @@
+{% extends "share/Main_Layout.html" %}
+
+{% block title %}Mail{% endblock %}
+
+${% block breadcrumb %}
+
+<div class="container-fluid px-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb my-0">
+            <li class="breadcrumb-item"><span>Quản lý Mail</span></li>
+        </ol>
+    </nav>
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="shadow-lg bg-body rounded px-5 pt-4 pb-5">
+    <p class="text-center h4">Tài khoản mail</p>
+
+    <div class="table-responsive">
+
+        <div class="float-start d-flex gap-3 mb-3">
+            <div class="">
+                <select class="form-control" v-model="filter_device" @change="current_page = 1; getMail()">
+                    <option value="">Thiết bị (tất cả)</option>
+                    <option v-for="item in device" :key="item" :value="item" v-html="item"></option>
+                </select>
+            </div>
+
+            <div>
+                <input type="text" class="form-control" v-model="search" placeholder="tìm kiếm email"
+                    v-on:keyup="debouncedSearch" />
+            </div>
+
+        </div>
+
+        <div class="float-end d-flex gap-3 mb-3">
+
+            <a href="/mail/form_get" class="btn btn-primary" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                data-coreui-title="Thêm mail mới">
+                <i class="fa-solid fa-plus"></i>
+            </a>
+
+            <span v-on:click="ExportExcel" class="btn btn-success" data-coreui-toggle="tooltip"
+                data-coreui-placement="top" data-coreui-title="Xuất dữ liệu ra excel">
+                <i class="fa-solid fa-file-excel"></i>
+            </span>
+
+
+            <span class="btn btn-danger" data-coreui-toggle="tooltip" data-coreui-placement="top" v-on:click="deleteSelectMail"
+                data-coreui-title="Xoá mail đang chọn">
+                <i class="fa-solid fa-trash"></i>
+            </span>
+        </div>
+    </div>
+
+
+    <table class="table table-hover table-striped table-bordered" @mousedown="startDrag" @mouseup="stopDrag">
+        <thead>
+            <tr>
+                <th>STT</th>
+                <th>Email</th>
+                <th>Mật khẩu</th>
+                <th>Số điện thoại</th>
+                <th>Thiết bị</th>
+                <th>Ngày tạo</th>
+                <td></td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="(item, index) in mail" :key="item._id" @click="selectRow(item._id)"
+                @mouseover="isDragging ? selectRow(item._id) : null"
+                :class="{ 'selected-row': selectedRows.includes(item._id) }">
+                <td v-html="index+1"></td>
+                <td>
+                    <span v-html="item.mail"></span>
+                </td>
+                <td>
+                    <div class="form-control" contenteditable="true" v-html="item.password" @keyup="Update($event, item._id, 'password')"></div>
+                </td>
+                <td>
+                    <div class="form-control" contenteditable="true" v-html="item.phone" @keyup="Update($event, item._id, 'phone')"></div>
+                </td>
+                <td>
+                    <span v-html="item.device"></span>
+                </td>
+                <td>
+                    <span v-html="item.created_at"></span>
+                </td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="my-4 d-flex justify-content-between">
+        <div>
+            <p>hiển thị: <span class="text-danger fw-bold" v-html="mail.length"></span> của <span
+                    class="text-danger fw-bold" v-html="totalResults"></span> kết quả</p>
+        </div>
+        <div v-if="totalPages > 1" class="btn-group gap-2">
+            <button @click="changePage(current_page - 1)" :disabled="current_page === 1" class="btn btn-info">
+                Trước
+            </button>
+
+            <button v-for="page in pagesToShow" :key="page" @click="changePage(page)"
+                :class="{ 'btn-danger': current_page === page, btn: true }" class="btn">
+                <span v-html="page"></span>
+            </button>
+
+            <button @click="changePage(current_page + 1)" :disabled="current_page === totalPages" class="btn btn-info">
+                Tiếp
+            </button>
+        </div>
+    </div>
+</div>
+
+</div>
+
+{% endblock %}
+
+{% block script %}
+
+<script>
+    var app_vue = new Vue({
+        el: '#app',
+        data: {
+            mail: [],
+            search: "",
+            device: [],
+            filter_device: "",
+            current_page: 1,
+            pageSize: 25,
+            totalPages: 0,
+            totalResults: 0,
+            order_by: "created_at",
+            selectedRows: [],
+            isDragging: false,
+        },
+        created() {
+            this.debouncedSearch = _.debounce(this.getMail, 300);
+        },
+        mounted() {
+            this.getMail();
+        },
+        computed: {
+            pagesToShow() {
+                const pages = [];
+                const startPage = Math.max(1, this.current_page - 3);
+                const endPage = Math.min(this.totalPages, this.current_page + 3);
+
+                for (let i = startPage; i <= endPage; i++) {
+                    pages.push(i);
+                }
+
+                return pages;
+            }
+        },
+        methods: {
+            getMail() {
+                $("table").LoadingOverlay("show", {
+                    background: "rgba(165, 190, 100, 0.5)"
+                });
+                fetch(`/mail/get_data`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        page: this.current_page,
+                        pageSize: this.pageSize,
+                        order_by: this.order_by,
+                        search: this.search,
+                        device: this.filter_device
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        this.mail = data.data;
+                        this.totalPages = data.totalPages;
+                        this.totalResults = data.totalResults;
+                        this.device = data.list_devices;
+                        $("table").LoadingOverlay("hide");
+                    });
+            },
+            changePage(page) {
+                if (page >= 1 && page <= this.totalPages) {
+                    this.current_page = page;
+                    this.getMail();
+                }
+            },
+            selectRow(id) {
+                if (this.selectedRows.includes(id)) {
+                    this.selectedRows = this.selectedRows.filter((rowId) => rowId !== id);
+                } else {
+                    this.selectedRows.push(id);
+                }
+            },
+            startDrag() {
+                this.isDragging = true;
+            },
+            stopDrag() {
+                this.isDragging = false;
+            },
+            ExportExcel() {
+
+            },
+            Update(event, id, field) {
+                let value = event.target.innerText;
+                fetch("/mail/save", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        id: id,
+                        key: field,
+                        value_update: value
+                    })
+                })
+            },
+            deleteSelectMail(){
+                Swal.fire({
+                    title: "Bạn chắc chắn chứ?",
+                    text: "Sẽ xoá tất cả dữ liệu liên quan, không thể khôi phục lại!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    confirmButtonText: "Xoá!",
+                    cancelButtonColor: "#d33",
+                    cancelButtonText: "Huỷ",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        if (this.selectedRows.length == 0) {
+                            Toast.fire({
+                                icon: "error",
+                                title: "Không có dữ liệu để xoá"
+                            });
+                            return;
+                        }
+                        this.selectedRows.forEach(async item => {
+                            await fetch("/mail/delete?id=" + item)
+                        });
+                        Swal.fire({
+                            title: "Xoá thành công",
+                            icon: "success"
+                        }).then(() => {
+                            this.getMail();
+                        });
+                    }
+                });
+            }
+        }
+    });
+</script>
+
+{% endblock %}

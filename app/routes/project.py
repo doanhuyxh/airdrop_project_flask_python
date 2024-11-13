@@ -225,17 +225,21 @@ def data_detail_get():
         
         if point is not None:
             point = str(point).lower()
-            point = point.replace(",", "")
-            point = point.replace(".", "")
+            point = point.replace(",", ".")
+            point = point.replace(" ", "")
             if 'm' in point:
-                point = point.replace("m", "000000")
+                point = point.replace("m", "")
+                point = float(point) * 1_000_000
             elif 'b' in point:
-                point = point.replace("b", "000000000")
+                point = point.replace("b", "")
+                point = float(point) * 1_000_000_000
             elif 't' in point:
-                point = point.replace("t", "000000000000")
-            point = int(point)
+                point = point.replace("t", "")
+                point = float(point) * 1_000_000_000_000
+            else:
+                point = float(point)
         else:
-            point = 0 
+            point = 0.0
         totalPoint += point
         
     return (
@@ -245,12 +249,12 @@ def data_detail_get():
                 "data": data,
                 "page": page,
                 "pageSize": pageSize,
-                "totalPages": total_pages,
+                "totalPages": "{:,}".format(total_pages),
                 "totalResults": total_results,
                 "list_devices": list_devices,
                 "list_status": list_status,
                 "list_status_qr": list_status_qr,
-                "totalPoint": totalPoint,
+                "totalPoint": "{:,}".format(totalPoint),
             }
         ),
         200,
