@@ -248,7 +248,6 @@ def data_detail_get():
             point = str(point).lower()
             point = re.sub(r"[^0-9.,mtb]", "", point)
             point = point.replace(",", ".").replace(" ", "")
-
             if "m" in point:
                 point = point.replace("m", "")
                 point = int(float(point) * 1_000_000)
@@ -258,11 +257,13 @@ def data_detail_get():
             elif "t" in point:
                 point = point.replace("t", "")
                 point = int(float(point) * 1_000_000_000_000)
-            else:
-                point = int(float(point))
+
+            point = int(float(point))
         else:
             point = 0
-    totalPoint += point
+        totalPoint += point
+            
+    
 
     return (
         jsonify(
