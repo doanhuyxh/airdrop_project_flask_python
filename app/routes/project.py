@@ -14,6 +14,7 @@ from app.ultils.time_ultils import convertTime
 from bson import ObjectId, json_util
 from datetime import datetime, timedelta
 import logging
+import re
 from math import ceil
 
 project = Blueprint("project", __name__)
@@ -34,8 +35,24 @@ def index():
 def get_data():
     page = int(request.args.get("page", 1))
     pageSize = int(request.args.get("pageSize", 10))
+    search = request.args.get("search")
 
-    projects = current_app.project.find().skip((page - 1) * pageSize).limit(pageSize)
+    query = {}
+
+    if search is not None and len(search) > 0:
+        query["$or"] = [
+            {"project_name": {"$regex": search, "$options": "i"}},
+            {"project_slug": {"$regex": search, "$options": "i"}},
+            {"description": {"$regex": search, "$options": "i"}},
+            {"token_name": {"$regex": search, "$options": "i"}},
+        ]
+
+    projects = (
+        current_app.project.find(query)
+        .sort("_id", -1)
+        .skip((page - 1) * pageSize)
+        .limit(pageSize)
+    )
     data = []
     for project in projects:
         project["_id"] = str(project["_id"])
@@ -191,7 +208,7 @@ def data_detail_get():
 
     if order_by is None:
         order_by = "_id"
-    
+
     if order_type is None:
         order_type = -1
 
@@ -221,31 +238,32 @@ def data_detail_get():
         detail["_id"] = str(detail["_id"])
         detail["project_id"] = str(detail["project_id"])
         if detail["last_time"] is not None:
-            detail["last_time"] = datetime.fromisoformat(str(detail["last_time"])).strftime(
-                "%Y-%m-%d %H:%M:%S"
-            )
+            detail["last_time"] = datetime.fromisoformat(
+                str(detail["last_time"])
+            ).strftime("%Y-%m-%d %H:%M:%S")
         data.append(detail)
         point = detail.get("point")
-        
+
         if point is not None:
             point = str(point).lower()
-            point = point.replace(",", ".")
-            point = point.replace(" ", "")
-            if 'm' in point:
+            point = re.sub(r"[^0-9.,mtb]", "", point)
+            point = point.replace(",", ".").replace(" ", "")
+
+            if "m" in point:
                 point = point.replace("m", "")
-                point = float(point) * 1_000_000
-            elif 'b' in point:
+                point = int(float(point) * 1_000_000)
+            elif "b" in point:
                 point = point.replace("b", "")
-                point = float(point) * 1_000_000_000
-            elif 't' in point:
+                point = int(float(point) * 1_000_000_000)
+            elif "t" in point:
                 point = point.replace("t", "")
-                point = float(point) * 1_000_000_000_000
+                point = int(float(point) * 1_000_000_000_000)
             else:
-                point = float(point)
+                point = int(float(point))
         else:
-            point = 0.0
-        totalPoint += point
-        
+            point = 0
+    totalPoint += point
+
     return (
         jsonify(
             {
@@ -283,8 +301,9 @@ def export_excel_data():
     if search:
         query["profile"] = {"$regex": search, "$options": "i"}
 
-
-    profile = current_app.project_detail.find(query, {"profile":1, "device":1,"_id": 0})
+    profile = current_app.project_detail.find(
+        query, {"profile": 1, "device": 1, "_id": 0}
+    )
 
     data = []
     for p in profile:
@@ -295,6 +314,7 @@ def export_excel_data():
         data.append(p)
 
     return jsonify({"code": 200, "data": data}), 200
+
 
 @project.route("/project/detail/get_data_filter", methods=["POST"])
 def data_detail_get_filter():
