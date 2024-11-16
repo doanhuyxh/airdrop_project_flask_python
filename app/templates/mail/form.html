@@ -59,7 +59,7 @@ ${% block breadcrumb %}
                 </div>
             </div>
             <div class="mb-3">
-                <textarea class="form-control" id="mail_form" rows="20" placeholder="email password phone"></textarea>
+                <textarea class="form-control" id="mail_form" rows="20" placeholder="email password birthday phone"></textarea>
             </div>
         </div>
     </div>
@@ -137,7 +137,8 @@ ${% block breadcrumb %}
                 let mail_data_array = mail_data.split(' ');
                 let email = mail_data_array[0];
                 let password = mail_data_array[1];
-                let phone = mail_data_array[2];
+                let birthday = mail_data_array[2];
+                let phone = mail_data_array[3];
 
                 let device = document.getElementById('mail_device').value;
 

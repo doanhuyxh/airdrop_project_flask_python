@@ -108,6 +108,7 @@ def form_mail():
     mail = request.json.get("email")
     password = request.json.get("password")
     phone = request.json.get("phone")
+    birthday = request.json.get("birthday")
     key = request.json.get("key")
     value_update = request.json.get("value_update")
     
@@ -129,6 +130,7 @@ def form_mail():
                 "mail": mail,
                 "password": password,
                 "phone": phone,
+                "birthday": birthday,
                 "created_at": datetime.now(),
             }
         )

@@ -73,11 +73,14 @@ ${% block breadcrumb %}
                 <th>
                     Số điện thoại
                 </th>
+                <th>
+                    Ngày sinh
+                </th>
                 <th @click="sort('device')" class="pointer" style="width: 5em;">
                     Thiết bị
                     <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
                 </th>
-                <th  @click="sort('created_at')" class="pointer text-nowrap" style="width: 5em;">
+                <th @click="sort('created_at')" class="pointer text-nowrap" style="width: 5em;">
                     Ngày tạo
                     <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
                 </th>
@@ -94,19 +97,23 @@ ${% block breadcrumb %}
                     <span @click="CopyData(item.mail)" v-html="item.mail"></span>
                 </td>
                 <td>
-                    <div class="form-control" contenteditable="true" v-html="item.password"
-                        @keyup="Update($event, item._id, 'password')"></div>
+                    <input class="form-control" :value="item.password"
+                        @keyup="Update($event, item._id, 'password')"/>
                 </td>
                 <td>
-                    <div class="form-control" contenteditable="true" v-html="item.phone"
-                        @keyup="Update($event, item._id, 'phone')"></div>
+                    <input class="form-control" :value="item.phone"
+                        @keyup="Update($event, item._id, 'phone')"/>
                 </td>
                 <td>
-                    <div class="form-control" contenteditable="true" v-html="item.device"
-                        @keyup="Update($event, item._id, 'device')"></div>
+                    <input class="form-control" :value="item.birthday" type="date"
+                        @keyup="Update($event, item._id, 'birthday')" />
                 </td>
                 <td>
-                    <span v-html="item.created_at"></span>
+                    <input class="form-control" style="min-width: 8em;" :value="item.device"
+                        @keyup="Update($event, item._id, 'device')"/>
+                </td>
+                <td>
+                    <span v-html="item.created_at" class="text-center text-wrap"></span>
                 </td>
             </tr>
         </tbody>
@@ -237,39 +244,39 @@ ${% block breadcrumb %}
                     body: JSON.stringify({
                         page: 1,
                         pageSize: 1000000,
-                        
+
                     })
                 })
                     .then(response => response.json())
                     .then(data => {
                         let res_data = data.data;
                         let data_result = []
-                            for (let i = 0; i < res_data.length; i++) {
-                                data_result.push({
-                                    "email": res_data[i].mail,
-                                    "password": res_data[i].password,
-                                    "phone": res_data[i].phone,
-                                });
-                            }
-                            let ws = XLSX.utils.json_to_sheet(data_result);
-                            const columnWidths = Object.keys(data_result[0]).map((key) => {
-                                const maxWidth = Math.max(
-                                    ...data_result.map(row => (row[key] ? row[key].toString().length : 0)),
-                                    key.length
-                                );
-                                return { wch: maxWidth + 2 };
+                        for (let i = 0; i < res_data.length; i++) {
+                            data_result.push({
+                                "email": res_data[i].mail,
+                                "password": res_data[i].password,
+                                "phone": res_data[i].phone,
                             });
-                            ws['!cols'] = columnWidths;
+                        }
+                        let ws = XLSX.utils.json_to_sheet(data_result);
+                        const columnWidths = Object.keys(data_result[0]).map((key) => {
+                            const maxWidth = Math.max(
+                                ...data_result.map(row => (row[key] ? row[key].toString().length : 0)),
+                                key.length
+                            );
+                            return { wch: maxWidth + 2 };
+                        });
+                        ws['!cols'] = columnWidths;
 
-                            let wb = XLSX.utils.book_new();
-                            XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+                        let wb = XLSX.utils.book_new();
+                        XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
 
-                            // Tải file Excel xuống
-                            XLSX.writeFile(wb, `${"mail"}.xlsx`);
+                        // Tải file Excel xuống
+                        XLSX.writeFile(wb, `${"mail"}.xlsx`);
                     });
             },
             Update(event, id, field) {
-                let value = event.target.innerText;
+                let value = event.target.value;
                 fetch("/mail/save", {
                     method: "POST",
                     headers: {
