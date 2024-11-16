@@ -245,20 +245,23 @@ def data_detail_get():
         point = detail.get("point")
 
         if point is not None:
-            point = str(point).lower()
-            point = re.sub(r"[^0-9.,mtb]", "", point)
-            point = point.replace(",", ".").replace(" ", "")
-            if "m" in point:
-                point = point.replace("m", "")
-                point = int(float(point) * 1_000_000)
-            elif "b" in point:
-                point = point.replace("b", "")
-                point = int(float(point) * 1_000_000_000)
-            elif "t" in point:
-                point = point.replace("t", "")
-                point = int(float(point) * 1_000_000_000_000)
+            try:
+                point = str(point).lower()
+                point = re.sub(r"[^0-9.,mtb]", "", point)
+                point = point.replace(",", ".").replace(" ", "")
+                if "m" in point:
+                    point = point.replace("m", "")
+                    point = int(float(point) * 1_000_000)
+                elif "b" in point:
+                    point = point.replace("b", "")
+                    point = int(float(point) * 1_000_000_000)
+                elif "t" in point:
+                    point = point.replace("t", "")
+                    point = int(float(point) * 1_000_000_000_000)
 
-            point = int(float(point))
+                point = int(float(point))
+            except Exception as e:
+                point = 0
         else:
             point = 0
         totalPoint += point
