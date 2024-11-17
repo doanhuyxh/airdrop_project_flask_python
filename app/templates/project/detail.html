@@ -115,7 +115,9 @@ ${% block breadcrumb %}
                             <div v-html="index + 1"></div>
                         </td>
                         <td>
-                            <div contenteditable="false" class="form-control" v-html="item.profile">
+                            <div class="d-flex gap-3">
+                                <span v-html="item.profile"></span>
+                                <span @click="CopyData(item.profile)"><i class="fa-regular fa-copy"></i></span>
                             </div>
                         </td>
                         <td>
@@ -578,6 +580,14 @@ ${% block breadcrumb %}
                 // Tải file Excel xuống
                 XLSX.writeFile(wb, `${"profile"}.xlsx`);
 
+            },
+            CopyData(value) {
+                navigator.clipboard.writeText(value).then(() => {
+                    Toast.fire({
+                        icon: "success",
+                        title: "Đã sao chép"
+                    });
+                });
             }
         }
     });

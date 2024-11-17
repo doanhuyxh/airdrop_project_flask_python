@@ -29,13 +29,15 @@ ${% block breadcrumb %}
 
         <div class="d-flex gap-3 mb-3">
             <div class="">
-                <select class="form-control" id="filter_device" v-model="filter_device" @change="current_page = 1; getProfiles()">
+                <select class="form-control" id="filter_device" v-model="filter_device"
+                    @change="current_page = 1; getProfiles()">
                     <option value="">Thiết bị (tất cả)</option>
                     <option v-for="item in device" :key="item" :value="item" v-html="item"></option>
                 </select>
             </div>
             <div class="">
-                <select class="form-control" id="filter_device" v-model="filter_status" @change="current_page = 1; getProfiles()">
+                <select class="form-control" id="filter_device" v-model="filter_status"
+                    @change="current_page = 1; getProfiles()">
                     <option value="">Trạng thái (tất cả)</option>
                     <option v-for="item in status" :key="item" :value="item" v-html="item"></option>
                 </select>
@@ -109,7 +111,10 @@ ${% block breadcrumb %}
                     :key="item._id" @click="selectRow(item._id)" @mouseover="isDragging ? selectRow(item._id) : null"
                     :class="{ 'selected-row': selectedRows.includes(item._id) }">
                     <td v-html="index + 1"></td>
-                    <td v-html="item.profile_name"></td>
+                    <td class="text-center">
+                        <span v-html="item.profile_name"></span>
+                        <span @click="CopyData(item.profile_name)"><i class="fa-regular fa-copy"></i></span>
+                    </td>
                     <td v-html="item.profile_device"></td>
                     <td v-html="item.status"></td>
                     <td v-html="item.session"></td>
@@ -380,6 +385,14 @@ ${% block breadcrumb %}
                             });
                         }
                     });
+            },
+            CopyData(value) {
+                navigator.clipboard.writeText(value).then(() => {
+                    Toast.fire({
+                        icon: "success",
+                        title: "Đã sao chép"
+                    });
+                });
             }
         }
     })
