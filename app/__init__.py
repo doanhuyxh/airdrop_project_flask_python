@@ -35,6 +35,8 @@ def create_app():
     
     app.mail = app.db["mail"]
     
+    app.apple_id = app.db["apple_id"]
+    
     # Register the schedule job
     # run_check_proxy_job()
 
@@ -68,6 +70,7 @@ def create_app():
     from .routes.user_system import user_system
     from .routes.wallet import wallet
     from .routes.mail import mail 
+    from .routes.appleId import appleId
     app.register_blueprint(main)
     app.register_blueprint(auth)
     app.register_blueprint(dashboard)
@@ -78,6 +81,7 @@ def create_app():
     app.register_blueprint(user_system)
     app.register_blueprint(wallet)
     app.register_blueprint(mail)
+    app.register_blueprint(appleId)
     
     clear_all_pycache()
     
