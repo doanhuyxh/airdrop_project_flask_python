@@ -144,6 +144,8 @@ def get_data():
     total_pages = ceil(total_results / pageSize)
     skip = (page - 1) * pageSize
 
+    print(query)
+    
     appleId_data = (
         current_app.apple_id.find(query).sort(order_by, order_type).skip(skip).limit(pageSize)
     )

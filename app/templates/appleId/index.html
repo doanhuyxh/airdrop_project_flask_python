@@ -122,9 +122,10 @@ Apple Id
                     <input class="form-control" :value="item.mail" type="email"
                         @keyup="Update($event, item._id, 'mail')" />
                 </td>
-                <td>
+                <td class="d-flex gap-1">
                     <input class="form-control" :value="item.question" type="text"
                         @keyup="Update($event, item._id, 'question')" />
+                        <span @click="CopyData(item.question)"><i class="fa-regular fa-copy"></i></span>
                 </td>
                 <td>
                     <input class="form-control" :value="item.country" type="text"
