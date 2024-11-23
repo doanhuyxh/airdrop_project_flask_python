@@ -33,8 +33,8 @@ Apple Id
                 </select>
             </div>
             <div>
-                <input type="text" class="form-control" style="min-width: 30em;" v-model="search" placeholder="tìm kiếm email, số điện thoại, cấu hỏi bảo mật, mail"
-                    v-on:keyup="debouncedSearch" />
+                <input type="text" class="form-control" style="min-width: 30em;" v-model="search"
+                    placeholder="tìm kiếm email, số điện thoại, cấu hỏi bảo mật, mail" v-on:keyup="debouncedSearch" />
             </div>
 
         </div>
@@ -109,9 +109,11 @@ Apple Id
                 </td>
                 <td>
                     <span @click="CopyData(item.account)" v-html="item.account"></span>
+                    <span @click="CopyData(item.account)"><i class="fa-regular fa-copy"></i></span>
                 </td>
-                <td>
+                <td class="d-flex gap-1">
                     <input class="form-control" :value="item.password" @keyup="Update($event, item._id, 'password')" />
+                    <span @click="CopyData(item.password)"><i class="fa-regular fa-copy"></i></span>
                 </td>
                 <td>
                     <input class="form-control" :value="item.phone" @keyup="Update($event, item._id, 'phone')" />
@@ -186,7 +188,7 @@ Apple Id
             device: [],
             filter_device: "",
             country: [],
-            filter_country:'',
+            filter_country: '',
             status: [],
             filter_status: "",
             current_page: 1,
@@ -219,6 +221,9 @@ Apple Id
         },
         methods: {
             getAppleId() {
+                $("table").LoadingOverlay("show", {
+                    background: "rgba(165, 190, 100, 0.5)"
+                });
                 fetch("/appleId/get_data", {
                     method: "POST",
                     headers: {
@@ -235,6 +240,7 @@ Apple Id
                         status: this.filter_status,
                     }),
                 }).then((response) => {
+                    $("table").LoadingOverlay("hide", true);
                     return response.json();
                 }).then((data) => {
                     this.AppleId = data.data;
@@ -349,7 +355,11 @@ Apple Id
 
             },
             CopyData(data) {
-                console.log('CopyData')
+                navigator.clipboard.writeText(data);
+                Toast.fire({
+                    icon: "success",
+                    title: "Đã copy dữ liệu"
+                });
             },
             Update(event, id, field) {
                 console.log('Update')

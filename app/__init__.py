@@ -35,7 +35,7 @@ def create_app():
     
     app.mail = app.db["mail"]
     
-    app.apple_id = app.db["apple_id"]
+    app.apple_id = app.db["apple_id_new"]
     
     # Register the schedule job
     # run_check_proxy_job()
