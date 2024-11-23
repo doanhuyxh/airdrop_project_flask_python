@@ -26,7 +26,12 @@ Apple Id
                     <option v-for="item in country" :key="item" :value="item" v-html="item"></option>
                 </select>
             </div>
-
+            <div class="">
+                <select class="form-control" v-model="filter_status" @change="current_page = 1; getAppleId()">
+                    <option value="">Trạng thái (tất cả)</option>
+                    <option v-for="item in status" :key="item" :value="item" v-html="item"></option>
+                </select>
+            </div>
             <div>
                 <input type="text" class="form-control" style="min-width: 30em;" v-model="search" placeholder="tìm kiếm email, số điện thoại, cấu hỏi bảo mật, mail"
                     v-on:keyup="debouncedSearch" />
@@ -82,6 +87,9 @@ Apple Id
                 <th>
                     Năm sinh
                 </th>
+                <th>
+                    Trạng thái
+                </th>
                 <th @click="sort('device')" class="pointer text-nowrap" style="width: 5em;">
                     Thiết bị
                     <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
@@ -123,6 +131,10 @@ Apple Id
                 <td>
                     <input class="form-control" :value="item.birthday" type="text"
                         @keyup="Update($event, item._id, 'birthday')" />
+                </td>
+                <td>
+                    <input class="form-control" :value="item.status" type="text"
+                        @keyup="Update($event, item._id, 'status')" />
                 </td>
                 <td>
                     <input class="form-control" style="min-width: 8em;" :value="item.device"
@@ -175,6 +187,8 @@ Apple Id
             filter_device: "",
             country: [],
             filter_country:'',
+            status: [],
+            filter_status: "",
             current_page: 1,
             pageSize: 25,
             totalPages: 0,
@@ -218,6 +232,7 @@ Apple Id
                         pageSize: this.pageSize,
                         order_by: this.order_by,
                         order_type: this.order_type,
+                        status: this.filter_status,
                     }),
                 }).then((response) => {
                     return response.json();
@@ -225,8 +240,9 @@ Apple Id
                     this.AppleId = data.data;
                     this.totalResults = data.totalResults;
                     this.totalPages = data.totalPages;
-                    this.device = data.device;
-                    this.country = data.country;
+                    this.device = data.list_devices;
+                    this.country = data.list_country;
+                    this.status = data.list_status;
                 }).catch((error) => {
                     console.log(error);
                 });

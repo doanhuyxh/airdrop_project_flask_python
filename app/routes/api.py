@@ -340,3 +340,65 @@ def importVi():
     )
 
     return jsonify({"code": 200, "message": "Import wallet successfully"}), 200
+
+@api.route("/api/appleId/import", methods=["POST"])
+def save():
+    data = request.get_json()
+    
+    account = data.get("account")
+    password = data.get("password")
+    question = data.get("question")
+    birthday = data.get("birthday")
+    country = data.get("country")
+    mail = data.get("mail")
+    phone = data.get("phone")
+    device = data.get("device")
+    status = data.get("status")
+    created_at = data.get("created_at")
+    
+    if created_at is None:
+        created_at = datetime.now().strftime("%d/%m/%Y")
+    
+    check_data = current_app.apple_id.find_one({
+        "account": account
+    })
+    
+    if check_data:
+        update_data = {}
+        if password is not None:
+            update_data["password"] = password
+        if question is not None:
+            update_data["question"] = question
+        if birthday is not None:
+            update_data["birthday"] = birthday
+        if country is not None:
+            update_data["country"] = country
+        if mail is not None:
+            update_data["mail"] = mail
+        if phone is not None:
+            update_data["phone"] = phone
+        
+        if update_data:
+            current_app.apple_id.update_one({
+                "_id": check_data["_id"]
+            }, {
+                "$set": update_data
+            })
+        
+        return jsonify({"code": 200, "message": "Data updated successfully"})
+    else:
+        current_app.apple_id.insert_one({
+            "account": account,
+            "password": password,
+            "question": question,
+            "birthday": birthday,
+            "country": country,
+            "mail": mail,
+            "phone": phone,
+            "device": device,
+            "status": status,
+            "created_at": created_at
+        })
+        
+        return jsonify({"code": 200, "message": "Data created successfully"})
+  
