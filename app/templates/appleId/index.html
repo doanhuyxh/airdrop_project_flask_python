@@ -217,6 +217,8 @@ Apple Id
                     pages.push(i);
                 }
 
+                console.log(pages);
+
                 return pages;
             }
         },
@@ -250,6 +252,7 @@ Apple Id
                     this.device = data.list_devices;
                     this.country = data.list_country;
                     this.status = data.list_status;
+                    this.page = data.page;
                 }).catch((error) => {
                     console.log(error);
                 });

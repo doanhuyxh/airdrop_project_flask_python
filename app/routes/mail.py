@@ -86,7 +86,7 @@ def get_data():
                 "data": data,
                 "page": page,
                 "pageSize": pageSize,
-                "totalPages": "{:,}".format(total_pages),
+                "totalPages": total_pages,
                 "totalResults": total_results,
                 "list_devices": list_devices,
             }
