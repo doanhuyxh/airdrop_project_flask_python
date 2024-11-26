@@ -26,8 +26,8 @@ ${% block breadcrumb %}
 <div class="shadow-lg bg-body rounded px-5 pt-4 pb-5">
 
     <div class="table-responsive">
-
         <div class="d-flex gap-3 mb-3">
+
             <div class="">
                 <select class="form-control" id="filter_device" v-model="filter_device"
                     @change="current_page = 1; getProfiles()">
@@ -42,17 +42,14 @@ ${% block breadcrumb %}
                     <option v-for="item in status" :key="item" :value="item" v-html="item"></option>
                 </select>
             </div>
-
             <div>
                 <input type="text" class="form-control" v-model="name" placeholder="tìm kiếm profile"
                     v-on:keyup="debouncedSearch" />
             </div>
-
             <div>
                 <input type="text" class="form-control" v-model="session" placeholder="tìm kiếm seesion"
                     v-on:keyup="debouncedSearch" />
             </div>
-
             <div class="d-flex gap-2" style="max-height: 2.4em;">
                 <input type="text" class="form-control" placeholder="nội dung cập nhật" v-model="updateFiled.value">
                 <select class="form-control" v-model="updateFiled.key">
@@ -65,9 +62,7 @@ ${% block breadcrumb %}
                     <i class="fa-solid fa-floppy-disk"></i>
                 </span>
             </div>
-
             <div class="d-flex gap-3 mb-3">
-
                 <span v-on:click="ExportExcel" class="btn btn-success" data-coreui-toggle="tooltip"
                     data-coreui-placement="top" data-coreui-title="Xuất dữ liệu ra excel">
                     <i class="fa-solid fa-file-excel"></i>
@@ -88,6 +83,11 @@ ${% block breadcrumb %}
                     <i class="fa-solid fa-trash"></i>
                 </span>
             </div>
+
+            <div class="ms-auto">
+                <p>Hiển thị: <span class="text-danger fw-bold" v-html="profiles.length"></span> của <span
+                        class="text-danger fw-bold" v-html="totalResults"></span> kết quả</p>
+            </div>
         </div>
 
 
@@ -100,15 +100,17 @@ ${% block breadcrumb %}
                     </th>
                     <th class="text-nowrap">Thiết bị</th>
                     <th class="text-nowrap">Trạng thái</th>
-                    <th class="text-nowrap d-flex gap-2">
+                    <th class="text-nowrap d-flex gap-2 justify-content-center">
                         Session
                         <span class="btn btn-sm btn-info" data-coreui-toggle="tooltip" data-coreui-placement="top"
                             data-coreui-title="Click để copy" v-on:click="CopyData('session')">
                             <i class="fa-solid fa-copy"></i>
                         </span>
                     </th>
+                    <th>Mật khẩu Ton</th>
+                    <th>Địa chỉ</th>
+                    <th>Seed phrase</th>
                     <th class="text-nowrap">Lần cập nhật cuối</th>
-
                 </tr>
             </thead>
             <tbody>
@@ -117,21 +119,51 @@ ${% block breadcrumb %}
                     :class="{ 'selected-row': selectedRows.includes(item._id) }">
                     <td v-html="index + 1"></td>
                     <td class="text-center">
-                        <span v-html="item.profile_name"></span>
-                        <span @click="CopyData(item.profile_name)"><i class="fa-regular fa-copy"></i></span>
+                        <div class="d-flex gap-1">
+                            <span v-html="item.profile_name"></span>
+                            <span class="text-primary" @click="CopyDataValue(item.profile_name)"><i
+                                    class="fa-regular fa-copy"></i></span>
+                        </div>
                     </td>
                     <td v-html="item.profile_device"></td>
                     <td v-html="item.status"></td>
-                    <td v-html="item.session"></td>
+                    <td>
+                        <p v-html="item.session"></p>
+                    </td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <span v-html="item.passwordTon"></span>
+                            <span v-if="item.passwordTon" class="text-info"
+                                v-on:click="CopyDataValue(item.passwordTon)">
+                                <i class="fa-solid fa-copy"></i>
+                            </span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <span v-html="item.addressTon"></span>
+                            <span v-if="item.addressTon" class="text-info" v-on:click="CopyDataValue(item.addressTon)">
+                                <i class="fa-solid fa-copy"></i>
+                            </span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <span v-html="item.seedPhraseTon"></span>
+                            <span v-if="item.seedPhraseTon" class="text-info"
+                                v-on:click="CopyDataValue(item.seedPhraseTon)">
+                                <i class="fa-solid fa-copy"></i>
+                            </span>
+                        </div>
+                    </td>
+
                     <td v-html="item.last_time"></td>
                 </tr>
             </tbody>
         </table>
+
         <div class="my-4 d-flex justify-content-between">
-            <div>
-                <p>hiển thị: <span class="text-danger fw-bold" v-html="profiles.length"></span> của <span
-                        class="text-danger fw-bold" v-html="totalResults"></span> kết quả</p>
-            </div>
+
             <div v-if="totalPages > 1" class="btn-group gap-2">
                 <button @click="changePage(current_page - 1)" :disabled="current_page === 1" class="btn btn-info">
                     Trước
@@ -199,7 +231,9 @@ ${% block breadcrumb %}
         "methods": {
             "getProfiles": function () {
                 $("table").LoadingOverlay("show", {
-                    background: "rgba(165, 190, 100, 0.5)"
+                    background: "rgba(165, 190, 100, 0.5)",
+                    fontawesome: "fa fa-spinner fa-spin",
+                    zIndex: 9999
                 });
                 fetch("/profile_gpm/list", {
                     method: "POST",
@@ -391,7 +425,7 @@ ${% block breadcrumb %}
                         }
                     });
             },
-            CopyData(value) {
+            CopyDataValue(value) {
                 navigator.clipboard.writeText(value).then(() => {
                     Toast.fire({
                         icon: "success",

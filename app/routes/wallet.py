@@ -116,9 +116,6 @@ def wallet_detail_get_data():
     if status:
         query["status"] = status
 
-    if status_tomarket:
-        query["status_tomarket"] = status_tomarket
-
     if search:
         query["profile"] = {"$regex": search, "$options": "i"}
 
@@ -176,7 +173,6 @@ def wallet_detail_get_data_filter():
     wallet_id = request.args.get("id")
     device = request.args.get("device")
     status = request.args.get("status")
-    status_tomarket = request.args.get("status_tomarket")
 
     query = {"wallet_id": ObjectId(wallet_id)}
 
@@ -186,8 +182,6 @@ def wallet_detail_get_data_filter():
     if status:
         query["status"] = status
 
-    if status_tomarket:
-        query["status_tomarket"] = status_tomarket
 
     wallet_detail_data = current_app.wallet_detail.find(query)
 

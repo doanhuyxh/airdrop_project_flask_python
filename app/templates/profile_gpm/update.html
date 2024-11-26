@@ -13,7 +13,7 @@ ${% block breadcrumb %}
             <li class="breadcrumb-item"><a href="/profile_gpm">Quản lý profile GPM</a>
             </li>
             <li class="breadcrumb-item"><span>
-                    {{ "Cập nhật profile" if profile else 'Tạo profile Mới' }}
+                    Cập nhật profile
                 </span>
             </li>
         </ol>
@@ -35,11 +35,13 @@ ${% block breadcrumb %}
                             <option value="profile_device">Tên thiết bị</option>
                             <option value="status">Trạng thái</option>
                             <option value="session">Seesion</option>
+                            <option value="passwordTon">Mật khẩu ví Ton</option>
                         </select>
                     </div>
                     <div>
                         <label class="form-label">Nội dung cập nhật</label>
-                        <input class="form-control" type="text" id="profile_update_content" placeholder="Nội dung cập nhật">
+                        <input class="form-control" type="text" id="profile_update_content"
+                            placeholder="Nội dung cập nhật">
                     </div>
                 </div>
                 <div>
@@ -60,19 +62,9 @@ ${% block breadcrumb %}
 
 <script>
 
+    var isSuccess = false;
+
     function save() {
-
-        $("#profile").LoadingOverlay("show", {
-                background: "rgba(165, 190, 100, 0.5)"
-            });
-            $("#profile").LoadingOverlay("show")
-
-            $("#save").LoadingOverlay("show", {
-                background: "rgba(165, 190, 100, 0.5)"
-            });
-            $("#save").LoadingOverlay("show")
-            $("#save").attr("disabled", true);
-
 
         let key_update = document.getElementById('profile_update_type').value;
         let profile = document.getElementById('profile').value;
@@ -93,25 +85,36 @@ ${% block breadcrumb %}
         form.append('key_update', key_update);
         form.append('profile_update_content', profile_update_content);
 
-        fetch("/profile_gpm/update_multi",{
-            method:"POST",
-            body:form
+        $("#profile").LoadingOverlay("show", {
+            background: "rgba(165, 190, 100, 0.5)"
+        });
+        $("#profile").LoadingOverlay("show")
+
+        $("#save").LoadingOverlay("show", {
+            background: "rgba(165, 190, 100, 0.5)"
+        });
+        $("#save").LoadingOverlay("show")
+        $("#save").attr("disabled", true);
+
+
+        fetch("/profile_gpm/update_multi", {
+            method: "POST",
+            body: form
         })
-        .then(response => {
-            $("#profile").LoadingOverlay("hide", true);
-            $("#save").LoadingOverlay("hide", true);
-            $("#save").attr("disabled", false);
-            Swal.fire({
-                title: isSuccess ? 'Thành công' : 'Thất bại',
-                icon: isSuccess ? 'success' : 'error',
-                showConfirmButton: false,
-                timer: 1500
-            }).then(() => {
-                if (isSuccess) {
+            .then(response => {
+                $("#profile").LoadingOverlay("hide", true);
+                $("#save").LoadingOverlay("hide", true);
+                $("#save").attr("disabled", false);
+                isSuccess = response.status === 200;
+                Swal.fire({
+                    title: isSuccess ? 'Thành công' : 'Thất bại',
+                    icon: isSuccess ? 'success' : 'error',
+                    showConfirmButton: false,
+                    timer: 1500
+                }).then(() => {
                     window.location.href = '/profile_gpm';
-                }
-            });
-        })
+                });
+            })
 
 
     }

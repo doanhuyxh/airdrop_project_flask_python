@@ -53,6 +53,9 @@ ${% block breadcrumb %}
 
                 </div>
                 <div>
+                    <p>tên profile | địa chỉ ví tôn| mật khẩu | seed phrase (có thể chỉ cần điền mỗi profile)</p>
+                </div>
+                <div>
                     <button class="btn btn-success text-white" id="save" type="button" onclick="save()">
                         <i class="fa-solid fa-floppy-disk"></i>
                     </button>
@@ -75,6 +78,7 @@ ${% block breadcrumb %}
     ];
     var isSuccess = false;
     var isAddDevice = false;
+    var massage = ""
 
     function RenderMenuDevices() {
         let profileType = document.getElementById('profile_type');
@@ -117,6 +121,19 @@ ${% block breadcrumb %}
 
     async function save() {
         try {
+            let profileDevice = document.getElementById('profile_type').value;
+            let profile = document.getElementById('profile').value;
+
+            if (profileDevice == 'Vui lòng chọn devices') {
+                massage = 'Vui lòng chọn devices';
+                return;
+            }
+
+            if (!profile) {
+                massage = 'Vui lòng nhập profile';
+                return;
+            }
+
             $("#profile").LoadingOverlay("show", {
                 background: "rgba(165, 190, 100, 0.5)"
             });
@@ -128,18 +145,32 @@ ${% block breadcrumb %}
             $("#save").LoadingOverlay("show")
             $("#save").attr("disabled", true);
 
-            let profile = document.getElementById('profile').value;
+
             let profileArray = profile.split('\n');
             for (let i = 0; i < profileArray.length; i++) {
-                let profileName = profileArray[i];
-                if (profileName.trim() == '') {
+                let profileData = profileArray[i];
+                
+                if (profileData.length == 0) {
                     continue;
                 }
-                let profileDevice = document.getElementById('profile_type').value;
-                await saveData(profileName, profileDevice);
-            }
 
+                let profileDataSplit = profileData.split('|');
+
+                let profileName = profileDataSplit[0].trim();
+
+                if (profileName.length == 0) {
+                    continue;
+                }
+
+                let addressTon = profileDataSplit[1] ? profileDataSplit[1].trim() : '';
+                let passwordTon = profileDataSplit[2] ? profileDataSplit[2].trim() : '';
+                let seedPhraseTon = profileDataSplit[3] ? profileDataSplit[3].trim() : '';
+
+
+                await saveData(profileName, addressTon, passwordTon, seedPhraseTon, profileDevice);
+            }
             isSuccess = true;
+
 
         } catch (error) {
             console.log(error);
@@ -149,9 +180,10 @@ ${% block breadcrumb %}
             $("#save").attr("disabled", false);
             Swal.fire({
                 title: isSuccess ? 'Thành công' : 'Thất bại',
+                text: massage,
                 icon: isSuccess ? 'success' : 'error',
                 showConfirmButton: false,
-                timer: 1500
+                timer: 2500
             }).then(() => {
                 if (isSuccess) {
                     window.location.href = '/profile_gpm';
@@ -160,12 +192,15 @@ ${% block breadcrumb %}
         }
     }
 
-    async function saveData(profileName, profileDevice) {
+    async function saveData(profileName, addressTon, passwordTon, seedPhraseTon, profileDevice) {
 
         let formData = new FormData();
         formData.append('profile_name', profileName);
         formData.append('profile_device', profileDevice);
-
+        formData.append('addressTon', addressTon);
+        formData.append('passwordTon', passwordTon);
+        formData.append('seedPhraseTon', seedPhraseTon);
+    
         let jsonData = {};
         formData.forEach((value, key) => {
             jsonData[key] = value;

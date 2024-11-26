@@ -3,7 +3,7 @@ import traceback
 from flask import Flask, jsonify, request
 from pymongo import MongoClient, ASCENDING
 from werkzeug.exceptions import HTTPException
-#from flask_swagger_ui import get_swaggerui_blueprint
+from flask_swagger_ui import get_swaggerui_blueprint
 import logging
 
 from app.middlewares.auth import token_update
@@ -43,6 +43,7 @@ def create_app():
     @app.after_request
     @token_update
     def after_request(response):
+        response.headers.add("Access-Control-Allow-Origin", "*")
         return response
     
     @app.errorhandler(Exception)
@@ -60,6 +61,18 @@ def create_app():
         )
 
     # Register the blueprints routes
+    SWAGGER_URL = '/api'
+    API_URL = '/static/swagger.json'
+    swaggerui_blueprint = get_swaggerui_blueprint(
+        SWAGGER_URL,
+        API_URL,
+        config={
+            'app_name': "API for AirDrop System"
+        }
+    )
+
+    app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
+    
     from .routes.main import main
     from .routes.auth import auth
     from .routes.dashboard import dashboard

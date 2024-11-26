@@ -240,6 +240,23 @@
   background-color: #f9b115;
 }
 
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+}
+
 table {
   user-select: none;
+}
+
+th{
+  white-space: nowrap;
+  text-align: center;
+}
+
+span {
+  max-width: 100px;
+  overflow:visible;
 }

@@ -1,0 +1,271 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "https://airdrop.vietsoft.pro",
+        "description": "API for https://airdrop.vietsoft.pro",
+        "version": "1.0.0",
+        "contact": {
+            "name": "API Support",
+            "email": "lokid319@gmail.com",
+            "url": ""
+        }
+    },
+    "host": "airdrop.vietsoft.pro",
+    "basePath": "/api",
+    "schemes": [
+        "https"
+    ],
+    "paths": {
+        "/profile/push": {
+            "post": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Cập nhật thông tin profile",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "description": "JSON payload chứa thông tin profile, tên profile và thiết bị là bắt buộc, các trường còn lại không truyền có thể để trống",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "profile_name": {
+                                    "type": "string",
+                                    "description": "Tên profile"
+                                },
+                                "profile_device": {
+                                    "type": "string",
+                                    "description": "Thiết bị"
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "description": "Trạng thái"
+                                },
+                                "session": {
+                                    "type": "string",
+                                    "description": "Session"
+                                },
+                                "passwordTon": {
+                                    "type": "string",
+                                    "description": "Mật khẩu ví"
+                                },
+                                "addressTon": {
+                                    "type": "string",
+                                    "description": "Địa chỉ ví"
+                                },
+                                "seedPhraseTon": {
+                                    "type": "string",
+                                    "description": "Mã 12 hoặc 24 ký tự"
+                                }
+                            },
+                            "required": [
+                                "profile_name",
+                                "profile_device"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/project/detail/push": {
+            "post": {
+                "tags": [
+                    "Project"
+                ],
+                "summary": "Cập nhâp tiến độ dự án",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "description": "JSON payload chứa thông tin cập nhật tiến độ dự án theo profile bắt buộc phải có project, thiết bị, tên dự án còn lại không truyền có thể để trống",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "profile": {
+                                    "type": "string",
+                                    "description": "Tên profile"
+                                },
+                                "device": {
+                                    "type": "string",
+                                    "description": "Thiết bị"
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "description": "Trạng thái làm việc của profile trong dự án"
+                                },
+                                "project": {
+                                    "type": "string",
+                                    "description": "Tên dự án cần cập nhật theo profile, lấy trong phần slug của dự án"
+                                },
+                                "point": {
+                                    "type": "string",
+                                    "description": "Điểm hay token đã nhận được từ dự án"
+                                }
+                            },
+                            "required": [
+                                "profile",
+                                "device",
+                                "project"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/wallet/detail/push": {
+            "post": {
+                "tags": [
+                    "Wallet"
+                ],
+                "summary": "Cập nhâp hoặc tạo ví",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "description": "JSON payload chứa thông tin cập nhật ví theo profile bắt buộc phải có project, thiết bị, tên ví còn lại không truyền có thể để trống",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "profile": {
+                                    "type": "string",
+                                    "description": "Tên profile"
+                                },
+                                "device": {
+                                    "type": "string",
+                                    "description": "Thiết bị"
+                                },
+                                "wallet": {
+                                    "wallet": "string",
+                                    "description": "Tên ví, lấy trong phần slug của ví trong quản lý ví"
+                                },
+                                "address": {
+                                    "type": "string",
+                                    "description": "Địa chỉ ví"
+                                },
+                                "password": {
+                                    "type": "string",
+                                    "description": "Mật khẩu ví"
+                                },
+                                "password_mobile": {
+                                    "type": "string",
+                                    "description": "Mật khẩu ví trên điện thoại"
+                                },
+                                "recovery_phrase": {
+                                    "type": "string",
+                                    "description": "Mã 12 hoặc 24 ký tự"
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "description": "Trạng thái ví"
+                                }
+                            },
+                            "required": [
+                                "profile",
+                                "device",
+                                "project"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
+        "/appleId/import": {
+            "post": {
+                "tags": [
+                    "AppleId"
+                ],
+                "summary": "Cập nhâp hoặc tạo appleId",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "description": "JSON payload chứa thông tin cập nhật tài khoản apple",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "account": {
+                                    "type": "string",
+                                    "description": "tài khoản appleId"
+                                },
+                                "password": {
+                                    "type": "string",
+                                    "description": "mật khẩu"
+                                },
+                                "question": {
+                                    "wallet": "string",
+                                    "description": "Câu hỏi bảo mật"
+                                },
+                                "birthday": {
+                                    "type": "string",
+                                    "description": "ngày sinh"
+                                },
+                                "country": {
+                                    "type": "string",
+                                    "description": "quốc gia"
+                                },
+                                "mail": {
+                                    "type": "string",
+                                    "description": "email reg acc"
+                                },
+                                "phone": {
+                                    "type": "string",
+                                    "description": "số điện thoại reg acc"
+                                },
+                                "device": {
+                                    "type": "string",
+                                    "description": "thiết bị reg"
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "description": "trạng thái acc"
+                                }
+                            },
+                            "required": [
+                                "profile",
+                                "device",
+                                "project"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        }
+    }
+}

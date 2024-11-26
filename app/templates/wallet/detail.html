@@ -35,15 +35,7 @@ ${% block breadcrumb %}
                         <option v-for="(item, index) in status" :value="item" :key="index" v-html="item"></option>
                     </select>
                 </div>
-
-                <div>
-                    <select class="form-select" v-model="filter_status_tomarket" v-on:change="getWallet">
-                        <option value="" selected>Liên kết tomarket</option>
-                        <option v-for="(item, index) in status_tomarket" :value="item" :key="index" v-html="item">
-                        </option>
-                    </select>
-                </div>
-
+                
                 <div>
                     <select class="form-select" v-model="filter_device" v-on:change="getWallet">
                         <option value="" selected>Server (Thiết bị)</option>
@@ -114,12 +106,6 @@ ${% block breadcrumb %}
                             Trạng thái
                             <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
                         </th>
-
-                        <th @click="sort('status_tomarket')" class="pointer">
-                            Liên kết Tomarket
-                            <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
-                        </th>
-
                     </tr>
                 </thead>
                 <tbody>
@@ -159,12 +145,6 @@ ${% block breadcrumb %}
                                 v-html="item.status">
                             </div>
                         </td>
-                        <td>
-                            <div contenteditable="true" class="form-control"
-                                @keyup="Update($event, item._id, 'status_tomarket')" v-html="item.status_tomarket">
-                            </div>
-                        </td>
-
                     </tr>
 
                 </tbody>

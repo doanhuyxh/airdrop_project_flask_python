@@ -29,14 +29,17 @@ def check_token():
 def index():
     return render_template("profile_gpm/index.html")
 
+
 @profile_gpm.route("/profile_gpm/update", methods=["GET"])
 def update():
     return render_template("profile_gpm/update.html")
+
 
 @profile_gpm.route("/profile_gpm/get_devices", methods=["GET"])
 def get_devices():
     devices = current_app.profile_gpm.distinct("profile_device")
     return jsonify({"code": 200, "data": devices}), 200
+
 
 @profile_gpm.route("/profile_gpm/list", methods=["POST"])
 def get_data():
@@ -143,15 +146,16 @@ def export_excel_data():
 
     if status is not None and len(status) > 0:
         query["status"] = status
-        
-        
+
     if name is not None and len(name) > 0:
         query["profile_name"] = {"$regex": name, "$options": "i"}
 
     if session is not None and len(session) > 0:
         query["session"] = {"$regex": session, "$options": "i"}
 
-    profile = current_app.profile_gpm.find(query, {"profile_name":1, "profile_device":1,"_id": 0})
+    profile = current_app.profile_gpm.find(
+        query, {"profile_name": 1, "profile_device": 1, "_id": 0}
+    )
 
     data = []
     for p in profile:
@@ -162,6 +166,7 @@ def export_excel_data():
         data.append(p)
 
     return jsonify({"code": 200, "data": data}), 200
+
 
 @profile_gpm.route("/profile_gpm/form")
 def form():
@@ -193,27 +198,42 @@ def update_field():
 
     return jsonify({"code": 200, "message": "Success"}), 200
 
+
 @profile_gpm.route("/profile_gpm/update_multi", methods=["POST"])
 def update_multi():
     data = request.form
     list_profile = data.get("profile")
     key_update = data.get("key_update")
     profile_update_content = data.get("profile_update_content")
-    
+
     if list_profile is None or key_update is None or profile_update_content is None:
-        return jsonify({"code": 400, "message": "Profile, key_update and profile_update_content is required"}), 400
-    
+        return (
+            jsonify(
+                {
+                    "code": 400,
+                    "message": "Profile, key_update and profile_update_content is required",
+                }
+            ),
+            400,
+        )
+
     for profile in list_profile.split("\n"):
         profile = profile.strip()
         if profile == "":
             continue
         check_profile = current_app.profile_gpm.find_one({"profile_name": profile})
         if check_profile is None:
-            current_app.profile_gpm.insert_one({"profile_name": profile, key_update: profile_update_content})
+            current_app.profile_gpm.insert_one(
+                {"profile_name": profile, key_update: profile_update_content, "last_time": datetime.now()}
+            )
         else:
-            current_app.profile_gpm.update_one({"profile_name": profile}, {"$set": {key_update: profile_update_content}})
-            
+            current_app.profile_gpm.update_one(
+                {"profile_name": profile},
+                {"$set": {key_update: profile_update_content, "last_time": datetime.now()}},
+            )
+
     return jsonify({"code": 200, "message": "Success"}), 200
+
 
 @profile_gpm.route("/profile_gpm/save", methods=["POST"])
 def saveData():
@@ -221,15 +241,36 @@ def saveData():
     profile_id = data.get("profile_id")
     profile_name = data.get("profile_name")
     profile_device = data.get("profile_device")
+    seedPhraseTon = data.get("seedPhraseTon")
+    addressTon = data.get("addressTon")
+    passwordTon = data.get("passwordTon")
+
+    print(data)
 
     if profile_id is None or len(profile_id) < 3:
         current_app.profile_gpm.insert_one(
-            {"profile_name": profile_name, "profile_device": profile_device}
+            {
+                "profile_name": profile_name,
+                "profile_device": profile_device,
+                "seedPhraseTon": seedPhraseTon,
+                "addressTon": addressTon,
+                "passwordTon": passwordTon,
+                "last_time": datetime.now(),
+            }
         )
     else:
         current_app.profile_gpm.update_one(
             {"_id": ObjectId(profile_id)},
-            {"$set": {"profile_name": profile_name, "profile_device": profile_device}},
+            {
+                "$set": {
+                    "profile_name": profile_name,
+                    "profile_device": profile_device,
+                    "seedPhraseTon": seedPhraseTon,
+                    "addressTon": addressTon,
+                    "passwordTon": passwordTon,
+                    "last_time": datetime.now(),
+                }
+            },
         )
 
     return jsonify({"code": 200, "message": "Success"}), 200
