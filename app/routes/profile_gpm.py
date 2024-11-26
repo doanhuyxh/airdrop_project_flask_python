@@ -29,12 +29,14 @@ def check_token():
 def index():
     return render_template("profile_gpm/index.html")
 
+@profile_gpm.route("/profile_gpm/update", methods=["GET"])
+def update():
+    return render_template("profile_gpm/update.html")
 
 @profile_gpm.route("/profile_gpm/get_devices", methods=["GET"])
 def get_devices():
     devices = current_app.profile_gpm.distinct("profile_device")
     return jsonify({"code": 200, "data": devices}), 200
-
 
 @profile_gpm.route("/profile_gpm/list", methods=["POST"])
 def get_data():
@@ -191,6 +193,27 @@ def update_field():
 
     return jsonify({"code": 200, "message": "Success"}), 200
 
+@profile_gpm.route("/profile_gpm/update_multi", methods=["POST"])
+def update_multi():
+    data = request.form
+    list_profile = data.get("profile")
+    key_update = data.get("key_update")
+    profile_update_content = data.get("profile_update_content")
+    
+    if list_profile is None or key_update is None or profile_update_content is None:
+        return jsonify({"code": 400, "message": "Profile, key_update and profile_update_content is required"}), 400
+    
+    for profile in list_profile.split("\n"):
+        profile = profile.strip()
+        if profile == "":
+            continue
+        check_profile = current_app.profile_gpm.find_one({"profile_name": profile})
+        if check_profile is None:
+            current_app.profile_gpm.insert_one({"profile_name": profile, key_update: profile_update_content})
+        else:
+            current_app.profile_gpm.update_one({"profile_name": profile}, {"$set": {key_update: profile_update_content}})
+            
+    return jsonify({"code": 200, "message": "Success"}), 200
 
 @profile_gpm.route("/profile_gpm/save", methods=["POST"])
 def saveData():
