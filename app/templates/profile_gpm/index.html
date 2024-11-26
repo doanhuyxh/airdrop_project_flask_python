@@ -119,8 +119,8 @@ ${% block breadcrumb %}
                     :class="{ 'selected-row': selectedRows.includes(item._id) }">
                     <td v-html="index + 1"></td>
                     <td class="text-center">
-                        <div class="d-flex gap-1">
-                            <span v-html="item.profile_name"></span>
+                        <div class="d-flex gap-1 flex-wrap">
+                            <span v-html="item.profile_name" class=""></span>
                             <span class="text-primary" @click="CopyDataValue(item.profile_name)"><i
                                     class="fa-regular fa-copy"></i></span>
                         </div>
