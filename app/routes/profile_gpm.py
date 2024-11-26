@@ -50,13 +50,17 @@ def get_data():
     status = request.json.get("status")
     name = request.json.get("name")
     session = request.json.get("session")
+    is_have_status = request.json.get("is_have_status")
     query = {}
 
     if device is not None and len(device) > 0:
         query["profile_device"] = device
 
     if status is not None and len(status) > 0:
-        query["status"] = status
+        if is_have_status == "true":
+            query["status"] = status
+        else:
+            query["status"] = {"$ne": status}
 
     if order_by is None:
         order_by = "last_time"
