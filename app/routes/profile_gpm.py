@@ -218,7 +218,7 @@ def update_multi():
         )
 
     for profile in list_profile.split("\n"):
-        profile = profile.strip()
+        profile = profile.strip().lower()
         if profile == "":
             continue
         check_profile = current_app.profile_gpm.find_one({"profile_name": profile})
@@ -237,21 +237,57 @@ def update_multi():
 
 @profile_gpm.route("/profile_gpm/save", methods=["POST"])
 def saveData():
-    data = request.json
+    data = request.form
     profile_id = data.get("profile_id")
-    profile_name = data.get("profile_name")
-    profile_device = data.get("profile_device")
+    profile_name = str(data.get("profile_name")).lower()
+    profile_device = str(data.get("profile_device")).lower()
     seedPhraseTon = data.get("seedPhraseTon")
     addressTon = data.get("addressTon")
     passwordTon = data.get("passwordTon")
-
-    print(data)
-
-    if profile_id is None or len(profile_id) < 3:
+    saveMultiple = data.get("saveMultiple")
+    
+    if saveMultiple is not None and saveMultiple == 'true':
+        list_profile = data.get("profile")
+        profiles = list_profile.split("\n")
+        for profile in profiles:
+            profile = profile.strip()
+            if profile == "":
+                continue
+            check_profile = current_app.profile_gpm.find_one({"profile_name": profile.lower()})
+            if check_profile is None:
+                current_app.profile_gpm.insert_one(
+                    {
+                        "profile_name": profile.lower(),
+                        "profile_device": profile_device.lower(),
+                        "seedPhraseTon": seedPhraseTon,
+                        "addressTon": addressTon,
+                        "passwordTon": passwordTon,
+                        "last_time": datetime.now(),
+                    }
+                )
+            else:
+                current_app.profile_gpm.update_one(
+                    {"profile_name": profile.lower()},
+                    {
+                        "$set": {
+                            "profile_device": profile_device.lower(),
+                            "seedPhraseTon": seedPhraseTon,
+                            "addressTon": addressTon,
+                            "passwordTon": passwordTon,
+                            "last_time": datetime.now(),
+                        }
+                    },
+                )
+        return jsonify({"code": 200, "message": "Success"}), 200
+    
+    # sử lý lẻ
+    check_profile = current_app.profile_gpm.find_one({"profile_name": profile_name.lower()})
+    print(check_profile)
+    if check_profile is None:
         current_app.profile_gpm.insert_one(
             {
-                "profile_name": profile_name,
-                "profile_device": profile_device,
+                "profile_name": profile_name.lower(),
+                "profile_device": profile_device.lower(),
                 "seedPhraseTon": seedPhraseTon,
                 "addressTon": addressTon,
                 "passwordTon": passwordTon,
@@ -260,11 +296,10 @@ def saveData():
         )
     else:
         current_app.profile_gpm.update_one(
-            {"_id": ObjectId(profile_id)},
+            {"profile_name": profile_name.lower()},
             {
                 "$set": {
-                    "profile_name": profile_name,
-                    "profile_device": profile_device,
+                    "profile_device": profile_device.lower(),
                     "seedPhraseTon": seedPhraseTon,
                     "addressTon": addressTon,
                     "passwordTon": passwordTon,
@@ -272,6 +307,7 @@ def saveData():
                 }
             },
         )
+        
 
     return jsonify({"code": 200, "message": "Success"}), 200
 

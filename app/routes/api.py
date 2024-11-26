@@ -10,8 +10,8 @@ api = Blueprint("api", __name__)
 @api.route("/api/profile/push", methods=["POST"])
 def profile_push():
     data = request.json
-    profile_name = data.get("profile_name")
-    profile_device = data.get("profile_device")
+    profile_name = str(data.get("profile_name")).lower()
+    profile_device = str(data.get("profile_device")).lower()
     status = data.get("status")
     session = data.get("session")
     seedPhraseTon = data.get("seedPhraseTon")
@@ -79,10 +79,10 @@ def profile_push():
 def data_detail_push():
 
     data = request.json
-    profile = data.get("profile")
-    device = data.get("device")
+    profile = str(data.get("profile")).lower()
+    device = str(data.get("device").lower())
     status = data.get("status")
-    project_slug = data.get("project")
+    project_slug = str(data.get("project")).lower()
     point = data.get("point")
 
     project = current_app.project.find_one({"project_slug": str(project_slug).lower()})
@@ -300,9 +300,9 @@ def wallet_detail_push():
 @api.route("/api/wallet/detail/get_wallet", methods=["POST"])
 def wallet_detail_get():
     data = request.json
-    profile = data.get("profile")
-    device = data.get("device")
-    wallet_type = data.get("wallet")
+    profile = str(data.get("profile")).lower()
+    device = str(data.get("device")).lower()
+    wallet_type = str(data.get("wallet")).lower()
 
     wallet = current_app.wallet.find_one({"slug": str(wallet_type).lower()})
     if wallet is None:

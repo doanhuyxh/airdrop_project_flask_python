@@ -62,7 +62,7 @@ ${% block breadcrumb %}
                     <i class="fa-solid fa-floppy-disk"></i>
                 </span>
             </div>
-            <div class="d-flex gap-3 mb-3">
+            <div class="d-flex gap-3">
                 <span v-on:click="ExportExcel" class="btn btn-success" data-coreui-toggle="tooltip"
                     data-coreui-placement="top" data-coreui-title="Xuất dữ liệu ra excel">
                     <i class="fa-solid fa-file-excel"></i>
@@ -84,14 +84,27 @@ ${% block breadcrumb %}
                 </span>
             </div>
 
-            <div class="ms-auto">
-                <p>Hiển thị: <span class="text-danger fw-bold" v-html="profiles.length"></span> của <span
-                        class="text-danger fw-bold" v-html="totalResults"></span> kết quả</p>
+            <div class="ms-auto d-flex align-items-center gap-3">
+                <select class="form-control" v-model="pageSize" @change="current_page = 1; getProfiles()">
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                    <option value="200">200</option>
+                    <option value="500">500</option>
+                    <option value="1000">1000</option>
+                </select>
+                <p style="white-space: nowrap; line-height: 1.5; letter-spacing: 0.1em; margin: 0;">
+                    hiển thị:
+                    <strong class="text-danger fw-bold" v-html="profiles.length"></strong>
+                    /
+                    <strong class="text-danger fw-bold" v-html="totalResults"></strong>
+                    kết quả
+                </p>
             </div>
+
         </div>
 
-
-        <table class="table table-hover table-striped table-bordered" @mousedown="startDrag" @mouseup="stopDrag">
+        <table class="table table-hover table-striped table-bordered">
             <thead>
                 <tr>
                     <th>STT</th>
@@ -302,6 +315,9 @@ ${% block breadcrumb %}
             },
             selectRow(id) {
                 if (this.selectedRows.includes(id)) {
+                    if (this.isDragging) {
+                        return;
+                    }
                     this.selectedRows = this.selectedRows.filter((rowId) => rowId !== id);
                 } else {
                     this.selectedRows.push(id);
@@ -435,6 +451,26 @@ ${% block breadcrumb %}
             }
         }
     })
+
+    $(document).ready(function () {
+        window.addEventListener("keydown", function (e) {
+            if (e.key === "Shift") {
+                app_vue.startDrag();
+            }
+
+            if (event.ctrlKey && event.key === 'a') {
+                event.preventDefault();
+                app_vue.selectedRows = app_vue.profiles.map(item => item._id); 
+            }
+        });
+
+        window.addEventListener("keyup", function (e) {
+            if (e.key === "Shift") {
+                app_vue.stopDrag();
+            }
+        });
+    });
+
 </script>
 
 

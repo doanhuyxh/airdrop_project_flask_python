@@ -121,6 +121,8 @@ ${% block breadcrumb %}
 
     async function save() {
         try {
+            massage = "";
+            
             let profileDevice = document.getElementById('profile_type').value;
             let profile = document.getElementById('profile').value;
 
@@ -147,27 +149,43 @@ ${% block breadcrumb %}
 
 
             let profileArray = profile.split('\n');
-            for (let i = 0; i < profileArray.length; i++) {
-                let profileData = profileArray[i];
+
+            if (profileArray.length >= 10) {
                 
-                if (profileData.length == 0) {
-                    continue;
+                let formData = new FormData();
+                formData.append('profile', profile);
+                formData.append('profile_device', profileDevice);
+                formData.append('saveMultiple', "true");
+
+                await fetch('/profile_gpm/save', {
+                    method: 'POST',
+                    body: formData,
+                })
+                return;
+            } else {
+
+                for (let i = 0; i < profileArray.length; i++) {
+                    let profileData = profileArray[i];
+
+                    if (profileData.length == 0) {
+                        continue;
+                    }
+
+                    let profileDataSplit = profileData.split('|');
+
+                    let profileName = profileDataSplit[0].trim();
+
+                    if (profileName.length == 0) {
+                        continue;
+                    }
+
+                    let addressTon = profileDataSplit[1] ? profileDataSplit[1].trim() : '';
+                    let passwordTon = profileDataSplit[2] ? profileDataSplit[2].trim() : '';
+                    let seedPhraseTon = profileDataSplit[3] ? profileDataSplit[3].trim() : '';
+
+                    await saveData(profileName, addressTon, passwordTon, seedPhraseTon, profileDevice);
                 }
 
-                let profileDataSplit = profileData.split('|');
-
-                let profileName = profileDataSplit[0].trim();
-
-                if (profileName.length == 0) {
-                    continue;
-                }
-
-                let addressTon = profileDataSplit[1] ? profileDataSplit[1].trim() : '';
-                let passwordTon = profileDataSplit[2] ? profileDataSplit[2].trim() : '';
-                let seedPhraseTon = profileDataSplit[3] ? profileDataSplit[3].trim() : '';
-
-
-                await saveData(profileName, addressTon, passwordTon, seedPhraseTon, profileDevice);
             }
             isSuccess = true;
 
@@ -200,18 +218,11 @@ ${% block breadcrumb %}
         formData.append('addressTon', addressTon);
         formData.append('passwordTon', passwordTon);
         formData.append('seedPhraseTon', seedPhraseTon);
-    
-        let jsonData = {};
-        formData.forEach((value, key) => {
-            jsonData[key] = value;
-        })
+        formData.append('saveMultiple', "false");
 
         await fetch('/profile_gpm/save', {
             method: 'POST',
-            body: JSON.stringify(jsonData),
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            body: formData,
         })
 
     }
