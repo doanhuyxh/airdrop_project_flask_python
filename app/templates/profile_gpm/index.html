@@ -233,9 +233,7 @@ ${% block breadcrumb %}
         "methods": {
             "getProfiles": function () {
                 $("table").LoadingOverlay("show", {
-                    background: "rgba(165, 190, 100, 0.5)",
-                    fontawesome: "fa fa-spinner fa-spin",
-                    zIndex: 9999
+                    background: "rgba(165, 190, 100, 0.5)"
                 });
                 fetch("/profile_gpm/list", {
                     method: "POST",
