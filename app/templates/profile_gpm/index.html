@@ -128,7 +128,7 @@ ${% block breadcrumb %}
                     <td v-html="item.profile_device"></td>
                     <td v-html="item.status"></td>
                     <td>
-                        <p v-html="item.session"></p>
+                        <p class="session" v-html="item.session"></p>
                     </td>
                     <td>
                         <div class="d-flex gap-2">
@@ -157,7 +157,9 @@ ${% block breadcrumb %}
                         </div>
                     </td>
 
-                    <td v-html="item.last_time"></td>
+                    <td class="text-center">
+                        <span v-html="item.last_time"></span>
+                    </td>
                 </tr>
             </tbody>
         </table>

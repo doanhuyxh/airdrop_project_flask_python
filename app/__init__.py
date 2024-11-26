@@ -51,8 +51,7 @@ def create_app():
         if isinstance(e, HTTPException):
             code = e.code
         else:
-            code = 500
-        
+            code = 500        
         stack_trace = traceback.format_exc()
         print(request.get_data(as_text=True))
         return (

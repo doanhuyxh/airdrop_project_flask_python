@@ -18,30 +18,41 @@ def profile_push():
     addressTon = data.get("addressTon")
     passwordTon = data.get("passwordTon")
     
+    
+    update_data = {
+            "last_time": datetime.now(),
+        }
+    if session and len(session) >= 3:
+        update_data["session"] = session
 
+    if status and len(status) >= 3:
+        update_data["status"] = status
+        
+    if seedPhraseTon and len(seedPhraseTon) >= 3:
+        update_data["seedPhraseTon"] = seedPhraseTon
+    
+    if addressTon and len(addressTon) >= 3:
+        update_data["addressTon"] = addressTon
+    
+    if passwordTon and len(passwordTon) >= 3:
+        update_data["passwordTon"] = passwordTon
+    
+    # sử lý với chỉ có thông tin profile ---- chỉ cập nhật nếu có không tạo mới
+    if profile_device is None or len(profile_device) < 3:
+        check = current_app.profile_gpm.find({"profile_name": profile_name})
+        if check is not None:
+            current_app.profile_gpm.update_many(
+                {"profile_name": profile_name},
+                {"$set": update_data},
+            )
+            return jsonify({"code": 200, "message": "Update profile successfully"}), 200
+    
+    # sử lý với có cả thông tin device và profile
     check = current_app.profile_gpm.find_one(
         {"profile_name": profile_name, "profile_device": profile_device}
     )
-    if check:
-
-        update_data = {
-            "last_time": datetime.now(),
-        }
-        if session and len(session) >= 3:
-            update_data["session"] = session
-
-        if status and len(status) >= 3:
-            update_data["status"] = status
-            
-        if seedPhraseTon and len(seedPhraseTon) >= 3:
-            update_data["seedPhraseTon"] = seedPhraseTon
+    if check is not None:
         
-        if addressTon and len(addressTon) >= 3:
-            update_data["addressTon"] = addressTon
-        
-        if passwordTon and len(passwordTon) >= 3:
-            update_data["passwordTon"] = passwordTon
-
         current_app.profile_gpm.update_one(
             {"profile_name": profile_name, "profile_device": profile_device},
             {"$set": update_data},
@@ -277,7 +288,6 @@ def wallet_detail_push():
                 "password_mobile": password_mobile,
                 "last_time": datetime.now(),
                 "status": status,
-                "status_tomarket": status_tomarket,
             }
         )
 
