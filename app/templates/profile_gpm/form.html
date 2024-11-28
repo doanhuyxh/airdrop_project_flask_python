@@ -122,7 +122,6 @@ ${% block breadcrumb %}
     async function save() {
         try {
             massage = "";
-            
             let profileDevice = document.getElementById('profile_type').value;
             let profile = document.getElementById('profile').value;
 
@@ -161,6 +160,8 @@ ${% block breadcrumb %}
                     method: 'POST',
                     body: formData,
                 })
+
+                isSuccess = true;
                 return;
             } else {
 
@@ -196,6 +197,7 @@ ${% block breadcrumb %}
             $("#profile").LoadingOverlay("hide", true);
             $("#save").LoadingOverlay("hide", true);
             $("#save").attr("disabled", false);
+            
             Swal.fire({
                 title: isSuccess ? 'Thành công' : 'Thất bại',
                 text: massage,
