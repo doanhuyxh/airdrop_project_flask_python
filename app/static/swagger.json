@@ -10,10 +10,10 @@
             "url": ""
         }
     },
-    "host": "airdrop.vietsoft.pro",
+    "host": "",
     "basePath": "/api",
     "schemes": [
-        "https"
+        
     ],
     "paths": {
         "/profile/push": {

@@ -12,7 +12,7 @@ def profile_push():
     data = request.json
     profile_name = str(data.get("profile_name")).lower()
     profile_device = str(data.get("profile_device")).lower()
-    status = data.get("status")
+    status = str(data.get("status")).lower()
     session = data.get("session")
     seedPhraseTon = data.get("seedPhraseTon")
     addressTon = data.get("addressTon")
@@ -85,8 +85,8 @@ def get_status_check():
         return "0", 200
     
     profile_check = current_app.profile_gpm.find_one({
-        "profile_name": profile,
-        "status": status
+        "profile_name": profile.strip(),
+        "status": status.strip().lower()
     })
     
     if profile_check is None:
