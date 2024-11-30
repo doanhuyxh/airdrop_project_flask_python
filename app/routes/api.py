@@ -74,6 +74,24 @@ def profile_push():
     )
     return jsonify({"code": 201, "message": "Profile created successfully"}), 201
 
+@api.route("/api/profile/get_status_check", methods=["GET"])
+def get_status_check():
+    data = request.args
+    
+    profile = data.get("profile")
+    status = data.get("status")
+    
+    if profile is None or status is None:
+        return "0", 200
+    
+    profile_check = current_app.profile_gpm.find_one({
+        "profile_name": profile,
+        "status": status
+    })
+    
+    if profile_check is None:
+        return "0", 200
+    return "1", 200
 
 @api.route("/api/project/detail/push", methods=["POST"])
 def data_detail_push():

@@ -77,6 +77,38 @@
                 }
             }
         },
+        "/profile/get_status_check":{
+            "get": {
+                "tags": [
+                    "Profile"
+                ],
+                "summary": "Lấy trạng thái của profile",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "profile",
+                        "required": true,
+                        "description": "Tên profile",
+                        "type": "string"
+                    },
+                    {
+                        "in": "query",
+                        "name": "status",
+                        "required": true,
+                        "description": "Trạng thái",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
+        },
         "/project/detail/push": {
             "post": {
                 "tags": [
