@@ -15,6 +15,17 @@
 <div class="shadow-lg bg-body rounded px-5 pt-4 pb-5">
   <div class="table-responsive">
     <div class="d-flex gap-3 mb-3">
+      <div>
+        <span
+          class="btn btn-success"
+          data-coreui-toggle="tooltip"
+          data-coreui-placement="top"
+          data-coreui-title="Tải dữ liệu mới nhất"
+          v-on:click="current_page = 1; getProfiles()"
+        >
+          <i class="fa-solid fa-rotate-right"></i>
+        </span>
+      </div>
       <div class="">
         <select
           class="form-control"
@@ -36,13 +47,13 @@
           <span
             v-show="is_have_status == 'true'"
             v-on:click="is_have_status = 'false'"
-            class="text-primary pointer text-nowrap  px-2 py-1 rounded"
+            class="text-primary pointer text-nowrap px-2 py-1 rounded"
             >có chứa</span
           >
           <span
             v-show="is_have_status == 'false'"
             v-on:click="is_have_status = 'true'"
-            class="text-danger pointer text-nowrap px-2 py-1 rounded" 
+            class="text-danger pointer text-nowrap px-2 py-1 rounded"
             >không chứa</span
           >
           <br />
