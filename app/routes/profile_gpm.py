@@ -198,11 +198,21 @@ def update_field():
     data = request.json
     key = data.get("key")
     value = data.get("value")
+    is_update_all = data.get("is_update_all")
+    list_profile_le = data.get("list_profile_le")
 
     if key is None or value is None:
         return jsonify({"code": 400, "message": "Key and value is required"}), 400
 
-    current_app.profile_gpm.update_many({}, {"$set": {key: value}})
+    if is_update_all == 'false':
+        profile_update_ids = str(list_profile_le).strip().split(",")
+        for i in profile_update_ids:
+            current_app.profile_gpm.update_one({
+            "_id": ObjectId(i)
+        }, {"$set": {key: value}})
+    else:
+        # cập nhật tất cả
+        current_app.profile_gpm.update_many({}, {"$set": {key: value}})
 
     return jsonify({"code": 200, "message": "Success"}), 200
 
@@ -321,7 +331,7 @@ def saveData():
 
 
 @profile_gpm.route("/profile_gpm/delete", methods=["GET"])
-def deteleData():
+def deleteData():
     profile_id = request.args.get("id")
 
     if profile_id is None:

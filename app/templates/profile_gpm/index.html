@@ -58,6 +58,12 @@ ${% block breadcrumb %}
             </div>
             <div class="d-flex gap-2" style="max-height: 2.4em;">
                 <input type="text" class="form-control" placeholder="nội dung cập nhật" v-model="updateFiled.value">
+                <div class="text-center">
+                    <span v-show="is_update_all == 'true'" v-on:click="is_update_all = 'false'" class="text-primary px-4 pointer text-nowrap">Tất cả</span>
+                    <span v-show="is_update_all == 'false'"  v-on:click="is_update_all = 'true'" class="text-danger px-4  pointer  text-nowrap">Đã chọn</span>
+                    <br>
+                    <span class="text-nowrap opacity-25">trường dữ liệu</span>
+                </div>
                 <select class="form-control" v-model="updateFiled.key">
                     <option value="" disabled selected>Trường dữ liệu</option>
                     <option value="status">Trạng thái</option>
@@ -216,6 +222,7 @@ ${% block breadcrumb %}
             status: [],
             filter_device: "",
             is_have_status: "true",
+            is_update_all:"true",
             filter_status: "",
             session: "",
             pageSize: 25,
@@ -369,7 +376,9 @@ ${% block breadcrumb %}
                             },
                             body: JSON.stringify({
                                 "key": this.updateFiled.key,
-                                "value": this.updateFiled.value
+                                "value": this.updateFiled.value,
+                                "is_update_all": this.is_update_all,
+                                "list_profile_le": this.selectedRows.toString()
                             })
                         }).then(() => {
                             Swal.fire({
@@ -387,8 +396,6 @@ ${% block breadcrumb %}
                     icon: "info",
                     title: "Đang lấy dữ liệu"
                 });
-
-                console.log(key);
                 fetch("/profile_gpm/get_data?key=" + key)
                     .then(response => {
                         return response.json();

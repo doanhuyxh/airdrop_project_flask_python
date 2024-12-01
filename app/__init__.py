@@ -5,14 +5,25 @@ from pymongo import MongoClient, ASCENDING
 from werkzeug.exceptions import HTTPException
 from flask_swagger_ui import get_swaggerui_blueprint
 import logging
+from datetime import datetime
+from threading import Thread
 
 from app.middlewares.auth import token_update
 from app.ultils.clear_cache import clear_all_pycache
 from config import Config
 
+
+def log_to_mongo(collection_Db, log_document):
+    """Hàm ghi log vào MongoDB."""
+    try:
+        collection_Db.insert_one(log_document)
+    except Exception as e:
+        logging.error(f"Error during logging to MongoDB: {e}\n{traceback.format_exc()}")
+
+
 #from app.cronjob.run_check_proxy_job import run_check_proxy_job
 
-logging.basicConfig(level=logging.ERROR)
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
@@ -36,6 +47,9 @@ def create_app():
     app.mail = app.db["mail"]
     
     app.apple_id = app.db["apple_id_new"]
+
+
+    app.log_request = app.db["log_request"]
     
     # Register the schedule job
     # run_check_proxy_job()
@@ -43,6 +57,33 @@ def create_app():
     @app.after_request
     @token_update
     def after_request(response):
+        try:
+
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            method = request.method
+            url = request.url
+            ip_address = request.remote_addr
+            status_code = response.status
+            data = request.data.decode('utf-8') if request.data else ""
+
+            log_document = {
+                "timestamp": timestamp,
+                "method": method,
+                "url": url,
+                "ip_address": ip_address,
+                "status_code": status_code,
+                "data": data,
+            }
+
+            Thread(target=log_to_mongo, args=(app.log_request, log_document,)).start()
+
+            logging.info(
+                f"[{timestamp}] {method} {url} (IP: {ip_address}) | Data: {data} | Response: {status_code}"
+            )
+        except Exception as e:
+            logging.error(f"Error during logging request/response: {e}\n{traceback.format_exc()}")
+
+        # Thêm header CORS
         response.headers.add("Access-Control-Allow-Origin", "*")
         return response
     
