@@ -75,7 +75,7 @@ def create_app():
                 "data": data,
             }
 
-            Thread(target=log_to_mongo, args=(app.log_request, log_document,)).start()
+            app.log_request.insert_one(log_document)
 
             logging.info(
                 f"[{timestamp}] {method} {url} (IP: {ip_address}) | Data: {data} | Response: {status_code}"
