@@ -1,0 +1,323 @@
+{% extends "share/Main_Layout.html" %}
+
+{% block title %}Log request{% endblock %}
+
+{% block content %}
+
+
+<div class="shadow-lg bg-body rounded px-5 pt-4 pb-5">
+    <p class="text-center h4">Request</p>
+
+    <div class="table-responsive">
+
+        <div class="float-start d-flex gap-3 mb-3">
+           
+            <div>
+                <input type="text" class="form-control" style="min-width: 30em;" v-model="search"
+                    placeholder="tìm kiếm url, ip, data" v-on:keyup="debouncedSearch" />
+            </div>
+
+            <select class="form-control" v-model="filter_ip"
+                    @change="current_page = 1; GetLogData()">
+                    <option value="">ip (tất cả)</option>
+                    <option v-for="item in list_ip" :key="item" :value="item" v-html="item"></option>
+                </select>
+        </div>
+
+        <div class="float-end d-flex gap-3 mb-3">
+
+            <span class="btn btn-danger" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                v-on:click="deleteSelectLogData" data-coreui-title="Xoá dữ liệu đang chọn, nếu không chọn, xoá toàn bộ">
+                <i class="fa-solid fa-trash"></i>
+            </span>
+        </div>
+
+    </div>
+
+    <table class="table table-hover table-striped table-bordered">
+        <thead class="table-primary">
+            <tr>
+                <th @click="sort('_id')" class="pointer" style="width: 5em;">
+                    STT
+                    <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                </th>
+                <th>
+                    IP
+                </th>
+                <th>
+                   URL
+                </th>
+                <th>
+                    Method
+                </th>
+                <th>
+                    Data
+                </th>
+                <th>
+                    Time
+                </th>
+
+               
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="(item, index) in LogData" :key="item._id" @click="selectRow(item._id)"
+                @mouseover="isDragging ? selectRow(item._id) : null"
+                :class="{ 'selected-row': selectedRows.includes(item._id) }">
+                <td>
+                    <span v-html="index+1"></span>
+                </td>
+                <td>
+                    <span @click="CopyData(item.ip_address)" v-html="item.ip_address"></span>
+                    <span @click="CopyData(item.ip_address)"><i class="fa-regular fa-copy"></i></span>
+                </td>
+                
+                <td>
+                    <span @click="CopyData(item.url)" v-html="item.url"></span>
+                </td>
+                
+                <td>
+                    <span @click="CopyData(item.method)" v-html="item.method"></span>
+                </td>
+                
+                <td>
+                    <span @click="CopyData(item.data)" v-html="item.data"></span>
+                    <span @click="CopyData(item.data)"><i class="fa-regular fa-copy"></i></span>
+                </td>
+                
+                <td>
+                    <span v-html="item.timestamp" class="text-center text-wrap"></span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="my-4 d-flex justify-content-between">
+        <div>
+            <p>hiển thị: <span class="text-danger fw-bold" v-html="LogData.length"></span> của <span
+                    class="text-danger fw-bold" v-html="totalResults"></span> kết quả</p>
+        </div>
+        <div v-if="totalPages > 1" class="btn-group gap-2">
+            <button @click="changePage(current_page - 1)" :disabled="current_page === 1" class="btn btn-info">
+                Trước
+            </button>
+
+            <button v-for="page in pagesToShow" :key="page" @click="changePage(page)"
+                :class="{ 'btn-danger': current_page === page, btn: true }" class="btn">
+                <span v-html="page"></span>
+            </button>
+
+            <button @click="changePage(current_page + 1)" :disabled="current_page === totalPages" class="btn btn-info">
+                Tiếp
+            </button>
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block script %}
+
+<script>
+    var app_vue = new Vue({
+        el: '#app',
+        data: {
+            LogData: [],
+            search: "",
+            filter_ip:"",
+            list_ip:[],
+            current_page: 1,
+            pageSize: 25,
+            totalPages: 0,
+            totalResults: 0,
+            selectedRows: [],
+            isDragging: false,
+        },
+        created() {
+            this.debouncedSearch = _.debounce(this.GetLogData, 300);
+        },
+        mounted() {
+            this.GetLogData();
+        },
+        computed: {
+            pagesToShow() {
+                const pages = [];
+                const startPage = Math.max(1, this.current_page - 3);
+                const endPage = Math.min(this.totalPages, this.current_page + 3);
+
+                for (let i = startPage; i <= endPage; i++) {
+                    pages.push(i);
+                }
+
+                console.log(pages);
+
+                return pages;
+            }
+        },
+        methods: {
+            GetLogData() {
+                $("table").LoadingOverlay("show", {
+                    background: "rgba(165, 190, 100, 0.5)"
+                });
+                fetch("/log_request/get_data", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        search: this.search,
+                        page: this.current_page,
+                        pageSize: this.pageSize,
+                        filter_ip:this.filter_ip
+                    }),
+                }).then((response) => {
+                    $("table").LoadingOverlay("hide", true);
+                    return response.json();
+                }).then((data) => {
+                    this.LogData = data.data;
+                    this.totalResults = data.totalResults;
+                    this.totalPages = data.totalPages;
+                    this.page = data.page;
+                    this.list_ip = data.list_ip
+                }).catch((error) => {
+                    console.log(error);
+                });
+
+            },
+            sort(field) {
+                this.order_by = field;
+                this.order_type = this.order_type === -1 ? 1 : -1;
+                this.page = 1;
+                this.GetLogData();
+            },
+            changePage(page) {
+                if (page >= 1 && page <= this.totalPages) {
+                    this.current_page = page;
+                    this.GetLogData();
+                }
+            },
+            selectRow(id) {
+                if (this.selectedRows.includes(id)) {
+                    if (this.isDragging) {
+                        return;
+                    }
+                    this.selectedRows = this.selectedRows.filter((rowId) => rowId !== id);
+                } else {
+                    this.selectedRows.push(id);
+                }
+            },
+            startDrag() {
+                this.isDragging = true;
+            },
+            stopDrag() {
+                this.isDragging = false;
+            },
+            deleteSelectLogData() {
+            
+                Swal.fire({
+                    title: 'Xác nhận xoá',
+                    text: 'Bạn có chắc chắn muốn xoá tài khoản đang chọn?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Xoá',
+                    cancelButtonText: 'Hủy',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        fetch("/log_request/delete", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                                ids: this.selectedRows,
+                            }),
+                        }).then((response) => {
+                            this.GetLogData();
+                        }).catch((error) => {
+                            console.log(error);
+                        });
+                    }
+                });
+
+            },
+            ExportExcel() {
+                fetch("/LogData/get_data", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        page: this.current_page,
+                        pageSize: this.pageSize,
+                    }),
+                }).then((response) => {
+                    return response.json();
+                }).then((data) => {
+                    let data_json = data.data;
+
+                    let data_rs = []
+
+                    data_json.forEach((item, index) => {
+                        data_rs.push({
+                            "STT": index + 1,
+                            "AccountId": item.account,
+                            "Mật khẩu": item.password,
+                            "Số điện thoại": item.phone,
+                            "mail": item.mail,
+                            "Câu hỏi bảo mật": item.question,
+                            "Quốc gia": item.country,
+                            "Năm sinh": item.birthday,
+                            "Thiết bị": item.device,
+                            "Ngày tạo": item.created_at
+                        });
+                    });
+
+                    let ws = XLSX.utils.json_to_sheet(data_rs);
+                    let wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+                    XLSX.writeFile(wb, `LogData_page_${this.page}.xlsx`);
+
+                }).catch((error) => {
+                    console.log(error);
+                });
+
+            },
+            CopyData(data) {
+                navigator.clipboard.writeText(data);
+                Toast.fire({
+                    icon: "success",
+                    title: "Đã copy dữ liệu"
+                });
+            },
+            Update(event, id, field) {
+                console.log('Update')
+            }
+
+        }
+    });
+
+    $(document).ready(function () {
+        window.addEventListener("keydown", function (e) {
+            if (e.key === "Shift") {
+                app_vue.startDrag();
+            }
+            
+            if (event.ctrlKey && event.key === 'a') {
+                event.preventDefault();
+                app_vue.selectedRows = app_vue.LogData.map(item => item._id); 
+            }
+        });
+
+        window.addEventListener("keyup", function (e) {
+            if (e.key === "Shift") {
+                app_vue.stopDrag();
+            }
+        });
+    });
+</script>
+
+{% endblock %}

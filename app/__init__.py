@@ -74,8 +74,9 @@ def create_app():
                 "status_code": status_code,
                 "data": data,
             }
-
-            app.log_request.insert_one(log_document)
+            
+            if "static" not in url and "get" not in url and "list" not in url and "log_request" not in url and "favicon" not in url:
+                app.log_request.insert_one(log_document)
 
             logging.info(
                 f"[{timestamp}] {method} {url} (IP: {ip_address}) | Data: {data} | Response: {status_code}"
@@ -124,6 +125,7 @@ def create_app():
     from .routes.wallet import wallet
     from .routes.mail import mail 
     from .routes.appleId import appleId
+    from .routes.log_request import log_request
     app.register_blueprint(main)
     app.register_blueprint(auth)
     app.register_blueprint(dashboard)
@@ -135,7 +137,8 @@ def create_app():
     app.register_blueprint(wallet)
     app.register_blueprint(mail)
     app.register_blueprint(appleId)
-    
+    app.register_blueprint(log_request)
+
     clear_all_pycache()
     
     return app
