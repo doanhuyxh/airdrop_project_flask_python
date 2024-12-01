@@ -111,30 +111,65 @@ def get_data():
     )
 
 
-@profile_gpm.route("/profile_gpm/get_data", methods=["GET"])
+@profile_gpm.route("/profile_gpm/get_data", methods=["POST"])
 def getKeyData():
     key = request.args.get("key")
+    order_by = request.json.get("order_by")
+    device = request.json.get("device")
+    status = request.json.get("status")
+    name = request.json.get("name")
+    session = request.json.get("session")
+    is_have_status = request.json.get("is_have_status")
+    query = {}
+
+    if device is not None and len(device) > 0:
+        query["profile_device"] = device
+
+    if status is not None and len(status) > 0:
+        if is_have_status == "true":
+            query["status"] = status
+        else:
+            query["status"] = {"$ne": status}
+
+    if order_by is None:
+        order_by = "last_time"
+
+    if name is not None and len(name) > 0:
+        query["profile_name"] = {"$regex": name, "$options": "i"}
+
+    if session is not None and len(session) > 0:
+        query["session"] = {"$regex": session, "$options": "i"}
 
     if key is None:
         return jsonify({"code": 400, "message": "Key is required"}), 400
 
-    profiles = current_app.profile_gpm.find({})
+    profiles = current_app.profile_gpm.find(query)
 
+    data =[]
     if key == "session":
-        data = []
         for profile in profiles:
             if profile.get("session") is not None:
                 data.append(
-                    str(profile["profile_name"])
+                    str(profile.get("profile_name", ""))
                     + " - "
-                    + str(profile["profile_device"])
+                    + str(profile.get("profile_device", ""))
                     + " - "
-                    + str(profile["session"])
-                    + "\n\n"
+                    + str(profile.get("session", ""))
+                    + "\n"
                 )
-        return jsonify({"code": 200, "data": data}), 200
+                
+    
+    if key == "profile_name":
+        for profile in profiles:
+            if profile.get("session") is not None:
+                data.append(
+                    str(profile.get("profile_name", ""))
+                    + "\n"
+                )
+                
+    
 
-    return jsonify({"code": 200, "data": ""}), 200
+    return jsonify({"code": 200, "data": data}), 200
 
 
 @profile_gpm.route("/profile_gpm/export_excel_data", methods=["POST"])
@@ -200,19 +235,43 @@ def update_field():
     value = data.get("value")
     is_update_all = data.get("is_update_all")
     list_profile_le = data.get("list_profile_le")
+    device = request.json.get("device")
+    status = request.json.get("status")
+    name = request.json.get("name")
+    session = request.json.get("session")
+    is_have_status = request.json.get("is_have_status")
+    query = {}
+
+    if device is not None and len(device) > 0:
+        query["profile_device"] = device
+
+    if status is not None and len(status) > 0:
+        if is_have_status == "true":
+            query["status"] = status
+        else:
+            query["status"] = {"$ne": status}
+
 
     if key is None or value is None:
         return jsonify({"code": 400, "message": "Key and value is required"}), 400
 
-    if is_update_all == 'false':
+    if is_update_all == 'choose':
+        # update lựa chọn
         profile_update_ids = str(list_profile_le).strip().split(",")
         for i in profile_update_ids:
             current_app.profile_gpm.update_one({
             "_id": ObjectId(i)
         }, {"$set": {key: value}})
-    else:
+    if is_update_all == 'all':
         # cập nhật tất cả
         current_app.profile_gpm.update_many({}, {"$set": {key: value}})
+        
+    if is_update_all == 'filter':
+        profiles = current_app.profile_gpm.find(query)
+        for pro in profiles:
+            current_app.profile_gpm.update_one({
+            "_id": ObjectId(pro.get("_id"))
+        }, {"$set": {key: value}})
 
     return jsonify({"code": 200, "message": "Success"}), 200
 

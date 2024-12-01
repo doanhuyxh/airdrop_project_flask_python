@@ -36,13 +36,13 @@
           <span
             v-show="is_have_status == 'true'"
             v-on:click="is_have_status = 'false'"
-            class="text-primary pointer text-nowrap"
+            class="text-primary pointer text-nowrap  px-2 py-1 rounded"
             >có chứa</span
           >
           <span
             v-show="is_have_status == 'false'"
             v-on:click="is_have_status = 'true'"
-            class="text-danger pointer text-nowrap"
+            class="text-danger pointer text-nowrap px-2 py-1 rounded" 
             >không chứa</span
           >
           <br />
@@ -90,16 +90,22 @@
         />
         <div class="text-center">
           <span
-            v-show="is_update_all == 'true'"
-            v-on:click="is_update_all = 'false'"
-            class="text-primary px-4 pointer text-nowrap"
+            v-show="is_update_all == 'all'"
+            v-on:click="is_update_all = 'choose'"
+            class="text-primary px-2 py-1 rounded pointer text-nowrap"
             >Tất cả</span
           >
           <span
-            v-show="is_update_all == 'false'"
-            v-on:click="is_update_all = 'true'"
-            class="text-danger px-4 pointer text-nowrap"
+            v-show="is_update_all == 'choose'"
+            v-on:click="is_update_all = 'filter'"
+            class="text-danger px-2 py-1 rounded pointer text-nowrap"
             >Đã chọn</span
+          >
+          <span
+            v-show="is_update_all == 'filter'"
+            v-on:click="is_update_all = 'all'"
+            class="text-success px-2 py-1 rounded pointer text-nowrap"
+            >Theo lọc</span
           >
           <br />
           <span class="text-nowrap opacity-25">trường dữ liệu</span>
@@ -340,7 +346,7 @@
       status: [],
       filter_device: "",
       is_have_status: "true",
-      is_update_all: "true",
+      is_update_all: "all",
       filter_status: "",
       session: "",
       pageSize: 25,
@@ -469,10 +475,17 @@
         this.isDragging = false;
       },
       SaveUpdate() {
-        if (this.updateFiled.key == "" || this.updateFiled.value == "") {
+        if (this.updateFiled.key == "") {
           Toast.fire({
             icon: "error",
             title: "Vui lòng chọn trường cập nhật",
+          });
+          return;
+        }
+        if (this.updateFiled.value == "") {
+          Toast.fire({
+            icon: "error",
+            title: "Vui lòng chọn nhập dữ liệu cập nhật",
           });
           return;
         }
@@ -498,6 +511,11 @@
                 value: this.updateFiled.value,
                 is_update_all: this.is_update_all,
                 list_profile_le: this.selectedRows.toString(),
+                device: this.filter_device,
+                name: this.name,
+                status: this.filter_status,
+                session: this.session,
+                is_have_status: this.is_have_status,
               }),
             }).then(() => {
               Swal.fire({
@@ -515,13 +533,26 @@
           icon: "info",
           title: "Đang lấy dữ liệu",
         });
-        fetch("/profile_gpm/get_data?key=" + key)
+        fetch("/profile_gpm/get_data?key=" + key, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            order_by: this.order_by,
+            device: this.filter_device,
+            name: this.name,
+            status: this.filter_status,
+            session: this.session,
+            is_have_status: this.is_have_status,
+          }),
+        })
           .then((response) => {
             return response.json();
           })
           .then((data) => {
-            console.log(data);
-            navigator.clipboard.writeText(data.data);
+            let stringWithoutCommas = data.data.join("");
+            navigator.clipboard.writeText(stringWithoutCommas);
             Toast.fire({
               icon: "success",
               title: "Đã copy dữ liệu",
