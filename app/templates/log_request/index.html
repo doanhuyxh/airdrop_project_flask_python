@@ -90,9 +90,9 @@
           </td>
 
           <td>
-            <span>
+            <p style="max-width:500px; overflow:hidden">
               <span @click="CopyData(item.data)" v-html="item.data"></span>
-            </span>
+            </p>
             <span v-if="item.data" @click="CopyData(item.data)"
               ><i class="fa-regular fa-copy"></i
             ></span>
