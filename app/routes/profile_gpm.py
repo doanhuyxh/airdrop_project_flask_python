@@ -161,14 +161,11 @@ def getKeyData():
     
     if key == "profile_name":
         for profile in profiles:
-            if profile.get("session") is not None:
-                data.append(
+            data.append(
                     str(profile.get("profile_name", ""))
                     + "\n"
                 )
                 
-    
-
     return jsonify({"code": 200, "data": data}), 200
 
 
