@@ -10,8 +10,8 @@ api = Blueprint("api", __name__)
 @api.route("/api/profile/push", methods=["POST"])
 def profile_push():
     data = request.json
-    profile_name = str(data.get("profile_name")).lower()
-    profile_device = str(data.get("profile_device")).lower()
+    profile_name = str(data.get("profile_name")).lower().strip()
+    profile_device = str(data.get("profile_device")).lower().strip()
     status = str(data.get("status")).lower()
     session = data.get("session")
     seedPhraseTon = data.get("seedPhraseTon")
@@ -78,15 +78,15 @@ def profile_push():
 def get_status_check():
     data = request.args
     
-    profile = data.get("profile")
+    profile = str(data.get("profile")).lower().strip()
     status = data.get("status")
     
     if profile is None or status is None:
         return "0", 200
     
     profile_check = current_app.profile_gpm.find_one({
-        "profile_name": profile.strip(),
-        "status": status.strip().lower()
+        "profile_name": profile,
+        "status": status
     })
     
     if profile_check is None:
@@ -97,7 +97,7 @@ def get_status_check():
 def data_detail_push():
 
     data = request.json
-    profile = str(data.get("profile")).lower()
+    profile = str(data.get("profile")).lower().strip()
     device = str(data.get("device").lower())
     status = data.get("status")
     project_slug = str(data.get("project")).lower()
@@ -164,7 +164,7 @@ def data_detail_push():
 @api.route("/api/project/detail/point/push", methods=["POST"])
 def project_detail_point_push():
     data = request.json
-    profiles = data.get("profile")
+    profiles = data.get("profile").strip()
     device = data.get("device")
     point = data.get("point")
     project_slug = data.get("project")
@@ -226,7 +226,7 @@ def project_detail_point_push():
 def wallet_detail_push():
     data = request.json
 
-    profile = data.get("profile")
+    profile = str(data.get("profile")).lower().strip()
     device = data.get("device")
     wallet_type = data.get("wallet")
     address = data.get("address")

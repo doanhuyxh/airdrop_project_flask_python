@@ -248,6 +248,11 @@ def update_field():
         else:
             query["status"] = {"$ne": status}
 
+    if name is not None and len(name) > 0:
+        query["profile_name"] = {"$regex": name, "$options": "i"}
+
+    if session is not None and len(session) > 0:
+        query["session"] = {"$regex": session, "$options": "i"}
 
     if key is None or value is None:
         return jsonify({"code": 400, "message": "Key and value is required"}), 400
@@ -313,8 +318,8 @@ def update_multi():
 def saveData():
     data = request.form
     profile_id = data.get("profile_id")
-    profile_name = str(data.get("profile_name")).lower()
-    profile_device = str(data.get("profile_device")).lower()
+    profile_name = str(data.get("profile_name")).lower().strip()
+    profile_device = str(data.get("profile_device")).lower().strip()
     seedPhraseTon = data.get("seedPhraseTon")
     addressTon = data.get("addressTon")
     passwordTon = data.get("passwordTon")
