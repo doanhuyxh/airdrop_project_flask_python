@@ -59,7 +59,8 @@ ${% block breadcrumb %}
                 </div>
             </div>
             <div class="mb-3">
-                <textarea class="form-control" id="mail_form" rows="20" placeholder="email password birthday phone"></textarea>
+                <p class="text-center opacity-50">email|password|birthday|phone|mail_recovery|google_ads  <br/> (Có thể chỉ cần điền mail|pass)</p>
+                <textarea class="form-control" id="mail_form" rows="20" placeholder="email|password|birthday|phone|mail_recovery|google_ads"></textarea>
             </div>
         </div>
     </div>
@@ -134,11 +135,13 @@ ${% block breadcrumb %}
             for (let i = 0; i < mailArray.length; i++) {
                 let mail_data = mailArray[i];
 
-                let mail_data_array = mail_data.split(' ');
+                let mail_data_array = mail_data.split('|');
                 let email = mail_data_array[0];
                 let password = mail_data_array[1];
                 let birthday = mail_data_array[2];
                 let phone = mail_data_array[3];
+                let mail_recovery = mail_data_array[4];
+                let google_ads = mail_data_array[5];
 
                 let device = document.getElementById('mail_device').value;
 
@@ -154,7 +157,19 @@ ${% block breadcrumb %}
                     phone = '';
                 }
 
-                await saveData(email, password, phone, device);
+                if (birthday == undefined || birthday.trim() == '' || birthday.trim() == 'undefined' || birthday.trim() == 'null' || birthday.trim() == 'NaN') {
+                    birthday = '';
+                }
+
+                if (mail_recovery == undefined || mail_recovery.trim() == '' || mail_recovery.trim() == 'undefined' || mail_recovery.trim() == 'null' || mail_recovery.trim() == 'NaN') {
+                    mail_recovery = '';
+                }
+
+                if (google_ads == undefined || google_ads.trim() == '' || google_ads.trim() == 'undefined' || google_ads.trim() == 'null' || google_ads.trim() == 'NaN') {
+                    google_ads = '';
+                }
+
+                await saveData(email, password, phone, device, birthday, mail_recovery, google_ads);
             }
 
             isSuccess = true;
@@ -178,7 +193,7 @@ ${% block breadcrumb %}
         }
     }
 
-    async function saveData(mail, password, phone, device) {
+    async function saveData(mail, password, phone, device, birthday, mail_recovery, google_ads) {
 
         await fetch('/mail/save', {
             method: 'POST',
@@ -186,7 +201,10 @@ ${% block breadcrumb %}
                 email: mail,
                 password: password,
                 device: device,
-                phone: phone
+                phone: phone,
+                birthday: birthday,
+                mail_recovery: mail_recovery,
+                google_ads: google_ads
             }),
             headers: {
                 'Content-Type': 'application/json'

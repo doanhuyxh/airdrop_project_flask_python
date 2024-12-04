@@ -30,7 +30,7 @@ ${% block breadcrumb %}
             </div>
 
             <div>
-                <input type="text" class="form-control" v-model="search" placeholder="tìm kiếm email hoặc số điện thoại"
+                <input type="text" class="form-control" style="width: 50rem !important" v-model="search" placeholder="tìm kiếm email hoặc số điện thoại mật khẩu mail khôi phục số điện thoại ngày sinh google ads"
                     v-on:keyup="debouncedSearch" />
             </div>
 
@@ -57,7 +57,7 @@ ${% block breadcrumb %}
     </div>
 
 
-    <table class="table table-hover table-striped table-bordered" @mousedown="startDrag" @mouseup="stopDrag">
+    <table class="table table-hover table-striped table-bordered">
         <thead class="table-primary">
             <tr>
                 <th @click="sort('_id')" class="pointer" style="width: 5em;">
@@ -71,7 +71,10 @@ ${% block breadcrumb %}
                     Mật khẩu
                 </th>
                 <th>
-                    Số điện thoại
+                    Mail khôi phục
+                </th>
+                <th>
+                    Số điện thoại khôi phục
                 </th>
                 <th>
                     Ngày sinh
@@ -84,6 +87,9 @@ ${% block breadcrumb %}
                     Ngày tạo
                     <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
                 </th>
+                <th>
+                    Google Ads
+                </th>
             </tr>
         </thead>
         <tbody>
@@ -94,26 +100,34 @@ ${% block breadcrumb %}
                     <span v-html="index+1"></span>
                 </td>
                 <td>
-                    <span @click="CopyData(item.mail)" v-html="item.mail"></span>
+                    <span class="px-3 py-2" style="background:transparent" @click="CopyData(item.mail)" v-html="item.mail" title="click to copy"></span>
                 </td>
                 <td>
                     <input class="form-control" :value="item.password"
-                        @keyup="Update($event, item._id, 'password')"/>
+                        @keyup="debouncedUpdate($event, item._id, 'password')"/>
+                </td>
+                <td>
+                    <input class="form-control" :value="item.mail_recovery"
+                        @keyup="debouncedUpdate($event, item._id, 'mail_recovery')"/>
                 </td>
                 <td>
                     <input class="form-control" :value="item.phone"
-                        @keyup="Update($event, item._id, 'phone')"/>
+                        @keyup="debouncedUpdate($event, item._id, 'phone')"/>
                 </td>
                 <td>
-                    <input class="form-control" :value="item.birthday" type="date"
-                        @keyup="Update($event, item._id, 'birthday')" />
+                    <input class="form-control" :value="item.birthday" type="text"
+                        @keyup="debouncedUpdate($event, item._id, 'birthday')" />
                 </td>
                 <td>
                     <input class="form-control" style="min-width: 8em;" :value="item.device"
-                        @keyup="Update($event, item._id, 'device')"/>
+                        @keyup="debouncedUpdate($event, item._id, 'device')"/>
                 </td>
                 <td>
                     <span v-html="item.created_at" class="text-center text-wrap"></span>
+                </td>
+                <td>
+                    <input class="form-control" :value="item.google_ads"
+                        @keyup="debouncedUpdate($event, item._id, 'google_ads')"/>
                 </td>
             </tr>
         </tbody>
@@ -162,9 +176,11 @@ ${% block breadcrumb %}
             order_type: -1,
             selectedRows: [],
             isDragging: false,
+            isShowLoading: true
         },
         created() {
             this.debouncedSearch = _.debounce(this.getMail, 300);
+            this.debouncedUpdate = _.debounce(this.Update, 100);
         },
         mounted() {
             this.getMail();
@@ -184,9 +200,12 @@ ${% block breadcrumb %}
         },
         methods: {
             getMail() {
-                $("table").LoadingOverlay("show", {
-                    background: "rgba(165, 190, 100, 0.5)"
-                });
+                if (this.isShowLoading){
+
+                    $("table").LoadingOverlay("show", {
+                        background: "rgba(165, 190, 100, 0.5)"
+                    });
+                }
                 fetch(`/mail/get_data`, {
                     method: 'POST',
                     headers: {
@@ -208,6 +227,7 @@ ${% block breadcrumb %}
                         this.totalResults = data.totalResults;
                         this.device = data.list_devices;
                         $("table").LoadingOverlay("hide");
+                        this.isShowLoading = true;
                     });
             },
             sort(field) {
@@ -224,9 +244,12 @@ ${% block breadcrumb %}
             },
             selectRow(id) {
                 if (this.selectedRows.includes(id)) {
-                    this.selectedRows = this.selectedRows.filter((rowId) => rowId !== id);
+                  if (this.isDragging) {
+                    return;
+                  }
+                  this.selectedRows = this.selectedRows.filter((rowId) => rowId !== id);
                 } else {
-                    this.selectedRows.push(id);
+                  this.selectedRows.push(id);
                 }
             },
             startDrag() {
@@ -276,6 +299,7 @@ ${% block breadcrumb %}
                     });
             },
             Update(event, id, field) {
+                this.isShowLoading = false;
                 let value = event.target.value;
                 fetch("/mail/save", {
                     method: "POST",
@@ -287,6 +311,8 @@ ${% block breadcrumb %}
                         key: field,
                         value_update: value
                     })
+                }).then((res) => {
+                    this.getMail();
                 })
             },
             deleteSelectMail() {
@@ -330,6 +356,26 @@ ${% block breadcrumb %}
             }
         }
     });
+
+    
+  $(document).ready(function () {
+    window.addEventListener("keydown", function (e) {
+      if (e.key === "Shift") {
+        app_vue.startDrag();
+      }
+
+      if (event.ctrlKey && event.key === "a") {
+        event.preventDefault();
+        app_vue.selectedRows = app_vue.mail.map((item) => item._id);
+      }
+    });
+
+    window.addEventListener("keyup", function (e) {
+      if (e.key === "Shift") {
+        app_vue.stopDrag();
+      }
+    });
+  });
 </script>
 
 {% endblock %}

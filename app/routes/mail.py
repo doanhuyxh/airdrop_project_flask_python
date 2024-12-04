@@ -50,13 +50,16 @@ def get_data():
     if search:
         query["$or"] = [
             {"mail": {"$regex": search, "$options": "i"}},
-            {"phone": {"$regex": search, "$options": "i"}}
+            {"password": {"$regex": search, "$options": "i"}},
+            {"mail_recovery": {"$regex": search, "$options": "i"}},
+            {"phone": {"$regex": search, "$options": "i"}},
+            {"birthday": {"$regex": search, "$options": "i"}},
+            {"google_ads": {"$regex": search, "$options": "i"}},
         ]
-
 
     if order_by is None:
         order_by = "_id"
-        
+
     if order_type is None:
         order_type = -1
 
@@ -67,7 +70,10 @@ def get_data():
     skip = (page - 1) * pageSize
 
     mail_data = (
-        current_app.mail.find(query).sort(order_by, order_type).skip(skip).limit(pageSize)
+        current_app.mail.find(query)
+        .sort(order_by, order_type)
+        .skip(skip)
+        .limit(pageSize)
     )
 
     data = []
@@ -105,14 +111,14 @@ def get_devices():
 def form_mail():
     _id = request.json.get("id")
     device = request.json.get("device")
-    mail = request.json.get("email")
+    mail = str(request.json.get("email")).lower().strip()
     password = request.json.get("password")
     phone = request.json.get("phone")
     birthday = request.json.get("birthday")
+    mail_recovery = request.json.get("mail_recovery")
+    google_ads = request.json.get("google_ads")
     key = request.json.get("key")
     value_update = request.json.get("value_update")
-    
-    print(_id, device, mail, password, phone, key, value_update)
 
     if _id:
         current_app.mail.update_one(
@@ -120,6 +126,23 @@ def form_mail():
             {
                 "$set": {
                     key: value_update,
+                }
+            },
+        )
+        return jsonify({"code": 200, "message": "Dữ liệu đã được cập nhật"})
+
+    check_mail_exist = current_app.mail.find_one({"mail": mail})
+    if check_mail_exist:
+        current_app.mail.update_one(
+            {"_id": check_mail_exist["_id"]},
+            {
+                "$set": {
+                    "device": device,
+                    "password": password,
+                    "phone": phone,
+                    "birthday": birthday,
+                    "mail_recovery": mail_recovery,
+                    "google_ads": google_ads,
                 }
             },
         )
@@ -131,11 +154,13 @@ def form_mail():
                 "password": password,
                 "phone": phone,
                 "birthday": birthday,
+                "mail_recovery": mail_recovery,
+                "google_ads": google_ads,
                 "created_at": datetime.now(),
             }
         )
 
-    return jsonify({"code": 200, "message": "Data berhasil disimpan"})
+    return jsonify({"code": 200, "message": "Tạo tài khoản thành công"})
 
 
 @mail.route("/mail/delete", methods=["GET"])
