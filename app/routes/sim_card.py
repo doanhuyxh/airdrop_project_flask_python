@@ -125,17 +125,20 @@ def form_mail():
     check_sim_exist = current_app.sim_card.find_one({"phoneNumber": phoneNumber})
 
     if check_sim_exist:
+        current_data = current_app.sim_card.find_one({"_id": check_sim_exist["_id"]})
+        update_fields = {}
+        if sim_type:
+            update_fields["sim_type"] = sim_type
+        if date_expired:
+            update_fields["date_expired"] = date_expired
+        if gmail:
+            update_fields["gmail"] = gmail
+        if AppleId:
+            update_fields["AppleId"] = AppleId
+        if telegram:
+            update_fields["telegram"] = telegram
         current_app.sim_card.update_one(
-            {"_id": check_sim_exist["_id"]},
-            {
-                "$set": {
-                    "sim_type": sim_type,
-                    "date_expired": date_expired,
-                    "gmail": gmail,
-                    "AppleId": AppleId,
-                    "telegram": telegram,
-                }
-            },
+            {"_id": check_sim_exist["_id"]}, {"$set": update_fields}
         )
     else:
         current_app.sim_card.insert_one(
@@ -151,6 +154,7 @@ def form_mail():
         )
 
     return jsonify({"code": 200, "message": "Tạo sim thành công"})
+
 
 @sim_card.route("/sim_card/delete", methods=["GET"])
 def delete_sim():

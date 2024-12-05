@@ -80,8 +80,18 @@
         let AppleId = sim_data_array[5];
 
 
-        if (phoneNumber.trim() == "" || sim_type.trim() == "") {
+        if (phoneNumber.trim() == "") {
           continue;
+        }
+
+        if (
+          sim_type == undefined ||
+          sim_type.trim() == "" ||
+          sim_type.trim() == "undefined" ||
+          sim_type.trim() == "null" ||
+          sim_type.trim() == "NaN"
+        ) {
+          sim_type = "";
         }
 
         if (
