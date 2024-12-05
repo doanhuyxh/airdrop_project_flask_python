@@ -1,0 +1,413 @@
+{% extends "share/Main_Layout.html" %} {% block title %}Quản lý sim{% endblock
+%} ${% block breadcrumb %}
+<div class="container-fluid px-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb my-0">
+      <li class="breadcrumb-item"><span>Quản lý Sim</span></li>
+    </ol>
+  </nav>
+</div>
+
+{% endblock %} {% block content %}
+
+<div class="shadow-lg bg-body rounded px-5 pt-4 pb-5">
+  <p class="text-center h4">Danh sách sim</p>
+
+  <div class="table-responsive">
+
+    <div class="float-start d-flex gap-3 mb-3">
+        <div class="">
+            <select class="form-control" v-model="filter_sim_type" @change="current_page = 1; getSimCard()">
+                <option value="">Nhà mạng (tất cả)</option>
+                <option v-for="item in list_sim_type" :key="item" :value="item" v-html="item"></option>
+            </select>
+        </div>
+        <div>
+            <input type="text" class="form-control" style="width: 35rem !important" v-model="search" placeholder="tìm kiếm"
+                v-on:keyup="debouncedSearch" />
+        </div>
+    </div>
+
+    <div class="float-end d-flex gap-3 mb-3">
+
+        <a href="/sim_card/form_get" class="btn btn-primary" data-coreui-toggle="tooltip" data-coreui-placement="top"
+            data-coreui-title="Thêm mail mới">
+            <i class="fa-solid fa-plus"></i>
+        </a>
+
+        <span v-on:click="ExportExcel" class="btn btn-success" data-coreui-toggle="tooltip"
+            data-coreui-placement="top" data-coreui-title="Xuất dữ liệu ra excel">
+            <i class="fa-solid fa-file-excel"></i>
+        </span>
+
+
+        <span class="btn btn-danger" data-coreui-toggle="tooltip" data-coreui-placement="top"
+            v-on:click="deleteSelectSimCard" data-coreui-title="Xoá mail đang chọn">
+            <i class="fa-solid fa-trash"></i>
+        </span>
+    </div>
+
+    <table class="table table-hover table-striped table-bordered">
+      <thead class="table-primary">
+        <tr>
+          <th @click="sort('_id')" class="pointer" style="width: 5em">
+            STT
+            <span class="opacity-25 mx-2"
+              ><i class="fa-solid fa-arrows-up-down"></i
+            ></span>
+          </th>
+          <th>Số điện thoại</th>
+          <th>Ngày hết hạn</th>
+          <th>Loại sim</th>
+          <th>Gmail</th>
+          <th>Telegram</th>
+          <th>AppleId</th>
+          <th>Note</th>
+          <th
+            @click="sort('created_at')"
+            class="pointer text-nowrap"
+            style="width: 5em"
+          >
+            Ngày thêm
+            <span class="opacity-25 mx-2"
+              ><i class="fa-solid fa-arrows-up-down"></i
+            ></span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="(item, index) in sim_card"
+          :key="item._id"
+          @click="selectRow(item._id)"
+          @mouseover="isDragging ? selectRow(item._id) : null"
+          :class="{ 'selected-row': selectedRows.includes(item._id) }"
+        >
+          <td>
+            <span v-html="index+1"></span>
+          </td>
+          <td>
+            <span
+              class="px-3 py-2"
+              style="background: transparent"
+              @click="CopyData(item.phoneNumber)"
+              v-html="item.phoneNumber"
+              title="click to copy"
+            ></span>
+          </td>
+          <td>
+            <input
+              class="form-control"
+              :value="item.date_expired"
+              @keyup="debouncedUpdate($event, item._id, 'date_expired')"
+            />
+          </td>
+          <td>
+            <input
+              class="form-control"
+              :value="item.sim_type"
+              @keyup="debouncedUpdate($event, item._id, 'sim_type')"
+            />
+          </td>
+          <td>
+            <input
+              class="form-control"
+              :value="item.gmail"
+              @keyup="debouncedUpdate($event, item._id, 'gmail')"
+            />
+          </td>
+          <td>
+            <input
+              class="form-control"
+              :value="item.telegram"
+              type="text"
+              @keyup="debouncedUpdate($event, item._id, 'telegram')"
+            />
+          </td>
+          <td>
+            <input
+              class="form-control"
+              style="min-width: 8em"
+              :value="item.AppleId"
+              @keyup="debouncedUpdate($event, item._id, 'AppleId')"
+            />
+          </td>
+
+          <td>
+            <input
+              class="form-control"
+              style="min-width: 8em"
+              :value="item.note"
+              @keyup="debouncedUpdate($event, item._id, 'note')"
+            />
+          </td>
+          <td>
+            <span v-html="item.created_at" class="text-center text-wrap"></span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="my-4 d-flex justify-content-between">
+      <div>
+        <p>
+          hiển thị:
+          <span class="text-danger fw-bold" v-html="sim_card.length"></span> của
+          <span class="text-danger fw-bold" v-html="totalResults"></span> kết
+          quả
+        </p>
+      </div>
+      <div v-if="totalPages > 1" class="btn-group gap-2">
+        <button
+          @click="changePage(current_page - 1)"
+          :disabled="current_page === 1"
+          class="btn btn-info"
+        >
+          Trước
+        </button>
+
+        <button
+          v-for="page in pagesToShow"
+          :key="page"
+          @click="changePage(page)"
+          :class="{ 'btn-danger': current_page === page, btn: true }"
+          class="btn"
+        >
+          <span v-html="page"></span>
+        </button>
+
+        <button
+          @click="changePage(current_page + 1)"
+          :disabled="current_page === totalPages"
+          class="btn btn-info"
+        >
+          Tiếp
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %} {% block script %}
+
+<script>
+  var app_vue = new Vue({
+    el: "#app",
+    data: {
+      sim_card: [],
+      search: "",
+      filter_sim_type:"",
+      current_page: 1,
+      pageSize: 25,
+      totalPages: 0,
+      totalResults: 0,
+      order_by: "created_at",
+      order_type: -1,
+      selectedRows: [],
+      isDragging: false,
+      isShowLoading: true,
+      list_sim_type:[]
+    },
+    created() {
+      this.debouncedSearch = _.debounce(this.getSimCard, 300);
+      this.debouncedUpdate = _.debounce(this.Update, 100);
+    },
+    mounted() {
+      this.getSimCard();
+    },
+    computed: {
+      pagesToShow() {
+        const pages = [];
+        const startPage = Math.max(1, this.current_page - 3);
+        const endPage = Math.min(this.totalPages, this.current_page + 3);
+
+        for (let i = startPage; i <= endPage; i++) {
+          pages.push(i);
+        }
+
+        return pages;
+      }
+    },
+    methods: {
+      getSimCard() {
+        if (this.isShowLoading) {
+          $("table").LoadingOverlay("show", {
+            background: "rgba(165, 190, 100, 0.5)"
+          });
+        }
+        fetch(`/sim_card/get_data`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            page: this.current_page,
+            pageSize: this.pageSize,
+            order_by: this.order_by,
+            search: this.search,
+            order_type: this.order_type,
+            sim_type: this.filter_sim_type
+          })
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            this.sim_card = data.data;
+            this.totalPages = data.totalPages;
+            this.totalResults = data.totalResults;
+            this.list_sim_type = data.list_sim_type;
+            $("table").LoadingOverlay("hide");
+            this.isShowLoading = true;
+          });
+      },
+      sort(field) {
+        this.order_by = field;
+        this.order_type = this.order_type === -1 ? 1 : -1;
+        this.page = 1;
+        this.getSimCard();
+      },
+      changePage(page) {
+        if (page >= 1 && page <= this.totalPages) {
+          this.current_page = page;
+          this.getSimCard();
+        }
+      },
+      selectRow(id) {
+        if (this.selectedRows.includes(id)) {
+          if (this.isDragging) {
+            return;
+          }
+          this.selectedRows = this.selectedRows.filter((rowId) => rowId !== id);
+        } else {
+          this.selectedRows.push(id);
+        }
+      },
+      startDrag() {
+        this.isDragging = true;
+      },
+      stopDrag() {
+        this.isDragging = false;
+      },
+      ExportExcel() {
+        fetch(`/sim_card/get_data`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            page: 1,
+            pageSize: 1000000
+          })
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            let res_data = data.data;
+            let data_result = [];
+            for (let i = 0; i < res_data.length; i++) {
+              data_result.push({
+                phoneNumber: res_data[i].phoneNumber,
+                date_expired: res_data[i].date_expired,
+                sim_type: res_data[i].sim_type,
+                gmail: res_data[i].gmail,
+                telegram: res_data[i].telegram,
+                AppleId: res_data[i].AppleId,
+                note: res_data[i].note,
+              });
+            }
+            let ws = XLSX.utils.json_to_sheet(data_result);
+            const columnWidths = Object.keys(data_result[0]).map((key) => {
+              const maxWidth = Math.max(
+                ...data_result.map((row) =>
+                  row[key] ? row[key].toString().length : 0
+                ),
+                key.length
+              );
+              return { wch: maxWidth + 2 };
+            });
+            ws["!cols"] = columnWidths;
+
+            let wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+            // Tải file Excel xuống
+            XLSX.writeFile(wb, `${"sim_card"}.xlsx`);
+          });
+      },
+      Update(event, id, field) {
+        this.isShowLoading = false;
+        let value = event.target.value;
+        fetch("/sim_card/save", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            id: id,
+            key: field,
+            value_update: value
+          })
+        }).then((res) => {
+          this.getSimCard();
+        });
+      },
+      deleteSelectSimCard() {
+        Swal.fire({
+          title: "Bạn chắc chắn chứ?",
+          text: "Sẽ xoá tất cả dữ liệu liên quan, không thể khôi phục lại!",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          confirmButtonText: "Xoá!",
+          cancelButtonColor: "#d33",
+          cancelButtonText: "Huỷ"
+        }).then((result) => {
+          if (result.isConfirmed) {
+            if (this.selectedRows.length == 0) {
+              Toast.fire({
+                icon: "error",
+                title: "Không có dữ liệu để xoá"
+              });
+              return;
+            }
+            this.selectedRows.forEach(async (item) => {
+              await fetch("/sim_card/delete?id=" + item);
+            });
+            Swal.fire({
+              title: "Xoá thành công",
+              icon: "success"
+            }).then(() => {
+              this.getSimCard();
+            });
+          }
+        });
+      },
+      CopyData(value) {
+        navigator.clipboard.writeText(value).then(() => {
+          Toast.fire({
+            icon: "success",
+            title: "Đã sao chép"
+          });
+        });
+      }
+    }
+  });
+
+  $(document).ready(function () {
+    window.addEventListener("keydown", function (e) {
+      if (e.key === "Shift") {
+        app_vue.startDrag();
+      }
+
+      if (event.ctrlKey && event.key === "a") {
+        event.preventDefault();
+        app_vue.selectedRows = app_vue.sim_card.map((item) => item._id);
+      }
+    });
+
+    window.addEventListener("keyup", function (e) {
+      if (e.key === "Shift") {
+        app_vue.stopDrag();
+      }
+    });
+  });
+</script>
+
+{% endblock %}

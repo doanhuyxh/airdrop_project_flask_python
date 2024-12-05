@@ -48,8 +48,9 @@ def create_app():
     
     app.apple_id = app.db["apple_id_new"]
 
-
     app.log_request = app.db["log_request"]
+    
+    app.sim_card = app.db["sim_card"]
     
     # Register the schedule job
     # run_check_proxy_job()
@@ -65,6 +66,7 @@ def create_app():
             ip_address = request.remote_addr
             status_code = response.status
             data = request.data.decode('utf-8') if request.data else ""
+            query_params = request.args.to_dict()
 
             log_document = {
                 "timestamp": timestamp,
@@ -73,13 +75,14 @@ def create_app():
                 "ip_address": ip_address,
                 "status_code": status_code,
                 "data": data,
+                "query_params": str(query_params)
             }
             
             if "static" not in url and "get" not in url and "list" not in url and "log_request" not in url and "favicon" not in url:
                 app.log_request.insert_one(log_document)
 
             logging.info(
-                f"[{timestamp}] {method} {url} (IP: {ip_address}) | Data: {data} | Response: {status_code}"
+                f"[{timestamp}] {method} {url} (IP: {ip_address}) | Query: {query_params} | Data: {data} | Response: {status_code}"
             )
         except Exception as e:
             logging.error(f"Error during logging request/response: {e}\n{traceback.format_exc()}")
@@ -126,6 +129,7 @@ def create_app():
     from .routes.mail import mail 
     from .routes.appleId import appleId
     from .routes.log_request import log_request
+    from .routes.sim_card import sim_card
     app.register_blueprint(main)
     app.register_blueprint(auth)
     app.register_blueprint(dashboard)
@@ -138,6 +142,7 @@ def create_app():
     app.register_blueprint(mail)
     app.register_blueprint(appleId)
     app.register_blueprint(log_request)
+    app.register_blueprint(sim_card)
 
     clear_all_pycache()
     

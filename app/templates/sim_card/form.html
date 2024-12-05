@@ -1,0 +1,182 @@
+{% extends "share/Main_Layout.html" %} {% block title %} Thêm email {% endblock
+%} ${% block breadcrumb %}
+<div class="container-fluid px-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb my-0">
+      <li class="breadcrumb-item"><a href="/sim_card">Quản lý Sim</a></li>
+      <li class="breadcrumb-item"><span> Thêm sim </span></li>
+    </ol>
+  </nav>
+</div>
+
+{% endblock %} {% block content %}
+
+<div class="container-lg px-4">
+  <p class="h5 text-center mb-4">
+    Nhập sim <span class="mx-2 opacity-75">(Mỗi sim 1 dòng)</span>
+  </p>
+  <div class="card mb-4 mx-4">
+    <div class="card-body p-4">
+      <div class="mb-3">
+        <p class="text-center opacity-50">
+          số điện thoại, ngày hết hạn, Nhà mạng, gmail, telegram ,appleid <br />
+          (Có thể chỉ cần điền số điện thoại và nhà mạng)
+        </p>
+        <textarea
+          class="form-control"
+          id="sim_card_form"
+          rows="20"
+          placeholder="số điện thoại|nhà mạng|ngày hết hạn|gmail|telegram|appleid"
+        ></textarea>
+      </div>
+    </div>
+    <div class="card-footer">
+      <button
+        class="btn btn-success text-white float-end"
+        id="save"
+        type="button"
+        onclick="save()"
+      >
+        <i class="fa-solid fa-floppy-disk"></i>
+        <span>Lưu</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+{% endblock %} {% block script %}
+
+<script>
+  var isSuccess = false;
+
+  async function save() {
+    try {
+      $("#profile").LoadingOverlay("show", {
+        background: "rgba(165, 190, 100, 0.5)"
+      });
+      $("#profile").LoadingOverlay("show");
+
+      $("#save").LoadingOverlay("show", {
+        background: "rgba(165, 190, 100, 0.5)"
+      });
+      $("#save").LoadingOverlay("show");
+      $("#save").attr("disabled", true);
+
+      let phone_data = document.getElementById("sim_card_form").value;
+      let simArray = phone_data.split("\n");
+      for (let i = 0; i < simArray.length; i++) {
+        let sim = simArray[i];
+
+        if (sim.trim() == "") {
+          continue;
+        }
+
+        let sim_data_array = sim.split("|");
+        let phoneNumber = sim_data_array[0];
+        let sim_type = sim_data_array[1];
+        let date_expired = sim_data_array[2];
+        let gmail = sim_data_array[3];
+        let telegram = sim_data_array[4];
+        let AppleId = sim_data_array[5];
+
+
+        if (phoneNumber.trim() == "" || sim_type.trim() == "") {
+          continue;
+        }
+
+        if (
+          date_expired == undefined ||
+          date_expired.trim() == "" ||
+          date_expired.trim() == "undefined" ||
+          date_expired.trim() == "null" ||
+          date_expired.trim() == "NaN"
+        ) {
+          date_expired = "";
+        }
+
+        if (
+          gmail == undefined ||
+          gmail.trim() == "" ||
+          gmail.trim() == "undefined" ||
+          gmail.trim() == "null" ||
+          gmail.trim() == "NaN"
+        ) {
+          gmail = "";
+        }
+
+        if (
+          telegram == undefined ||
+          telegram.trim() == "" ||
+          telegram.trim() == "undefined" ||
+          telegram.trim() == "null" ||
+          telegram.trim() == "NaN"
+        ) {
+          telegram = "";
+        }
+
+        if (
+          AppleId == undefined ||
+          AppleId.trim() == "" ||
+          AppleId.trim() == "undefined" ||
+          AppleId.trim() == "null" ||
+          AppleId.trim() == "NaN"
+        ) {
+          AppleId = "";
+        }
+
+        await saveData(
+          phoneNumber,
+          date_expired,
+          sim_type,
+          gmail,
+          telegram,
+          AppleId
+        );
+      }
+
+      isSuccess = true;
+    } catch (error) {
+      console.log(error);
+    } finally {
+      $("#profile").LoadingOverlay("hide", true);
+      $("#save").LoadingOverlay("hide", true);
+      $("#save").attr("disabled", false);
+      Swal.fire({
+        title: isSuccess ? "Thành công" : "Thất bại",
+        icon: isSuccess ? "success" : "error",
+        showConfirmButton: false,
+        timer: 1500
+      }).then(() => {
+        if (isSuccess) {
+          window.location.href = "/sim_card";
+        }
+      });
+    }
+  }
+
+  async function saveData(
+    phoneNumber,
+    date_expired,
+    sim_type,
+    gmail,
+    telegram,
+    AppleId
+  ) {
+    await fetch("/sim_card/save", {
+      method: "POST",
+      body: JSON.stringify({
+        phoneNumber: phoneNumber,
+        date_expired: date_expired,
+        sim_type: sim_type,
+        gmail: gmail,
+        telegram: telegram,
+        AppleId: AppleId
+      }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+  }
+</script>
+
+{% endblock %}

@@ -3,8 +3,13 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}AirDrop{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="AirDrop Vietsoft Pro">
+    <meta name="author" content="Vietsoft Pro">
+    <meta name="keywords" content="AirDrop Vietsoft Pro">
+    <link rel="icon" href="/static/assets/img/favicons/apple-icon.png" type="image/png">
+
     <link rel="stylesheet" href="/static/lib/coreui/coreui.css">
     <script src="/static/lib/coreui/coreui.bundle.min.js"></script>
     <script src="/static/lib/jquery-3.7.1.min.js"></script>
@@ -50,6 +55,14 @@
                         <div class="simplebar-content-wrapper" tabindex="0" role="region"
                             aria-label="scrollable content" style="height: 100%; overflow: hidden scroll;">
                             <div class="simplebar-content" style="padding: 8px;">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="/sim_card">
+                                        <span class="nav-icon">
+                                            <i class="fa-solid fa-sim-card"></i>
+                                        </span>
+                                        <span>Quản lý sim</span>
+                                    </a>
+                                </li>
 
                                 <li class="nav-group" aria-expanded="false">
                                     <a class="nav-link nav-group-toggle" href="#">
@@ -154,6 +167,7 @@
                                         </li>
                                     </ul>
                                 </li>
+                                
                                 <li class="nav-item">
                                     <a class="nav-link" href="/api">
                                         <span class="nav-icon">

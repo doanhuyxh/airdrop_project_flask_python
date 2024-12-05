@@ -1,21 +1,17 @@
-{% extends "share/Blank_Layout.html" %}
-
-{% block title %}Home{% endblock %}
-
+{% extends "share/Blank_Layout.html" %} {% block title %}AirDrop{% endblock %}
 {% block content %}
 
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <h1>Home</h1>
-        </div>
-    </div>
+  <div class="m-auto">
+    <h1>Trang chủ</h1>
+    <p>Đang chuyển hướng đến trang quản lý</p>
+  </div>
 </div>
 
 <script>
-    $(document).ready(function() {
-        window.location.href = "/dashboard";
-    });
+  $(document).ready(function () {
+    window.location.href = "/dashboard";
+  });
 </script>
 
 {% endblock %}
