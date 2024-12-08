@@ -243,10 +243,12 @@
 .table-container {
   width: 100%;
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: auto;
   white-space: nowrap;
 }
-
+.table-container::-webkit-scrollbar {
+  display: none; /* Ẩn scrollbar trên Chrome, Safari, Edge */
+}
 table {
   user-select: none;
 }
@@ -269,4 +271,8 @@ span {
   overflow:visible;
   word-wrap: break-word;
   text-align: center;
+}
+
+input {
+  width: fit-content !important;
 }

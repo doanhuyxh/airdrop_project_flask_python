@@ -207,113 +207,113 @@
         </p>
       </div>
     </div>
-
-    <table class="table table-hover table-striped table-bordered">
-      <thead>
-        <tr>
-          <th>STT</th>
-          <th class="text-nowrap">
-            Tên profile
-            <span
-              class="btn btn-sm btn-info"
-              data-coreui-toggle="tooltip"
-              data-coreui-placement="top"
-              data-coreui-title="Click để copy"
-              v-on:click="CopyData('profile_name')"
-            >
-              <i class="fa-solid fa-copy"></i>
-            </span>
-          </th>
-          <th class="text-nowrap">Thiết bị</th>
-          <th class="text-nowrap">Trạng thái</th>
-          <th class="text-nowrap d-flex gap-2 justify-content-center">
-            Session
-            <span
-              class="btn btn-sm btn-info"
-              data-coreui-toggle="tooltip"
-              data-coreui-placement="top"
-              data-coreui-title="Click để copy"
-              v-on:click="CopyData('session')"
-            >
-              <i class="fa-solid fa-copy"></i>
-            </span>
-          </th>
-          <th>Mật khẩu Ton</th>
-          <th>Địa chỉ</th>
-          <th>Seed phrase</th>
-          <th class="text-nowrap">Lần cập nhật cuối</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="(item, index) in profiles"
-          :key="item.id"
-          v-for="(item, index) in data_project"
-          :key="item._id"
-          @click="selectRow(item._id)"
-          @mouseover="isDragging ? selectRow(item._id) : null"
-          :class="{ 'selected-row': selectedRows.includes(item._id) }"
-        >
-          <td v-html="index + 1"></td>
-          <td class="text-center">
-            <div class="d-flex gap-1 flex-wrap">
-              <span v-html="item.profile_name" class=""></span>
+    <div style="overflow-x: auto; white-space: nowrap" class="w-100">
+      <table class="table table-hover table-striped table-bordered">
+        <thead>
+          <tr>
+            <th>STT</th>
+            <th class="text-nowrap">
+              Tên profile
               <span
-                class="text-primary"
-                @click="CopyDataValue(item.profile_name)"
-                ><i class="fa-regular fa-copy"></i
-              ></span>
-            </div>
-          </td>
-          <td v-html="item.profile_device"></td>
-          <td v-html="item.status"></td>
-          <td>
-            <p class="session" v-html="item.session"></p>
-          </td>
-          <td>
-            <div class="d-flex gap-2">
-              <span v-html="item.passwordTon"></span>
-              <span
-                v-if="item.passwordTon"
-                class="text-info"
-                v-on:click="CopyDataValue(item.passwordTon)"
+                class="btn btn-sm btn-info"
+                data-coreui-toggle="tooltip"
+                data-coreui-placement="top"
+                data-coreui-title="Click để copy"
+                v-on:click="CopyData('profile_name')"
               >
                 <i class="fa-solid fa-copy"></i>
               </span>
-            </div>
-          </td>
-          <td>
-            <div class="d-flex gap-2">
-              <span v-html="item.addressTon"></span>
+            </th>
+            <th class="text-nowrap">Thiết bị</th>
+            <th class="text-nowrap">Trạng thái</th>
+            <th class="text-nowrap d-flex gap-2 justify-content-center">
+              Session
               <span
-                v-if="item.addressTon"
-                class="text-info"
-                v-on:click="CopyDataValue(item.addressTon)"
+                class="btn btn-sm btn-info"
+                data-coreui-toggle="tooltip"
+                data-coreui-placement="top"
+                data-coreui-title="Click để copy"
+                v-on:click="CopyData('session')"
               >
                 <i class="fa-solid fa-copy"></i>
               </span>
-            </div>
-          </td>
-          <td>
-            <div class="d-flex gap-2">
-              <span v-html="item.seedPhraseTon"></span>
-              <span
-                v-if="item.seedPhraseTon"
-                class="text-info"
-                v-on:click="CopyDataValue(item.seedPhraseTon)"
-              >
-                <i class="fa-solid fa-copy"></i>
-              </span>
-            </div>
-          </td>
+            </th>
+            <th>Mật khẩu Ton</th>
+            <th>Địa chỉ</th>
+            <th>Seed phrase</th>
+            <th class="text-nowrap">Lần cập nhật cuối</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="(item, index) in profiles"
+            :key="item.id"
+            v-for="(item, index) in data_project"
+            :key="item._id"
+            @click="selectRow(item._id)"
+            @mouseover="isDragging ? selectRow(item._id) : null"
+            :class="{ 'selected-row': selectedRows.includes(item._id) }"
+          >
+            <td v-html="index + 1"></td>
+            <td class="text-center">
+              <div class="d-flex gap-1 flex-wrap">
+                <span v-html="item.profile_name" class=""></span>
+                <span
+                  class="text-primary"
+                  @click="CopyDataValue(item.profile_name)"
+                  ><i class="fa-regular fa-copy"></i
+                ></span>
+              </div>
+            </td>
+            <td v-html="item.profile_device"></td>
+            <td v-html="item.status"></td>
+            <td>
+              <p class="session" v-html="item.session"></p>
+            </td>
+            <td>
+              <div class="d-flex gap-2">
+                <span v-html="item.passwordTon"></span>
+                <span
+                  v-if="item.passwordTon"
+                  class="text-info"
+                  v-on:click="CopyDataValue(item.passwordTon)"
+                >
+                  <i class="fa-solid fa-copy"></i>
+                </span>
+              </div>
+            </td>
+            <td>
+              <div class="d-flex gap-2">
+                <span v-html="item.addressTon"></span>
+                <span
+                  v-if="item.addressTon"
+                  class="text-info"
+                  v-on:click="CopyDataValue(item.addressTon)"
+                >
+                  <i class="fa-solid fa-copy"></i>
+                </span>
+              </div>
+            </td>
+            <td>
+              <div class="d-flex gap-2">
+                <span v-html="item.seedPhraseTon"></span>
+                <span
+                  v-if="item.seedPhraseTon"
+                  class="text-info"
+                  v-on:click="CopyDataValue(item.seedPhraseTon)"
+                >
+                  <i class="fa-solid fa-copy"></i>
+                </span>
+              </div>
+            </td>
 
-          <td class="text-center">
-            <span v-html="item.last_time"></span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-
+            <td class="text-center">
+              <span v-html="item.last_time"></span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     <div class="my-4 d-flex justify-content-between">
       <div v-if="totalPages > 1" class="btn-group gap-2">
         <button
@@ -369,8 +369,8 @@
       name: "",
       updateFiled: {
         key: "",
-        value: "",
-      },
+        value: ""
+      }
     },
     created() {
       this.debouncedSearch = _.debounce(this.getProfiles, 300);
@@ -389,23 +389,23 @@
         }
 
         return pages;
-      },
+      }
     },
     watch: {
       is_have_status: function (newVal, oldVal) {
         this.current_page = 1;
         this.getProfiles();
-      },
+      }
     },
     methods: {
       getProfiles: function () {
         $("table").LoadingOverlay("show", {
-          background: "rgba(165, 190, 100, 0.5)",
+          background: "rgba(165, 190, 100, 0.5)"
         });
         fetch("/profile_gpm/list", {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "application/json"
           },
           body: JSON.stringify({
             page: this.current_page,
@@ -415,8 +415,8 @@
             name: this.name,
             status: this.filter_status,
             session: this.session,
-            is_have_status: this.is_have_status,
-          }),
+            is_have_status: this.is_have_status
+          })
         })
           .then((response) => {
             $("table").LoadingOverlay("hide", true);
@@ -445,13 +445,13 @@
           confirmButtonColor: "#3085d6",
           confirmButtonText: "Xoá!",
           cancelButtonColor: "#d33",
-          cancelButtonText: "Huỷ",
+          cancelButtonText: "Huỷ"
         }).then((result) => {
           if (result.isConfirmed) {
             if (this.selectedRows.length == 0) {
               Toast.fire({
                 icon: "error",
-                title: "Không có dữ liệu để xoá",
+                title: "Không có dữ liệu để xoá"
               });
               return;
             }
@@ -462,7 +462,7 @@
 
             Swal.fire({
               title: "Xoá thành công",
-              icon: "success",
+              icon: "success"
             }).then(() => {
               this.getProfiles();
             });
@@ -489,14 +489,14 @@
         if (this.updateFiled.key == "") {
           Toast.fire({
             icon: "error",
-            title: "Vui lòng chọn trường cập nhật",
+            title: "Vui lòng chọn trường cập nhật"
           });
           return;
         }
         if (this.updateFiled.value == "") {
           Toast.fire({
             icon: "error",
-            title: "Vui lòng chọn nhập dữ liệu cập nhật",
+            title: "Vui lòng chọn nhập dữ liệu cập nhật"
           });
           return;
         }
@@ -509,13 +509,13 @@
           confirmButtonColor: "#3085d6",
           confirmButtonText: "Cập nhật!",
           cancelButtonColor: "#d33",
-          cancelButtonText: "Huỷ",
+          cancelButtonText: "Huỷ"
         }).then((result) => {
           if (result.isConfirmed) {
             fetch("/profile_gpm/update_field", {
               method: "POST",
               headers: {
-                "Content-Type": "application/json",
+                "Content-Type": "application/json"
               },
               body: JSON.stringify({
                 key: this.updateFiled.key,
@@ -526,12 +526,12 @@
                 name: this.name,
                 status: this.filter_status,
                 session: this.session,
-                is_have_status: this.is_have_status,
-              }),
+                is_have_status: this.is_have_status
+              })
             }).then(() => {
               Swal.fire({
                 title: "Cập nhật thành công",
-                icon: "success",
+                icon: "success"
               }).then(() => {
                 this.getProfiles();
               });
@@ -542,12 +542,12 @@
       CopyData(key) {
         Toast.fire({
           icon: "info",
-          title: "Đang lấy dữ liệu",
+          title: "Đang lấy dữ liệu"
         });
         fetch("/profile_gpm/get_data?key=" + key, {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "application/json"
           },
           body: JSON.stringify({
             order_by: this.order_by,
@@ -555,8 +555,8 @@
             name: this.name,
             status: this.filter_status,
             session: this.session,
-            is_have_status: this.is_have_status,
-          }),
+            is_have_status: this.is_have_status
+          })
         })
           .then((response) => {
             return response.json();
@@ -566,13 +566,13 @@
             navigator.clipboard.writeText(stringWithoutCommas);
             Toast.fire({
               icon: "success",
-              title: "Đã copy dữ liệu",
+              title: "Đã copy dữ liệu"
             });
           })
           .catch(() => {
             Toast.fire({
               icon: "error",
-              title: "Lỗi khi lấy dữ liệu",
+              title: "Lỗi khi lấy dữ liệu"
             });
           });
       },
@@ -580,15 +580,15 @@
         fetch("/profile_gpm/export_excel_data", {
           method: "POST",
           headers: {
-            "Content-Type": "application/json",
+            "Content-Type": "application/json"
           },
           body: JSON.stringify({
             device: this.filter_device,
             name: this.name,
             status: this.filter_status,
             session: this.session,
-            is_have_status: this.is_have_status,
-          }),
+            is_have_status: this.is_have_status
+          })
         })
           .then((response) => {
             return response.json();
@@ -600,7 +600,7 @@
               for (let i = 0; i < res_data.length; i++) {
                 data_result.push({
                   "Tên profile": res_data[i].profile_name,
-                  "Thiết bị": res_data[i].profile_device,
+                  "Thiết bị": res_data[i].profile_device
                 });
               }
               let ws = XLSX.utils.json_to_sheet(data_result);
@@ -623,7 +623,7 @@
             } else {
               Toast.fire({
                 icon: "error",
-                title: "Lỗi khi xuất dữ liệu",
+                title: "Lỗi khi xuất dữ liệu"
               });
             }
           });
@@ -632,11 +632,11 @@
         navigator.clipboard.writeText(value).then(() => {
           Toast.fire({
             icon: "success",
-            title: "Đã sao chép",
+            title: "Đã sao chép"
           });
         });
-      },
-    },
+      }
+    }
   });
 
   $(document).ready(function () {

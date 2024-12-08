@@ -19,7 +19,7 @@ ${% block breadcrumb %}
 <div class="shadow-lg bg-body rounded px-5 pt-4 pb-5">
     <p class="text-center h4">Tài khoản mail</p>
 
-    <div class="table-responsive">
+    <div class="w-100">
 
         <div class="float-start d-flex gap-3 mb-3">
             <div class="">
@@ -55,8 +55,7 @@ ${% block breadcrumb %}
             </span>
         </div>
     </div>
-
-
+    <div style="overflow-x: auto; white-space: nowrap;" class="w-100">
     <table class="table table-hover table-striped table-bordered">
         <thead class="table-primary">
             <tr>
@@ -89,12 +88,12 @@ ${% block breadcrumb %}
                     Thiết bị
                     <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
                 </th>
+                <th>
+                    Google Ads
+                </th>
                 <th @click="sort('created_at')" class="pointer text-nowrap" style="width: 5em;">
                     Ngày tạo
                     <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
-                </th>
-                <th>
-                    Google Ads
                 </th>
             </tr>
         </thead>
@@ -163,6 +162,7 @@ ${% block breadcrumb %}
             </tr>
         </tbody>
     </table>
+    </div>
     <div class="my-4 d-flex justify-content-between">
         <div>
             <p>hiển thị: <span class="text-danger fw-bold" v-html="mail.length"></span> của <span

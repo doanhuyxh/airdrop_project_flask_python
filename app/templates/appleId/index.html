@@ -2,7 +2,7 @@
 {% block content %}
 
 <div class="shadow-lg bg-body rounded px-5 pt-4 pb-5">
-  <p class="text-center h4">Tài khoản mail</p>
+  <p class="text-center h4">Tài khoản AppleId</p>
 
   <div class="table-responsive">
     <div class="float-start d-flex gap-3 mb-3">
@@ -95,155 +95,156 @@
       </span>
     </div>
   </div>
-
-  <table
-    class="table table-hover table-striped table-bordered"
-    @mousedown="startDrag"
-    @mouseup="stopDrag"
-  >
-    <thead class="table-primary">
-      <tr>
-        <th @click="sort('_id')" class="pointer" style="width: 5em">
-          STT
-          <span class="opacity-25 mx-2"
-            ><i class="fa-solid fa-arrows-up-down"></i
-          ></span>
-        </th>
-        <th>AccountId</th>
-        <th>Mật khẩu</th>
-        <th>Số điện thoại</th>
-        <th>Mail</th>
-        <th>Câu hỏi bảo mật</th>
-        <th>Quốc gia</th>
-        <th>Năm sinh</th>
-        <th>Trạng thái</th>
-        <th
-          @click="sort('device')"
-          class="pointer text-nowrap"
-          style="width: 5em"
+  <div style="overflow-x: auto; white-space: nowrap" class="w-100">
+    <table
+      class="table table-hover table-striped table-bordered"
+      @mousedown="startDrag"
+      @mouseup="stopDrag"
+    >
+      <thead class="table-primary">
+        <tr>
+          <th @click="sort('_id')" class="pointer" style="width: 5em">
+            STT
+            <span class="opacity-25 mx-2"
+              ><i class="fa-solid fa-arrows-up-down"></i
+            ></span>
+          </th>
+          <th>AccountId</th>
+          <th>Mật khẩu</th>
+          <th>Số điện thoại</th>
+          <th>Mail</th>
+          <th>Câu hỏi bảo mật</th>
+          <th>Quốc gia</th>
+          <th>Năm sinh</th>
+          <th>Trạng thái</th>
+          <th
+            @click="sort('device')"
+            class="pointer text-nowrap"
+            style="width: 5em"
+          >
+            Thiết bị
+            <span class="opacity-25 mx-2"
+              ><i class="fa-solid fa-arrows-up-down"></i
+            ></span>
+          </th>
+          <th
+            @click="sort('created_at')"
+            class="pointer text-nowrap"
+            style="width: 5em"
+          >
+            Ngày tạo
+            <span class="opacity-25 mx-2"
+              ><i class="fa-solid fa-arrows-up-down"></i
+            ></span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          v-for="(item, index) in AppleId"
+          :key="item._id"
+          @click="selectRow(item._id)"
+          @mouseover="isDragging ? selectRow(item._id) : null"
+          :class="{ 'selected-row': selectedRows.includes(item._id) }"
         >
-          Thiết bị
-          <span class="opacity-25 mx-2"
-            ><i class="fa-solid fa-arrows-up-down"></i
-          ></span>
-        </th>
-        <th
-          @click="sort('created_at')"
-          class="pointer text-nowrap"
-          style="width: 5em"
-        >
-          Ngày tạo
-          <span class="opacity-25 mx-2"
-            ><i class="fa-solid fa-arrows-up-down"></i
-          ></span>
-        </th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr
-        v-for="(item, index) in AppleId"
-        :key="item._id"
-        @click="selectRow(item._id)"
-        @mouseover="isDragging ? selectRow(item._id) : null"
-        :class="{ 'selected-row': selectedRows.includes(item._id) }"
-      >
-        <td>
-          <span v-html="index+1"></span>
-        </td>
-        <td>
-          <span @click="CopyData(item.account)" v-html="item.account"></span>
-          <span @click="CopyData(item.account)"
-            ><i class="fa-regular fa-copy"></i
-          ></span>
-        </td>
-        <td class="d-flex gap-1">
-          <input
-            class="form-control"
-            :value="item.password"
-             @focus="focus_input_id = item._id"
-                        @blur="focus_input_id = ''"
-            @keyup="debouncedUpdate($event, item._id, 'password')"
-          />
-          <span @click="CopyData(item.password)"
-            ><i class="fa-regular fa-copy"></i
-          ></span>
-        </td>
-        <td>
-          <input
-            class="form-control"
-            :value="item.phone"
-             @focus="focus_input_id = item._id"
-                        @blur="focus_input_id = ''"
-            @keyup="debouncedUpdate($event, item._id, 'phone')"
-          />
-        </td>
-        <td>
-          <input
-            class="form-control"
-            :value="item.mail"
-            type="email"
-             @focus="focus_input_id = item._id"
-                        @blur="focus_input_id = ''"
-            @keyup="debouncedUpdate($event, item._id, 'mail')"
-          />
-        </td>
-        <td class="d-flex gap-1">
-          <input
-            class="form-control"
-            :value="item.question"
-            type="text"
-             @focus="focus_input_id = item._id"
-                        @blur="focus_input_id = ''"
-            @keyup="debouncedUpdate($event, item._id, 'question')"
-          />
-          <span @click="CopyData(item.question)"
-            ><i class="fa-regular fa-copy"></i
-          ></span>
-        </td>
-        <td>
-          <input
-            class="form-control"
-            :value="item.country"
-            type="text"
-             @focus="focus_input_id = item._id"
-                        @blur="focus_input_id = ''"
-            @keyup="debouncedUpdate($event, item._id, 'country')"
-          />
-        </td>
-        <td>
-          <input
-            class="form-control"
-            :value="item.birthday"
-            type="text"
-             @focus="focus_input_id = item._id"
-                        @blur="focus_input_id = ''"
-            @keyup="debouncedUpdate($event, item._id, 'birthday')"
-          />
-        </td>
-        <td>
-          <input
-            class="form-control"
-            :value="item.status"
-            type="text"
-             @focus="focus_input_id = item._id"
-                        @blur="focus_input_id = ''"
-            @keyup="debouncedUpdate($event, item._id, 'status')"
-          />
-        </td>
-        <td>
-          <input
-            class="form-control"
-            style="min-width: 8em"
-            :value="item.device"
-            @keyup="debouncedUpdate($event, item._id, 'device')"
-          />
-        </td>
-        <td>
-          <span v-html="item.created_at" class="text-center text-wrap"></span>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+          <td>
+            <span v-html="index+1"></span>
+          </td>
+          <td>
+            <span @click="CopyData(item.account)" v-html="item.account"></span>
+            <span @click="CopyData(item.account)"
+              ><i class="fa-regular fa-copy"></i
+            ></span>
+          </td>
+          <td class="d-flex gap-1">
+            <input
+              class="form-control"
+              :value="item.password"
+              @focus="focus_input_id = item._id"
+              @blur="focus_input_id = ''"
+              @keyup="debouncedUpdate($event, item._id, 'password')"
+            />
+            <span @click="CopyData(item.password)"
+              ><i class="fa-regular fa-copy"></i
+            ></span>
+          </td>
+          <td>
+            <input
+              class="form-control"
+              :value="item.phone"
+              @focus="focus_input_id = item._id"
+              @blur="focus_input_id = ''"
+              @keyup="debouncedUpdate($event, item._id, 'phone')"
+            />
+          </td>
+          <td>
+            <input
+              class="form-control"
+              :value="item.mail"
+              type="email"
+              @focus="focus_input_id = item._id"
+              @blur="focus_input_id = ''"
+              @keyup="debouncedUpdate($event, item._id, 'mail')"
+            />
+          </td>
+          <td class="d-flex gap-1">
+            <input
+              class="form-control"
+              :value="item.question"
+              type="text"
+              @focus="focus_input_id = item._id"
+              @blur="focus_input_id = ''"
+              @keyup="debouncedUpdate($event, item._id, 'question')"
+            />
+            <span @click="CopyData(item.question)"
+              ><i class="fa-regular fa-copy"></i
+            ></span>
+          </td>
+          <td>
+            <input
+              class="form-control"
+              :value="item.country"
+              type="text"
+              @focus="focus_input_id = item._id"
+              @blur="focus_input_id = ''"
+              @keyup="debouncedUpdate($event, item._id, 'country')"
+            />
+          </td>
+          <td>
+            <input
+              class="form-control"
+              :value="item.birthday"
+              type="text"
+              @focus="focus_input_id = item._id"
+              @blur="focus_input_id = ''"
+              @keyup="debouncedUpdate($event, item._id, 'birthday')"
+            />
+          </td>
+          <td>
+            <input
+              class="form-control"
+              :value="item.status"
+              type="text"
+              @focus="focus_input_id = item._id"
+              @blur="focus_input_id = ''"
+              @keyup="debouncedUpdate($event, item._id, 'status')"
+            />
+          </td>
+          <td>
+            <input
+              class="form-control"
+              style="min-width: 8em"
+              :value="item.device"
+              @keyup="debouncedUpdate($event, item._id, 'device')"
+            />
+          </td>
+          <td>
+            <span v-html="item.created_at" class="text-center text-wrap"></span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
   <div class="my-4 d-flex justify-content-between">
     <div>
@@ -383,9 +384,9 @@
         if (this.selectedRows.includes(id)) {
           this.selectedRows = this.selectedRows.filter((rowId) => rowId !== id);
         } else {
-            if (this.focus_input_id !== "" && this.focus_input_id == id) {
-                return;
-            }
+          if (this.focus_input_id !== "" && this.focus_input_id == id) {
+            return;
+          }
           this.selectedRows.push(id);
         }
       },

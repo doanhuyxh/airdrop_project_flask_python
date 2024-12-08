@@ -1,92 +1,86 @@
-{% extends "share/Main_Layout.html" %}
-
-{% block title %}Quản lý nhân viên{% endblock %}
-
-
-${% block breadcrumb %}
+{% extends "share/Main_Layout.html" %} {% block title %}Quản lý User{% endblock
+%} ${% block breadcrumb %}
 
 <div class="container-fluid px-4">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb my-0">
-            <li class="breadcrumb-item"><a href="javascript:void(0)">Quản lý nhân viên</a>
-            </li>
-        </ol>
-    </nav>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb my-0">
+      <li class="breadcrumb-item">
+        <a href="javascript:void(0)">Quản lý User</a>
+      </li>
+    </ol>
+  </nav>
 </div>
 
-{% endblock %}
-
-{% block content %}
+{% endblock %} {% block content %}
 
 <div class="container-fluid">
-    <h1 class="mt-4 text-center">Quản lý nhân viên</h1>
+  <h1 class="mt-4 text-center">Quản lý user</h1>
 
-    <div class="card my-4">
-        <div class="card-header">
-            <i class="fas fa-table me-1"></i>
-            Danh sách nhân viên
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                    <thead>
-                        <tr>
-                            <th>STT</th>
-                            <th>Tên nhân viên</th>
-                            <th>Chức vụ</th>
-                            <th>Ngày sinh</th>
-                            <th>Giới tính</th>
-                            <th>Địa chỉ</th>
-                            <th>Số điện thoại</th>
-                            <th>Email</th>
-                            <th>Trạng thái</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Nguyễn Văn A</td>
-                            <td>Nhân viên</td>
-                            <td>01/01/1990</td>
-                            <td>Nam</td>
-                            <td>123 Đường ABC, Quận 1, TP.HCM</td>
-                            <td>0123456789</td>
-                            <td>
-                            </td>
-                            <td>
-                                <span class="badge bg-success">Đang làm việc</span>
-                            </td>
-                            <td>
-                                <a href="javascript:void(0)" class="btn btn-primary btn-sm">Sửa</a>
-                                <a href="javascript:void(0)" class="btn btn-danger btn-sm">Xóa</a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-
-
-
-            </div>
-        </div>
+  <div class="card my-4">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table
+          class="table table-bordered text-center"
+          id="dataTable"
+          width="100%"
+          cellspacing="0"
+        >
+          <thead>
+            <tr>
+              <th>STT</th>
+              <th>Tài khoản</th>
+              <th>Chức vụ</th>
+              <th>Email</th>
+              <th>Mật khẩu</th>
+              <th>Trạng thái</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item, index) in users" :key={index}>
+              <td v-html="index+1"></td>
+              <td v-html="item.username">
+              </td>
+              <td>
+                <span class="badge bg-primary" v-html="item.role"></span>
+              </td>
+              <td v-html="item.email"></td>
+              <td>
+               <span class="badge bg-warning" v-html="item.password">********</span>
+              </td>
+              <td>
+                <span class="badge bg-success" v-html="item.status"></span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
+  </div>
 </div>
 
-{% endblock %}
-{% block script %}
+{% endblock %} {% block script %}
 <script>
-    var app_vue = new Vue({
-        "el": "#app",
-        "data": {
-
-        },
-        "mounted": function () {
-
-        },
-        "methods": {
-
-        }
-    })
+  var app_vue = new Vue({
+    el: "#app",
+    data: {
+      users: []
+    },
+    mounted: function () {
+      this.getUsers();
+    },
+    methods: {
+      getUsers: function () {
+        fetch("/user/get_user")
+          .then((response) => {
+            return response.json();
+          })
+          .then((data) => {
+            this.users = data.data;
+            console.log(this.users);
+          });
+      }
+    }
+  });
 </script>
 
 {% endblock %}

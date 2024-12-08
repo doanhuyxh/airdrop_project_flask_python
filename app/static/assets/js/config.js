@@ -1,3 +1,8 @@
+document.addEventListener('contextmenu', (event) => {
+    event.preventDefault();
+});
+
+
 async function uploadFile(file_element) {
     const files = document.getElementById(`${file_element}`).files;
     const formData = new FormData();

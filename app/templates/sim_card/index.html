@@ -14,139 +14,170 @@
   <p class="text-center h4">Danh sách sim</p>
 
   <div class="table-responsive">
-
     <div class="float-start d-flex gap-3 mb-3">
-        <div class="">
-            <select class="form-control" v-model="filter_sim_type" @change="current_page = 1; getSimCard()">
-                <option value="">Nhà mạng (tất cả)</option>
-                <option v-for="item in list_sim_type" :key="item" :value="item" v-html="item"></option>
-            </select>
-        </div>
-        <div>
-            <input type="text" class="form-control" style="width: 35rem !important" v-model="search" placeholder="tìm kiếm"
-                v-on:keyup="debouncedSearch" />
-        </div>
+      <div class="">
+        <select
+          class="form-control"
+          v-model="filter_sim_type"
+          @change="current_page = 1; getSimCard()"
+        >
+          <option value="">Nhà mạng (tất cả)</option>
+          <option
+            v-for="item in list_sim_type"
+            :key="item"
+            :value="item"
+            v-html="item"
+          ></option>
+        </select>
+      </div>
+      <div>
+        <input
+          type="text"
+          class="form-control"
+          style="width: 35rem !important"
+          v-model="search"
+          placeholder="tìm kiếm"
+          v-on:keyup="debouncedSearch"
+        />
+      </div>
     </div>
 
     <div class="float-end d-flex gap-3 mb-3">
+      <a
+        href="/sim_card/form_get"
+        class="btn btn-primary"
+        data-coreui-toggle="tooltip"
+        data-coreui-placement="top"
+        data-coreui-title="Thêm mail mới"
+      >
+        <i class="fa-solid fa-plus"></i>
+      </a>
 
-        <a href="/sim_card/form_get" class="btn btn-primary" data-coreui-toggle="tooltip" data-coreui-placement="top"
-            data-coreui-title="Thêm mail mới">
-            <i class="fa-solid fa-plus"></i>
-        </a>
+      <span
+        v-on:click="ExportExcel"
+        class="btn btn-success"
+        data-coreui-toggle="tooltip"
+        data-coreui-placement="top"
+        data-coreui-title="Xuất dữ liệu ra excel"
+      >
+        <i class="fa-solid fa-file-excel"></i>
+      </span>
 
-        <span v-on:click="ExportExcel" class="btn btn-success" data-coreui-toggle="tooltip"
-            data-coreui-placement="top" data-coreui-title="Xuất dữ liệu ra excel">
-            <i class="fa-solid fa-file-excel"></i>
-        </span>
-
-
-        <span class="btn btn-danger" data-coreui-toggle="tooltip" data-coreui-placement="top"
-            v-on:click="deleteSelectSimCard" data-coreui-title="Xoá mail đang chọn">
-            <i class="fa-solid fa-trash"></i>
-        </span>
+      <span
+        class="btn btn-danger"
+        data-coreui-toggle="tooltip"
+        data-coreui-placement="top"
+        v-on:click="deleteSelectSimCard"
+        data-coreui-title="Xoá mail đang chọn"
+      >
+        <i class="fa-solid fa-trash"></i>
+      </span>
     </div>
-
-    <table class="table table-hover table-striped table-bordered">
-      <thead class="table-primary">
-        <tr>
-          <th @click="sort('_id')" class="pointer" style="width: 5em">
-            STT
-            <span class="opacity-25 mx-2"
-              ><i class="fa-solid fa-arrows-up-down"></i
-            ></span>
-          </th>
-          <th>Số điện thoại</th>
-          <th>Ngày hết hạn</th>
-          <th>Loại sim</th>
-          <th>Gmail</th>
-          <th>Telegram</th>
-          <th>AppleId</th>
-          <th>Note</th>
-          <th
-            @click="sort('created_at')"
-            class="pointer text-nowrap"
-            style="width: 5em"
+    <div style="overflow-x: auto; white-space: nowrap" class="w-100">
+      <table class="table table-hover table-striped table-bordered">
+        <thead class="table-primary">
+          <tr>
+            <th @click="sort('_id')" class="pointer" style="width: 5em">
+              STT
+              <span class="opacity-25 mx-2"
+                ><i class="fa-solid fa-arrows-up-down"></i
+              ></span>
+            </th>
+            <th>Số điện thoại</th>
+            <th>Ngày hết hạn</th>
+            <th>Loại sim</th>
+            <th>Gmail</th>
+            <th>Telegram</th>
+            <th>AppleId</th>
+            <th>Note</th>
+            <th
+              @click="sort('created_at')"
+              class="pointer text-nowrap"
+              style="width: 5em"
+            >
+              Ngày thêm
+              <span class="opacity-25 mx-2"
+                ><i class="fa-solid fa-arrows-up-down"></i
+              ></span>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="(item, index) in sim_card"
+            :key="item._id"
+            @click="selectRow(item._id)"
+            @mouseover="isDragging ? selectRow(item._id) : null"
+            :class="{ 'selected-row': selectedRows.includes(item._id) }"
           >
-            Ngày thêm
-            <span class="opacity-25 mx-2"
-              ><i class="fa-solid fa-arrows-up-down"></i
-            ></span>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="(item, index) in sim_card"
-          :key="item._id"
-          @click="selectRow(item._id)"
-          @mouseover="isDragging ? selectRow(item._id) : null"
-          :class="{ 'selected-row': selectedRows.includes(item._id) }"
-        >
-          <td>
-            <span v-html="index+1"></span>
-          </td>
-          <td>
-            <span
-              class="px-3 py-2"
-              style="background: transparent"
-              @click="CopyData(item.phoneNumber)"
-              v-html="item.phoneNumber"
-              title="click to copy"
-            ></span>
-          </td>
-          <td>
-            <input
-              class="form-control"
-              :value="item.date_expired"
-              @keyup="debouncedUpdate($event, item._id, 'date_expired')"
-            />
-          </td>
-          <td>
-            <input
-              class="form-control"
-              :value="item.sim_type"
-              @keyup="debouncedUpdate($event, item._id, 'sim_type')"
-            />
-          </td>
-          <td>
-            <input
-              class="form-control"
-              :value="item.gmail"
-              @keyup="debouncedUpdate($event, item._id, 'gmail')"
-            />
-          </td>
-          <td>
-            <input
-              class="form-control"
-              :value="item.telegram"
-              type="text"
-              @keyup="debouncedUpdate($event, item._id, 'telegram')"
-            />
-          </td>
-          <td>
-            <input
-              class="form-control"
-              style="min-width: 8em"
-              :value="item.AppleId"
-              @keyup="debouncedUpdate($event, item._id, 'AppleId')"
-            />
-          </td>
+            <td>
+              <span v-html="index+1"></span>
+            </td>
+            <td>
+              <span
+                class="px-3 py-2"
+                style="background: transparent"
+                @click="CopyData(item.phoneNumber)"
+                v-html="item.phoneNumber"
+                title="click to copy"
+              ></span>
+            </td>
+            <td>
+              <input
+                class="form-control"
+                :value="item.date_expired"
+                @keyup="debouncedUpdate($event, item._id, 'date_expired')"
+              />
+            </td>
+            <td>
+              <input
+                class="form-control"
+                :value="item.sim_type"
+                @keyup="debouncedUpdate($event, item._id, 'sim_type')"
+              />
+            </td>
+            <td>
+              <input
+                class="form-control"
+                :value="item.gmail"
+                @keyup="debouncedUpdate($event, item._id, 'gmail')"
+              />
+            </td>
+            <td>
+              <input
+                class="form-control"
+                :value="item.telegram"
+                type="text"
+                @keyup="debouncedUpdate($event, item._id, 'telegram')"
+              />
+            </td>
+            <td>
+              <input
+                class="form-control"
+                style="min-width: 8em"
+                :value="item.AppleId"
+                @keyup="debouncedUpdate($event, item._id, 'AppleId')"
+              />
+            </td>
 
-          <td>
-            <input
-              class="form-control"
-              style="min-width: 8em"
-              :value="item.note"
-              @keyup="debouncedUpdate($event, item._id, 'note')"
-            />
-          </td>
-          <td>
-            <span v-html="item.created_at" class="text-center text-wrap"></span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+            <td>
+              <input
+                class="form-control"
+                style="min-width: 8em"
+                :value="item.note"
+                @keyup="debouncedUpdate($event, item._id, 'note')"
+              />
+            </td>
+            <td>
+              <span
+                v-html="item.created_at"
+                class="text-center text-wrap"
+              ></span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     <div class="my-4 d-flex justify-content-between">
       <div>
         <p>
@@ -195,7 +226,7 @@
     data: {
       sim_card: [],
       search: "",
-      filter_sim_type:"",
+      filter_sim_type: "",
       current_page: 1,
       pageSize: 25,
       totalPages: 0,
@@ -205,7 +236,7 @@
       selectedRows: [],
       isDragging: false,
       isShowLoading: true,
-      list_sim_type:[]
+      list_sim_type: []
     },
     created() {
       this.debouncedSearch = _.debounce(this.getSimCard, 300);
@@ -309,7 +340,7 @@
                 gmail: res_data[i].gmail,
                 telegram: res_data[i].telegram,
                 AppleId: res_data[i].AppleId,
-                note: res_data[i].note,
+                note: res_data[i].note
               });
             }
             let ws = XLSX.utils.json_to_sheet(data_result);

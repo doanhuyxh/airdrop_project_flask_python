@@ -43,70 +43,77 @@
         <i class="fa-solid fa-trash"></i>
       </span>
     </div>
+    <div style="overflow-x: auto; white-space: nowrap" class="w-100">
+      <table class="table table-hover table-striped table-bordered">
+        <thead class="table-primary">
+          <tr>
+            <th @click="sort('_id')" class="pointer" style="width: 5em">
+              STT
+              <span class="opacity-25 mx-2"
+                ><i class="fa-solid fa-arrows-up-down"></i
+              ></span>
+            </th>
+            <th>IP</th>
+            <th>URL</th>
+            <th>Method</th>
+            <th>Query</th>
+            <th>Data</th>
+            <th>Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="(item, index) in LogData"
+            :key="item._id"
+            @click="selectRow(item._id)"
+            @mouseover="isDragging ? selectRow(item._id) : null"
+            :class="{ 'selected-row': selectedRows.includes(item._id) }"
+          >
+            <td>
+              <span v-html="index+1"></span>
+            </td>
+            <td>
+              <span
+                @click="CopyData(item.ip_address)"
+                v-html="item.ip_address"
+              ></span>
+              <span @click="CopyData(item.ip_address)"
+                ><i class="fa-regular fa-copy"></i
+              ></span>
+            </td>
 
-    <table class="table table-hover table-striped table-bordered">
-      <thead class="table-primary">
-        <tr>
-          <th @click="sort('_id')" class="pointer" style="width: 5em">
-            STT
-            <span class="opacity-25 mx-2"
-              ><i class="fa-solid fa-arrows-up-down"></i
-            ></span>
-          </th>
-          <th>IP</th>
-          <th>URL</th>
-          <th>Method</th>
-          <th>Query</th>
-          <th>Data</th>
-          <th>Time</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="(item, index) in LogData"
-          :key="item._id"
-          @click="selectRow(item._id)"
-          @mouseover="isDragging ? selectRow(item._id) : null"
-          :class="{ 'selected-row': selectedRows.includes(item._id) }"
-        >
-          <td>
-            <span v-html="index+1"></span>
-          </td>
-          <td>
-            <span
-              @click="CopyData(item.ip_address)"
-              v-html="item.ip_address"
-            ></span>
-            <span @click="CopyData(item.ip_address)"
-              ><i class="fa-regular fa-copy"></i
-            ></span>
-          </td>
+            <td style="max-width: 200px; overflow: auto">
+              <span @click="CopyData(item.url)" v-html="item.url"></span>
+            </td>
 
-          <td style="max-width: 200px; overflow:auto">
-            <span @click="CopyData(item.url)" v-html="item.url"></span>
-          </td>
+            <td style="width: 16px; overflow: auto">
+              <span @click="CopyData(item.method)" v-html="item.method"></span>
+            </td>
+            <td>
+              <span
+                @click="CopyData(item.query)"
+                v-html="item.query_params"
+              ></span>
+            </td>
+            <td>
+              <p style="max-width: 500px; overflow: hidden">
+                <span @click="CopyData(item.data)" v-html="item.data"></span>
+              </p>
+              <span v-if="item.data" @click="CopyData(item.data)"
+                ><i class="fa-regular fa-copy"></i
+              ></span>
+            </td>
 
-          <td style="width: 16px; overflow:auto">
-            <span @click="CopyData(item.method)" v-html="item.method"></span>
-          </td>
-          <td>
-            <span @click="CopyData(item.query)" v-html="item.query_params"></span>
-          </td>
-          <td>
-            <p style="max-width: 500px; overflow: hidden">
-              <span @click="CopyData(item.data)" v-html="item.data"></span>
-            </p>
-            <span v-if="item.data" @click="CopyData(item.data)"
-              ><i class="fa-regular fa-copy"></i
-            ></span>
-          </td>
-
-          <td>
-            <span v-html="item.timestamp" class="text-center text-wrap"></span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+            <td>
+              <span
+                v-html="item.timestamp"
+                class="text-center text-wrap"
+              ></span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <div class="my-4 d-flex justify-content-between">

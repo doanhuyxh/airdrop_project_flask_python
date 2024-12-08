@@ -1,21 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>{% block title %}AirDrop{% endblock %}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="AirDrop Vietsoft Pro">
-    <meta name="author" content="Vietsoft Pro">
-    <meta name="keywords" content="AirDrop Vietsoft Pro">
-    <link rel="icon" href="/static/assets/img/favicons/apple-icon.png" type="image/png">
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="description" content="AirDrop Vietsoft Pro" />
+    <meta name="author" content="Vietsoft Pro" />
+    <meta name="keywords" content="AirDrop Vietsoft Pro" />
+    <link
+      rel="icon"
+      href="/static/assets/img/favicons/apple-icon.png"
+      type="image/png"
+    />
 
-    <link rel="stylesheet" href="/static/lib/coreui/coreui.css">
+    <link rel="stylesheet" href="/static/lib/coreui/coreui.css" />
     <script src="/static/lib/coreui/coreui.bundle.min.js"></script>
     <script src="/static/lib/jquery-3.7.1.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
-        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
-        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+      integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
     <script src="/static/lib/sweetalert2@11.js"></script>
     <script src="/static/lib/vue.js"></script>
     <script src="/static/lib/lodash.min.js"></script>
@@ -23,285 +33,362 @@
     <script src="/static/lib/loadingoverlay.min.js"></script>
 
     <link
-        href="https://cdn.datatables.net/v/zf/dt-2.1.8/af-2.7.0/b-3.1.2/b-colvis-3.1.2/cr-2.0.4/date-1.5.4/fc-5.0.3/fh-4.0.1/kt-2.12.1/r-3.0.3/rg-1.5.0/rr-1.5.0/sb-1.8.1/sp-2.3.3/sl-2.1.0/datatables.min.css"
-        rel="stylesheet">
+      href="https://cdn.datatables.net/v/zf/dt-2.1.8/af-2.7.0/b-3.1.2/b-colvis-3.1.2/cr-2.0.4/date-1.5.4/fc-5.0.3/fh-4.0.1/kt-2.12.1/r-3.0.3/rg-1.5.0/rr-1.5.0/sb-1.8.1/sp-2.3.3/sl-2.1.0/datatables.min.css"
+      rel="stylesheet"
+    />
 
-    <script
-        src="https://cdn.datatables.net/v/zf/dt-2.1.8/af-2.7.0/b-3.1.2/b-colvis-3.1.2/cr-2.0.4/date-1.5.4/fc-5.0.3/fh-4.0.1/kt-2.12.1/r-3.0.3/rg-1.5.0/rr-1.5.0/sb-1.8.1/sp-2.3.3/sl-2.1.0/datatables.min.js"></script>
+    <script src="https://cdn.datatables.net/v/zf/dt-2.1.8/af-2.7.0/b-3.1.2/b-colvis-3.1.2/cr-2.0.4/date-1.5.4/fc-5.0.3/fh-4.0.1/kt-2.12.1/r-3.0.3/rg-1.5.0/rr-1.5.0/sb-1.8.1/sp-2.3.3/sl-2.1.0/datatables.min.js"></script>
 
-    <link rel="stylesheet" href="/static/assets/css/base.css">
+    <link rel="stylesheet" href="/static/assets/css/base.css" />
     <script src="/static/assets/js/config.js"></script>
+  </head>
 
-</head>
+  <body>
+    <div
+      class="sidebar sidebar-dark sidebar-fixed border-end show"
+      id="sidebar"
+    >
+      <div class="sidebar-header border-bottom">
+        <div class="sidebar-brand">Logo</div>
+        <button
+          class="btn-close d-lg-none"
+          type="button"
+          data-coreui-theme="dark"
+          aria-label="Close"
+          onclick="coreui.Sidebar.getInstance(document.querySelector('#sidebar')).toggle()"
+        ></button>
+      </div>
+      <ul
+        class="sidebar-nav simplebar-scrollable-y"
+        data-coreui="navigation"
+        data-simplebar="init"
+      >
+        <div class="simplebar-wrapper" style="margin: -8px">
+          <div class="simplebar-height-auto-observer-wrapper">
+            <div class="simplebar-height-auto-observer"></div>
+          </div>
+          <div class="simplebar-mask">
+            <div class="simplebar-offset" style="right: 0px; bottom: 0px">
+              <div
+                class="simplebar-content-wrapper"
+                tabindex="0"
+                role="region"
+                aria-label="scrollable content"
+                style="height: 100%; overflow: hidden scroll"
+              >
+                <div class="simplebar-content" style="padding: 8px">
+                  <li class="nav-item">
+                    <a class="nav-link" href="/sim_card">
+                      <span class="nav-icon">
+                        <i class="fa-solid fa-sim-card"></i>
+                      </span>
+                      <span>Quản lý sim</span>
+                    </a>
+                  </li>
 
-<body>
+                  <li class="nav-group" aria-expanded="false">
+                    <a class="nav-link nav-group-toggle" href="#">
+                      <span class="nav-icon">
+                        <i class="fa-solid fa-user-doctor"></i>
+                      </span>
+                      <span>ProFile</span>
+                    </a>
 
-    <div class="sidebar sidebar-dark sidebar-fixed border-end show" id="sidebar">
-        <div class="sidebar-header border-bottom">
-            <div class="sidebar-brand">
-                Logo
-            </div>
-            <button class="btn-close d-lg-none" type="button" data-coreui-theme="dark" aria-label="Close"
-                onclick="coreui.Sidebar.getInstance(document.querySelector('#sidebar')).toggle()">
-            </button>
-        </div>
-        <ul class="sidebar-nav simplebar-scrollable-y" data-coreui="navigation" data-simplebar="init">
-            <div class="simplebar-wrapper" style="margin: -8px;">
-                <div class="simplebar-height-auto-observer-wrapper">
-                    <div class="simplebar-height-auto-observer"></div>
-                </div>
-                <div class="simplebar-mask">
-                    <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
-                        <div class="simplebar-content-wrapper" tabindex="0" role="region"
-                            aria-label="scrollable content" style="height: 100%; overflow: hidden scroll;">
-                            <div class="simplebar-content" style="padding: 8px;">
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/sim_card">
-                                        <span class="nav-icon">
-                                            <i class="fa-solid fa-sim-card"></i>
-                                        </span>
-                                        <span>Quản lý sim</span>
-                                    </a>
-                                </li>
+                    <ul class="nav-group-items compact">
+                      <li class="nav-item">
+                        <a class="nav-link" href="/profile_gpm">
+                          <span>GPM</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
 
-                                <li class="nav-group" aria-expanded="false">
-                                    <a class="nav-link nav-group-toggle" href="#">
-                                        <span class="nav-icon">
-                                            <i class="fa-solid fa-user-doctor"></i>
-                                        </span>
-                                        <span>ProFile</span>
-                                    </a>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/project">
+                      <span class="nav-icon">
+                        <i class="fa-solid fa-diagram-project"></i>
+                      </span>
+                      <span>Quản lý dự án</span>
+                    </a>
+                  </li>
 
-                                    <ul class="nav-group-items compact">
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="/profile_gpm">
-                                                <span>GPM</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-
-                                </li>
-
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/project">
-                                        <span class="nav-icon">
-                                            <i class="fa-solid fa-diagram-project"></i>
-                                        </span>
-                                        <span>Quản lý dự án</span>
-                                    </a>
-                                </li>
-
-                                <li class="nav-group" aria-expanded="false">
-                                    <a class="nav-link nav-group-toggle" href="#">
-                                        <span class="nav-icon">
-                                            <i class="fa-solid fa-chart-line"></i>
-                                        </span>
-                                        <span>Tiến độ dự án</span>
-                                    </a>
-                                    <ul class="nav-group-items compact">
-                                        <li class="nav-item">
-                                            <div class="nav-link">
-                                                <input class="form-control" placeholder="Tìm kiếm dự án"
-                                                    v-on:keyup="debouncedSearch" />
-                                            </div>
-                                        </li>
-
-                                        <li class="nav-item" v-for="(item, index) in projects">
-                                            <a class="nav-link" :href="'/project/detail?id='+item._id">
-                                                <span data-coreui-i18n="accordion" v-html="item.project_name"></span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
-
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/wallet">
-                                        <span class="nav-icon">
-                                            <i class="fa-solid fa-wallet"></i>
-                                        </span>
-                                        <span>Quản lý Ví</span>
-                                    </a>
-                                </li>
-                                <li class="nav-group" aria-expanded="false">
-                                    <a class="nav-link nav-group-toggle" href="#">
-                                        <span class="nav-icon">
-                                            <i class="fa-brands fa-google-wallet"></i>
-                                        </span>
-                                        <span>Thông tin ví</span>
-                                    </a>
-                                    <ul class="nav-group-items compact" style="height: 0px;">
-                                        <li class="nav-item" v-for="(item, index) in wallets">
-                                            <a class="nav-link" :href="'/wallet/detail?id='+item._id">
-                                                <span data-coreui-i18n="accordion" v-html="item.name"></span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <!--                                 
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/user">
-                                        <span class="nav-icon">
-                                            <i class="fa-solid fa-user"></i>
-                                        </span>
-                                        <span>Quản lý nhân viên</span>
-                                    </a>
-                                </li> -->
-
-                                <li class="nav-group" aria-expanded="false">
-                                    <a class="nav-link nav-group-toggle" href="#">
-                                        <span class="nav-icon">
-                                            <i class="fa-solid fa-people-arrows"></i>
-                                        </span>
-                                        <span>Tài khoản MXH</span>
-                                    </a>
-                                    <ul class="nav-group-items compact" style="height: 0px;">
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="/mail">
-                                                <span data-coreui-i18n="accordion">Mail</span>
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="/appleId">
-                                                <span data-coreui-i18n="accordion">AppleId</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/api">
-                                        <span class="nav-icon">
-                                            <i class="fa-solid fa-globe"></i>
-                                        </span>
-                                        <span>Tài liệu api</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/log_request">
-                                        <span class="nav-icon">
-                                            <i class="fa-solid fa-chart-simple"></i>
-                                        </span>
-                                        <span>Log request</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="/logout">
-                                        <span class="nav-icon">
-                                            <i class="fa-solid fa-right-from-bracket"></i>
-                                        </span>
-                                        <span>Đăng xuất</span>
-                                    </a>
-                                </li>
-                            </div>
+                  <li class="nav-group" aria-expanded="false">
+                    <a class="nav-link nav-group-toggle" href="#">
+                      <span class="nav-icon">
+                        <i class="fa-solid fa-chart-line"></i>
+                      </span>
+                      <span>Tiến độ dự án</span>
+                    </a>
+                    <ul class="nav-group-items compact">
+                      <li class="nav-item">
+                        <div class="nav-link">
+                          <input
+                            class="form-control"
+                            placeholder="Tìm kiếm dự án"
+                            v-on:keyup="debouncedSearch"
+                          />
                         </div>
-                    </div>
+                      </li>
+
+                      <li class="nav-item" v-for="(item, index) in projects">
+                        <a
+                          class="nav-link"
+                          :href="'/project/detail?id='+item._id"
+                        >
+                          <span
+                            data-coreui-i18n="accordion"
+                            v-html="item.project_name"
+                          ></span>
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+
+                  <li class="nav-item">
+                    <a class="nav-link" href="/wallet">
+                      <span class="nav-icon">
+                        <i class="fa-solid fa-wallet"></i>
+                      </span>
+                      <span>Quản lý Ví</span>
+                    </a>
+                  </li>
+                  <li class="nav-group" aria-expanded="false">
+                    <a class="nav-link nav-group-toggle" href="#">
+                      <span class="nav-icon">
+                        <i class="fa-brands fa-google-wallet"></i>
+                      </span>
+                      <span>Thông tin ví</span>
+                    </a>
+                    <ul class="nav-group-items compact" style="height: 0px">
+                      <li class="nav-item" v-for="(item, index) in wallets">
+                        <a
+                          class="nav-link"
+                          :href="'/wallet/detail?id='+item._id"
+                        >
+                          <span
+                            data-coreui-i18n="accordion"
+                            v-html="item.name"
+                          ></span>
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+
+                  <li class="nav-group" aria-expanded="false">
+                    <a class="nav-link nav-group-toggle" href="#">
+                      <span class="nav-icon">
+                        <i class="fa-solid fa-people-arrows"></i>
+                      </span>
+                      <span>Tài khoản MXH</span>
+                    </a>
+                    <ul class="nav-group-items compact" style="height: 0px">
+                      <li class="nav-item">
+                        <a class="nav-link" href="/mail">
+                          <span data-coreui-i18n="accordion">Mail</span>
+                        </a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" href="/appleId">
+                          <span data-coreui-i18n="accordion">AppleId</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </li>
+
+                  <li class="nav-item">
+                    <a class="nav-link" href="/api">
+                      <span class="nav-icon">
+                        <i class="fa-solid fa-globe"></i>
+                      </span>
+                      <span>Tài liệu api</span>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/log_request">
+                      <span class="nav-icon">
+                        <i class="fa-solid fa-chart-simple"></i>
+                      </span>
+                      <span>Log request</span>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/user">
+                      <span class="nav-icon">
+                        <i class="fa-solid fa-user"></i>
+                      </span>
+                      <span>Quản lý user</span>
+                    </a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/logout">
+                      <span class="nav-icon">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                      </span>
+                      <span>Đăng xuất</span>
+                    </a>
+                  </li>
                 </div>
-                <div class="simplebar-placeholder" style="width: 255px; height: 1277px;"></div>
+              </div>
             </div>
-            <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
-                <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
-            </div>
-            <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
-                <div class="simplebar-scrollbar"
-                    style="height: 571px; transform: translate3d(0px, 0px, 0px); display: block;"></div>
-            </div>
-        </ul>
-        <div class="sidebar-footer border-top d-none d-lg-flex">
-            <button class="sidebar-toggler" type="button" data-coreui-toggle="unfoldable"></button>
+          </div>
+          <div
+            class="simplebar-placeholder"
+            style="width: 255px; height: 1277px"
+          ></div>
         </div>
+        <div
+          class="simplebar-track simplebar-horizontal"
+          style="visibility: hidden"
+        >
+          <div
+            class="simplebar-scrollbar"
+            style="width: 0px; display: none"
+          ></div>
+        </div>
+        <div
+          class="simplebar-track simplebar-vertical"
+          style="visibility: visible"
+        >
+          <div
+            class="simplebar-scrollbar"
+            style="
+              height: 571px;
+              transform: translate3d(0px, 0px, 0px);
+              display: block;
+            "
+          ></div>
+        </div>
+      </ul>
+      <div class="sidebar-footer border-top d-none d-lg-flex">
+        <button
+          class="sidebar-toggler"
+          type="button"
+          data-coreui-toggle="unfoldable"
+        ></button>
+      </div>
     </div>
 
     <div class="wrapper d-flex flex-column min-vh-100">
-        <header class="header header-sticky p-0">
-            <div class="container-fluid border-bottom px-4">
-                <button class="header-toggler" type="button"
-                    onclick="coreui.Sidebar.getInstance(document.querySelector('#sidebar')).toggle()"
-                    style="margin-inline-start: -14px;">
-                    <i class="fa-solid fa-bars"></i>
-                </button>
+      <header class="header header-sticky p-0">
+        <div class="container-fluid border-bottom px-4">
+          <button
+            class="header-toggler"
+            type="button"
+            onclick="coreui.Sidebar.getInstance(document.querySelector('#sidebar')).toggle()"
+            style="margin-inline-start: -14px"
+          >
+            <i class="fa-solid fa-bars"></i>
+          </button>
 
-                <div class="mt-3">
-                    <p>
-                        <img src="https://i.pravatar.cc/300" alt="logo" style="height: 50px; border-radius: 50%;">
-                    </p>
-                </div>
-            </div>
-            {% block breadcrumb %}{% endblock %}
-        </header>
-        <main>
-            <div class="mt-4 flex-grow-1" id="app">
-                {% block content %}{% endblock %}
-            </div>
-        </main>
+          <div class="mt-3">
+            <p>
+              <img
+                src="https://i.pravatar.cc/300"
+                alt="logo"
+                style="height: 50px; border-radius: 50%"
+              />
+            </p>
+          </div>
+        </div>
+        {% block breadcrumb %}{% endblock %}
+      </header>
+      <main>
+        <div class="mt-4 flex-grow-1" id="app">
+          {% block content %}{% endblock %}
+        </div>
+      </main>
     </div>
 
-
-    <div class="modal fade" id="staticBackdrop" data-coreui-backdrop="static" data-coreui-keyboard="false" tabindex="-1"
-        aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="staticBackdropLabel"></h5>
-                    <button type="button" class="btn-close" data-coreui-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" id="ModelBody">
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-coreui-dismiss="modal">Đóng</button>
-                    <button type="button" class="btn btn-primary" onclick="Save_Modal()">Lưu</button>
-                </div>
-            </div>
+    <div
+      class="modal fade"
+      id="staticBackdrop"
+      data-coreui-backdrop="static"
+      data-coreui-keyboard="false"
+      tabindex="-1"
+      aria-labelledby="staticBackdropLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="staticBackdropLabel"></h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-coreui-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body" id="ModelBody"></div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-coreui-dismiss="modal"
+            >
+              Đóng
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="Save_Modal()"
+            >
+              Lưu
+            </button>
+          </div>
         </div>
+      </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var tooltipTriggerList = document.querySelectorAll('[data-coreui-toggle="tooltip"]')
-            var tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new coreui.Tooltip(tooltipTriggerEl))
-        });
+      document.addEventListener("DOMContentLoaded", function () {
+        var tooltipTriggerList = document.querySelectorAll(
+          '[data-coreui-toggle="tooltip"]'
+        );
+        var tooltipList = [...tooltipTriggerList].map(
+          (tooltipTriggerEl) => new coreui.Tooltip(tooltipTriggerEl)
+        );
+      });
 
-        new Vue({
-            "el": "#sidebar",
-            data: {
-                "projects": [],
-                "wallets": []
-            },
-            created() {
-                this.debouncedSearch = _.debounce(this.HandleSearchProject, 300);
-            },
-            mounted() {
-
-                this.getProjects();
-                this.getWallets();
-            },
-            methods: {
-                getProjects() {
-                    fetch(`/project/list`)
-                        .then(response => response.json())
-                        .then(data => {
-                            this.projects = data.data;
-                        })
-                },
-                getWallets() {
-                    fetch(`/wallet/list`)
-                        .then(response => response.json())
-                        .then(data => {
-                            this.wallets = data.data;
-                        })
-                },
-                HandleSearchProject(event) {
-                    let value = event.target.value;
-                    fetch(`/project/list?search=${value}`)
-                        .then(response => response.json())
-                        .then(data => {
-                            this.projects = data.data;
-                        })
-                }
-            }
-        })
+      new Vue({
+        el: "#sidebar",
+        data: {
+          projects: [],
+          wallets: []
+        },
+        created() {
+          this.debouncedSearch = _.debounce(this.HandleSearchProject, 300);
+        },
+        mounted() {
+          this.getProjects();
+          this.getWallets();
+        },
+        methods: {
+          getProjects() {
+            fetch(`/project/list`)
+              .then((response) => response.json())
+              .then((data) => {
+                this.projects = data.data;
+              });
+          },
+          getWallets() {
+            fetch(`/wallet/list`)
+              .then((response) => response.json())
+              .then((data) => {
+                this.wallets = data.data;
+              });
+          },
+          HandleSearchProject(event) {
+            let value = event.target.value;
+            fetch(`/project/list?search=${value}`)
+              .then((response) => response.json())
+              .then((data) => {
+                this.projects = data.data;
+              });
+          }
+        }
+      });
     </script>
     {% block script %}{% endblock %}
-</body>
-
+  </body>
 </html>
