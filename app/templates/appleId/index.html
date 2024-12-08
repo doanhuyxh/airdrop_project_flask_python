@@ -1,376 +1,509 @@
-{% extends "share/Main_Layout.html" %}
-
-{% block title %}
-
-Apple Id
-
-{% endblock %}
-
+{% extends "share/Main_Layout.html" %} {% block title %} Apple Id {% endblock %}
 {% block content %}
 
 <div class="shadow-lg bg-body rounded px-5 pt-4 pb-5">
-    <p class="text-center h4">Tài khoản mail</p>
+  <p class="text-center h4">Tài khoản mail</p>
 
-    <div class="table-responsive">
-
-        <div class="float-start d-flex gap-3 mb-3">
-            <div class="">
-                <select class="form-control" v-model="filter_device" @change="current_page = 1; getAppleId()">
-                    <option value="">Thiết bị (tất cả)</option>
-                    <option v-for="item in device" :key="item" :value="item" v-html="item"></option>
-                </select>
-            </div>
-            <div class="">
-                <select class="form-control" v-model="filter_country" @change="current_page = 1; getAppleId()">
-                    <option value="">Quốc gia (tất cả)</option>
-                    <option v-for="item in country" :key="item" :value="item" v-html="item"></option>
-                </select>
-            </div>
-            <div class="">
-                <select class="form-control" v-model="filter_status" @change="current_page = 1; getAppleId()">
-                    <option value="">Trạng thái (tất cả)</option>
-                    <option v-for="item in status" :key="item" :value="item" v-html="item"></option>
-                </select>
-            </div>
-            <div>
-                <input type="text" class="form-control" style="min-width: 30em;" v-model="search"
-                    placeholder="tìm kiếm email, số điện thoại, cấu hỏi bảo mật, mail" v-on:keyup="debouncedSearch" />
-            </div>
-
-        </div>
-
-        <div class="float-end d-flex gap-3 mb-3">
-
-            <a href="/appleId/form_get" class="btn btn-primary" data-coreui-toggle="tooltip" data-coreui-placement="top"
-                data-coreui-title="Thêm mail mới">
-                <i class="fa-solid fa-plus"></i>
-            </a>
-
-            <span v-on:click="ExportExcel" class="btn btn-success" data-coreui-toggle="tooltip"
-                data-coreui-placement="top" data-coreui-title="Xuất dữ liệu ra excel">
-                <i class="fa-solid fa-file-excel"></i>
-            </span>
-
-
-            <span class="btn btn-danger" data-coreui-toggle="tooltip" data-coreui-placement="top"
-                v-on:click="deleteSelectAppleId" data-coreui-title="Xoá mail đang chọn">
-                <i class="fa-solid fa-trash"></i>
-            </span>
-        </div>
+  <div class="table-responsive">
+    <div class="float-start d-flex gap-3 mb-3">
+      <div class="">
+        <select
+          class="form-control"
+          v-model="filter_device"
+          @change="current_page = 1; getAppleId()"
+        >
+          <option value="">Thiết bị (tất cả)</option>
+          <option
+            v-for="item in device"
+            :key="item"
+            :value="item"
+            v-html="item"
+          ></option>
+        </select>
+      </div>
+      <div class="">
+        <select
+          class="form-control"
+          v-model="filter_country"
+          @change="current_page = 1; getAppleId()"
+        >
+          <option value="">Quốc gia (tất cả)</option>
+          <option
+            v-for="item in country"
+            :key="item"
+            :value="item"
+            v-html="item"
+          ></option>
+        </select>
+      </div>
+      <div class="">
+        <select
+          class="form-control"
+          v-model="filter_status"
+          @change="current_page = 1; getAppleId()"
+        >
+          <option value="">Trạng thái (tất cả)</option>
+          <option
+            v-for="item in status"
+            :key="item"
+            :value="item"
+            v-html="item"
+          ></option>
+        </select>
+      </div>
+      <div>
+        <input
+          type="text"
+          class="form-control"
+          style="min-width: 30em"
+          v-model="search"
+          placeholder="tìm kiếm email, số điện thoại, cấu hỏi bảo mật, mail"
+          v-on:keyup="debouncedSearch"
+        />
+      </div>
     </div>
 
-    <table class="table table-hover table-striped table-bordered" @mousedown="startDrag" @mouseup="stopDrag">
-        <thead class="table-primary">
-            <tr>
-                <th @click="sort('_id')" class="pointer" style="width: 5em;">
-                    STT
-                    <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
-                </th>
-                <th>
-                    AccountId
-                </th>
-                <th>
-                    Mật khẩu
-                </th>
-                <th>
-                    Số điện thoại
-                </th>
-                <th>
-                    Mail
-                </th>
-                <th>
-                    Câu hỏi bảo mật
-                </th>
-                <th>
-                    Quốc gia
-                </th>
-                <th>
-                    Năm sinh
-                </th>
-                <th>
-                    Trạng thái
-                </th>
-                <th @click="sort('device')" class="pointer text-nowrap" style="width: 5em;">
-                    Thiết bị
-                    <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
-                </th>
-                <th @click="sort('created_at')" class="pointer text-nowrap" style="width: 5em;">
-                    Ngày tạo
-                    <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="(item, index) in AppleId" :key="item._id" @click="selectRow(item._id)"
-                @mouseover="isDragging ? selectRow(item._id) : null"
-                :class="{ 'selected-row': selectedRows.includes(item._id) }">
-                <td>
-                    <span v-html="index+1"></span>
-                </td>
-                <td>
-                    <span @click="CopyData(item.account)" v-html="item.account"></span>
-                    <span @click="CopyData(item.account)"><i class="fa-regular fa-copy"></i></span>
-                </td>
-                <td class="d-flex gap-1">
-                    <input class="form-control" :value="item.password" @keyup="Update($event, item._id, 'password')" />
-                    <span @click="CopyData(item.password)"><i class="fa-regular fa-copy"></i></span>
-                </td>
-                <td>
-                    <input class="form-control" :value="item.phone" @keyup="Update($event, item._id, 'phone')" />
-                </td>
-                <td>
-                    <input class="form-control" :value="item.mail" type="email"
-                        @keyup="Update($event, item._id, 'mail')" />
-                </td>
-                <td class="d-flex gap-1">
-                    <input class="form-control" :value="item.question" type="text"
-                        @keyup="Update($event, item._id, 'question')" />
-                        <span @click="CopyData(item.question)"><i class="fa-regular fa-copy"></i></span>
-                </td>
-                <td>
-                    <input class="form-control" :value="item.country" type="text"
-                        @keyup="Update($event, item._id, 'country')" />
-                </td>
-                <td>
-                    <input class="form-control" :value="item.birthday" type="text"
-                        @keyup="Update($event, item._id, 'birthday')" />
-                </td>
-                <td>
-                    <input class="form-control" :value="item.status" type="text"
-                        @keyup="Update($event, item._id, 'status')" />
-                </td>
-                <td>
-                    <input class="form-control" style="min-width: 8em;" :value="item.device"
-                        @keyup="Update($event, item._id, 'device')" />
-                </td>
-                <td>
-                    <span v-html="item.created_at" class="text-center text-wrap"></span>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="float-end d-flex gap-3 mb-3">
+      <a
+        href="/appleId/form_get"
+        class="btn btn-primary"
+        data-coreui-toggle="tooltip"
+        data-coreui-placement="top"
+        data-coreui-title="Thêm mail mới"
+      >
+        <i class="fa-solid fa-plus"></i>
+      </a>
 
-    <div class="my-4 d-flex justify-content-between">
-        <div>
-            <p>hiển thị: <span class="text-danger fw-bold" v-html="AppleId.length"></span> của <span
-                    class="text-danger fw-bold" v-html="totalResults"></span> kết quả</p>
-        </div>
-        <div v-if="totalPages > 1" class="btn-group gap-2">
-            <button @click="changePage(current_page - 1)" :disabled="current_page === 1" class="btn btn-info">
-                Trước
-            </button>
+      <span
+        v-on:click="ExportExcel"
+        class="btn btn-success"
+        data-coreui-toggle="tooltip"
+        data-coreui-placement="top"
+        data-coreui-title="Xuất dữ liệu ra excel"
+      >
+        <i class="fa-solid fa-file-excel"></i>
+      </span>
 
-            <button v-for="page in pagesToShow" :key="page" @click="changePage(page)"
-                :class="{ 'btn-danger': current_page === page, btn: true }" class="btn">
-                <span v-html="page"></span>
-            </button>
-
-            <button @click="changePage(current_page + 1)" :disabled="current_page === totalPages" class="btn btn-info">
-                Tiếp
-            </button>
-        </div>
+      <span
+        class="btn btn-danger"
+        data-coreui-toggle="tooltip"
+        data-coreui-placement="top"
+        v-on:click="deleteSelectAppleId"
+        data-coreui-title="Xoá mail đang chọn"
+      >
+        <i class="fa-solid fa-trash"></i>
+      </span>
     </div>
+  </div>
 
+  <table
+    class="table table-hover table-striped table-bordered"
+    @mousedown="startDrag"
+    @mouseup="stopDrag"
+  >
+    <thead class="table-primary">
+      <tr>
+        <th @click="sort('_id')" class="pointer" style="width: 5em">
+          STT
+          <span class="opacity-25 mx-2"
+            ><i class="fa-solid fa-arrows-up-down"></i
+          ></span>
+        </th>
+        <th>AccountId</th>
+        <th>Mật khẩu</th>
+        <th>Số điện thoại</th>
+        <th>Mail</th>
+        <th>Câu hỏi bảo mật</th>
+        <th>Quốc gia</th>
+        <th>Năm sinh</th>
+        <th>Trạng thái</th>
+        <th
+          @click="sort('device')"
+          class="pointer text-nowrap"
+          style="width: 5em"
+        >
+          Thiết bị
+          <span class="opacity-25 mx-2"
+            ><i class="fa-solid fa-arrows-up-down"></i
+          ></span>
+        </th>
+        <th
+          @click="sort('created_at')"
+          class="pointer text-nowrap"
+          style="width: 5em"
+        >
+          Ngày tạo
+          <span class="opacity-25 mx-2"
+            ><i class="fa-solid fa-arrows-up-down"></i
+          ></span>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        v-for="(item, index) in AppleId"
+        :key="item._id"
+        @click="selectRow(item._id)"
+        @mouseover="isDragging ? selectRow(item._id) : null"
+        :class="{ 'selected-row': selectedRows.includes(item._id) }"
+      >
+        <td>
+          <span v-html="index+1"></span>
+        </td>
+        <td>
+          <span @click="CopyData(item.account)" v-html="item.account"></span>
+          <span @click="CopyData(item.account)"
+            ><i class="fa-regular fa-copy"></i
+          ></span>
+        </td>
+        <td class="d-flex gap-1">
+          <input
+            class="form-control"
+            :value="item.password"
+             @focus="focus_input_id = item._id"
+                        @blur="focus_input_id = ''"
+            @keyup="debouncedUpdate($event, item._id, 'password')"
+          />
+          <span @click="CopyData(item.password)"
+            ><i class="fa-regular fa-copy"></i
+          ></span>
+        </td>
+        <td>
+          <input
+            class="form-control"
+            :value="item.phone"
+             @focus="focus_input_id = item._id"
+                        @blur="focus_input_id = ''"
+            @keyup="debouncedUpdate($event, item._id, 'phone')"
+          />
+        </td>
+        <td>
+          <input
+            class="form-control"
+            :value="item.mail"
+            type="email"
+             @focus="focus_input_id = item._id"
+                        @blur="focus_input_id = ''"
+            @keyup="debouncedUpdate($event, item._id, 'mail')"
+          />
+        </td>
+        <td class="d-flex gap-1">
+          <input
+            class="form-control"
+            :value="item.question"
+            type="text"
+             @focus="focus_input_id = item._id"
+                        @blur="focus_input_id = ''"
+            @keyup="debouncedUpdate($event, item._id, 'question')"
+          />
+          <span @click="CopyData(item.question)"
+            ><i class="fa-regular fa-copy"></i
+          ></span>
+        </td>
+        <td>
+          <input
+            class="form-control"
+            :value="item.country"
+            type="text"
+             @focus="focus_input_id = item._id"
+                        @blur="focus_input_id = ''"
+            @keyup="debouncedUpdate($event, item._id, 'country')"
+          />
+        </td>
+        <td>
+          <input
+            class="form-control"
+            :value="item.birthday"
+            type="text"
+             @focus="focus_input_id = item._id"
+                        @blur="focus_input_id = ''"
+            @keyup="debouncedUpdate($event, item._id, 'birthday')"
+          />
+        </td>
+        <td>
+          <input
+            class="form-control"
+            :value="item.status"
+            type="text"
+             @focus="focus_input_id = item._id"
+                        @blur="focus_input_id = ''"
+            @keyup="debouncedUpdate($event, item._id, 'status')"
+          />
+        </td>
+        <td>
+          <input
+            class="form-control"
+            style="min-width: 8em"
+            :value="item.device"
+            @keyup="debouncedUpdate($event, item._id, 'device')"
+          />
+        </td>
+        <td>
+          <span v-html="item.created_at" class="text-center text-wrap"></span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="my-4 d-flex justify-content-between">
+    <div>
+      <p>
+        hiển thị:
+        <span class="text-danger fw-bold" v-html="AppleId.length"></span> của
+        <span class="text-danger fw-bold" v-html="totalResults"></span> kết quả
+      </p>
+    </div>
+    <div v-if="totalPages > 1" class="btn-group gap-2">
+      <button
+        @click="changePage(current_page - 1)"
+        :disabled="current_page === 1"
+        class="btn btn-info"
+      >
+        Trước
+      </button>
+
+      <button
+        v-for="page in pagesToShow"
+        :key="page"
+        @click="changePage(page)"
+        :class="{ 'btn-danger': current_page === page, btn: true }"
+        class="btn"
+      >
+        <span v-html="page"></span>
+      </button>
+
+      <button
+        @click="changePage(current_page + 1)"
+        :disabled="current_page === totalPages"
+        class="btn btn-info"
+      >
+        Tiếp
+      </button>
+    </div>
+  </div>
 </div>
 
-
-
-
-{% endblock %}
-
-{% block script %}
+{% endblock %} {% block script %}
 
 <script>
-    var app_vue = new Vue({
-        el: '#app',
-        data: {
-            AppleId: [],
-            search: "",
-            device: [],
-            filter_device: "",
-            country: [],
-            filter_country: '',
-            status: [],
-            filter_status: "",
-            current_page: 1,
-            pageSize: 25,
-            totalPages: 0,
-            totalResults: 0,
-            order_by: "created_at",
-            order_type: -1,
-            selectedRows: [],
-            isDragging: false,
-        },
-        created() {
-            this.debouncedSearch = _.debounce(this.getAppleId, 300);
-        },
-        mounted() {
-            this.getAppleId();
-        },
-        computed: {
-            pagesToShow() {
-                const pages = [];
-                const startPage = Math.max(1, this.current_page - 3);
-                const endPage = Math.min(this.totalPages, this.current_page + 3);
+  var app_vue = new Vue({
+    el: "#app",
+    data: {
+      AppleId: [],
+      search: "",
+      device: [],
+      filter_device: "",
+      country: [],
+      filter_country: "",
+      status: [],
+      filter_status: "",
+      current_page: 1,
+      pageSize: 25,
+      totalPages: 0,
+      totalResults: 0,
+      order_by: "created_at",
+      order_type: -1,
+      selectedRows: [],
+      isDragging: false,
+      focus_input_id: ""
+    },
+    created() {
+      this.debouncedSearch = _.debounce(this.getAppleId, 300);
+      this.debouncedUpdate = _.debounce(this.Update, 500);
+    },
+    mounted() {
+      this.getAppleId();
+    },
+    computed: {
+      pagesToShow() {
+        const pages = [];
+        const startPage = Math.max(1, this.current_page - 3);
+        const endPage = Math.min(this.totalPages, this.current_page + 3);
 
-                for (let i = startPage; i <= endPage; i++) {
-                    pages.push(i);
-                }
-
-                console.log(pages);
-
-                return pages;
-            }
-        },
-        methods: {
-            getAppleId() {
-                $("table").LoadingOverlay("show", {
-                    background: "rgba(165, 190, 100, 0.5)"
-                });
-                fetch("/appleId/get_data", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        search: this.search,
-                        device: this.filter_device,
-                        country: this.filter_country,
-                        page: this.current_page,
-                        pageSize: this.pageSize,
-                        order_by: this.order_by,
-                        order_type: this.order_type,
-                        status: this.filter_status,
-                    }),
-                }).then((response) => {
-                    $("table").LoadingOverlay("hide", true);
-                    return response.json();
-                }).then((data) => {
-                    this.AppleId = data.data;
-                    this.totalResults = data.totalResults;
-                    this.totalPages = data.totalPages;
-                    this.device = data.list_devices;
-                    this.country = data.list_country;
-                    this.status = data.list_status;
-                    this.page = data.page;
-                }).catch((error) => {
-                    console.log(error);
-                });
-
-            },
-            sort(field) {
-                this.order_by = field;
-                this.order_type = this.order_type === -1 ? 1 : -1;
-                this.page = 1;
-                this.getAppleId();
-            },
-            changePage(page) {
-                if (page >= 1 && page <= this.totalPages) {
-                    this.current_page = page;
-                    this.getAppleId();
-                }
-            },
-            selectRow(id) {
-                if (this.selectedRows.includes(id)) {
-                    this.selectedRows = this.selectedRows.filter((rowId) => rowId !== id);
-                } else {
-                    this.selectedRows.push(id);
-                }
-            },
-            startDrag() {
-                this.isDragging = true;
-            },
-            stopDrag() {
-                this.isDragging = false;
-            },
-            deleteSelectAppleId() {
-                if (this.selectedRows.length === 0) {
-                    return;
-                }
-
-                Swal.fire({
-                    title: 'Xác nhận xoá',
-                    text: 'Bạn có chắc chắn muốn xoá tài khoản đang chọn?',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Xoá',
-                    cancelButtonText: 'Hủy',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        fetch("/appleId/delete", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify({
-                                ids: this.selectedRows,
-                            }),
-                        }).then((response) => {
-                            this.getAppleId();
-                        }).catch((error) => {
-                            console.log(error);
-                        });
-                    }
-                });
-
-            },
-            ExportExcel() {
-                fetch("/appleId/get_data", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        page: this.current_page,
-                        pageSize: this.pageSize,
-                    }),
-                }).then((response) => {
-                    return response.json();
-                }).then((data) => {
-                    let data_json = data.data;
-
-                    let data_rs = []
-
-                    data_json.forEach((item, index) => {
-                        data_rs.push({
-                            "STT": index + 1,
-                            "AccountId": item.account,
-                            "Mật khẩu": item.password,
-                            "Số điện thoại": item.phone,
-                            "mail": item.mail,
-                            "Câu hỏi bảo mật": item.question,
-                            "Quốc gia": item.country,
-                            "Năm sinh": item.birthday,
-                            "Thiết bị": item.device,
-                            "Ngày tạo": item.created_at
-                        });
-                    });
-
-                    let ws = XLSX.utils.json_to_sheet(data_rs);
-                    let wb = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-                    XLSX.writeFile(wb, `appleId_page_${this.page}.xlsx`);
-
-                }).catch((error) => {
-                    console.log(error);
-                });
-
-            },
-            CopyData(data) {
-                navigator.clipboard.writeText(data);
-                Toast.fire({
-                    icon: "success",
-                    title: "Đã copy dữ liệu"
-                });
-            },
-            Update(event, id, field) {
-                console.log('Update')
-            }
-
+        for (let i = startPage; i <= endPage; i++) {
+          pages.push(i);
         }
-    });
+
+        console.log(pages);
+
+        return pages;
+      }
+    },
+    methods: {
+      getAppleId() {
+        $("table").LoadingOverlay("show", {
+          background: "rgba(165, 190, 100, 0.5)"
+        });
+        fetch("/appleId/get_data", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            search: this.search,
+            device: this.filter_device,
+            country: this.filter_country,
+            page: this.current_page,
+            pageSize: this.pageSize,
+            order_by: this.order_by,
+            order_type: this.order_type,
+            status: this.filter_status
+          })
+        })
+          .then((response) => {
+            $("table").LoadingOverlay("hide", true);
+            return response.json();
+          })
+          .then((data) => {
+            this.AppleId = data.data;
+            this.totalResults = data.totalResults;
+            this.totalPages = data.totalPages;
+            this.device = data.list_devices;
+            this.country = data.list_country;
+            this.status = data.list_status;
+            this.page = data.page;
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      },
+      sort(field) {
+        this.order_by = field;
+        this.order_type = this.order_type === -1 ? 1 : -1;
+        this.page = 1;
+        this.getAppleId();
+      },
+      changePage(page) {
+        if (page >= 1 && page <= this.totalPages) {
+          this.current_page = page;
+          this.getAppleId();
+        }
+      },
+      selectRow(id) {
+        if (this.selectedRows.includes(id)) {
+          this.selectedRows = this.selectedRows.filter((rowId) => rowId !== id);
+        } else {
+            if (this.focus_input_id !== "" && this.focus_input_id == id) {
+                return;
+            }
+          this.selectedRows.push(id);
+        }
+      },
+      startDrag() {
+        this.isDragging = true;
+      },
+      stopDrag() {
+        this.isDragging = false;
+      },
+      deleteSelectAppleId() {
+        if (this.selectedRows.length === 0) {
+          return;
+        }
+
+        Swal.fire({
+          title: "Xác nhận xoá",
+          text: "Bạn có chắc chắn muốn xoá tài khoản đang chọn?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "Xoá",
+          cancelButtonText: "Hủy"
+        }).then((result) => {
+          if (result.isConfirmed) {
+            fetch("/appleId/delete", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify({
+                ids: this.selectedRows
+              })
+            })
+              .then((response) => {
+                this.getAppleId();
+              })
+              .catch((error) => {
+                console.log(error);
+              });
+          }
+        });
+      },
+      ExportExcel() {
+        fetch("/appleId/get_data", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            page: this.current_page,
+            pageSize: this.pageSize
+          })
+        })
+          .then((response) => {
+            return response.json();
+          })
+          .then((data) => {
+            let data_json = data.data;
+
+            let data_rs = [];
+
+            data_json.forEach((item, index) => {
+              data_rs.push({
+                STT: index + 1,
+                AccountId: item.account,
+                "Mật khẩu": item.password,
+                "Số điện thoại": item.phone,
+                mail: item.mail,
+                "Câu hỏi bảo mật": item.question,
+                "Quốc gia": item.country,
+                "Năm sinh": item.birthday,
+                "Thiết bị": item.device,
+                "Ngày tạo": item.created_at
+              });
+            });
+
+            let ws = XLSX.utils.json_to_sheet(data_rs);
+            let wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+            XLSX.writeFile(wb, `appleId_page_${this.page}.xlsx`);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      },
+      CopyData(data) {
+        navigator.clipboard.writeText(data);
+        Toast.fire({
+          icon: "success",
+          title: "Đã copy dữ liệu"
+        });
+      },
+      Update(event, id, field) {
+        let value_update = event.target.value;
+        fetch("/appleId/save", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            id: id,
+            key_update: field,
+            value_update: value_update
+          })
+        })
+          .then((response) => {
+            Toast.fire({
+              icon: "success",
+              title: "Cập nhật thành công"
+            });
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
+    }
+  });
 </script>
 
 {% endblock %}

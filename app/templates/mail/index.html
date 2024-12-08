@@ -74,6 +74,12 @@ ${% block breadcrumb %}
                     Mail khôi phục
                 </th>
                 <th>
+                    f2a
+                </th>
+                <th>
+                    mật khẩu cũ
+                </th>
+                <th>
                     Số điện thoại khôi phục
                 </th>
                 <th>
@@ -104,30 +110,55 @@ ${% block breadcrumb %}
                 </td>
                 <td>
                     <input class="form-control" :value="item.password"
+                        @focus="focus_input_id = item._id"
+                        @blur="focus_input_id = ''"
                         @keyup="debouncedUpdate($event, item._id, 'password')"/>
                 </td>
                 <td>
                     <input class="form-control" :value="item.mail_recovery"
+                    @focus="focus_input_id = item._id"
+                        @blur="focus_input_id = ''"
                         @keyup="debouncedUpdate($event, item._id, 'mail_recovery')"/>
                 </td>
                 <td>
+                    <input class="form-control" :value="item.f2a"
+                    @focus="focus_input_id = item._id"
+                        @blur="focus_input_id = ''"
+                        @keyup="debouncedUpdate($event, item._id, 'f2a')"/>
+                </td>
+                <td>
+                    <input class="form-control" :value="item.old_password"
+                    @focus="focus_input_id = item._id"
+                        @blur="focus_input_id = ''"
+                        @keyup="debouncedUpdate($event, item._id, 'old_password')"/>
+                </td>
+                
+                <td>
                     <input class="form-control" :value="item.phone"
+                    @focus="focus_input_id = item._id"
+                        @blur="focus_input_id = ''"
                         @keyup="debouncedUpdate($event, item._id, 'phone')"/>
                 </td>
                 <td>
                     <input class="form-control" :value="item.birthday" type="text"
+                    @focus="focus_input_id = item._id"
+                        @blur="focus_input_id = ''"
                         @keyup="debouncedUpdate($event, item._id, 'birthday')" />
                 </td>
                 <td>
                     <input class="form-control" style="min-width: 8em;" :value="item.device"
+                    @focus="focus_input_id = item._id"
+                        @blur="focus_input_id = ''"
                         @keyup="debouncedUpdate($event, item._id, 'device')"/>
                 </td>
                 <td>
-                    <span v-html="item.created_at" class="text-center text-wrap"></span>
+                    <input class="form-control" :value="item.google_ads"
+                    @focus="focus_input_id = item._id"
+                        @blur="focus_input_id = ''"
+                        @keyup="debouncedUpdate($event, item._id, 'google_ads')"/>
                 </td>
                 <td>
-                    <input class="form-control" :value="item.google_ads"
-                        @keyup="debouncedUpdate($event, item._id, 'google_ads')"/>
+                    <span v-html="item.created_at" class="text-center text-wrap"></span>
                 </td>
             </tr>
         </tbody>
@@ -176,11 +207,12 @@ ${% block breadcrumb %}
             order_type: -1,
             selectedRows: [],
             isDragging: false,
-            isShowLoading: true
+            isShowLoading: true,
+            focus_input_id: ''
         },
         created() {
             this.debouncedSearch = _.debounce(this.getMail, 300);
-            this.debouncedUpdate = _.debounce(this.Update, 100);
+            this.debouncedUpdate = _.debounce(this.Update, 500);
         },
         mounted() {
             this.getMail();
@@ -249,6 +281,11 @@ ${% block breadcrumb %}
                   }
                   this.selectedRows = this.selectedRows.filter((rowId) => rowId !== id);
                 } else {
+
+                    if (this.focus_input_id != '' && this.focus_input_id == id){ 
+                        return;
+                    }
+
                   this.selectedRows.push(id);
                 }
             },
@@ -313,6 +350,10 @@ ${% block breadcrumb %}
                     })
                 }).then((res) => {
                     this.getMail();
+                    Toast.fire({
+                        icon: "success",
+                        title: "Cập nhật thành công"
+                    });
                 })
             },
             deleteSelectMail() {

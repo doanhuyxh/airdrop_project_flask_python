@@ -39,7 +39,7 @@ def get_devices():
 @appleId.route("/appleId/save", methods=["POST"])
 def save():
     data = request.get_json()
-    
+    id = data.get("id")
     account = data.get("account")
     password = data.get("password")
     question = data.get("question")
@@ -50,6 +50,20 @@ def save():
     device = data.get("device")
     status = data.get("status")
     created_at = data.get("created_at")
+    
+    key_update = data.get("key_update")
+    value_update = data.get("value_update")
+    
+    if id:
+        current_app.apple_id.update_one({
+            "_id": ObjectId(id)
+        }, {
+            "$set": {
+                key_update: value_update
+            }
+        })
+        
+        return jsonify({"code": 200, "message": "Data updated successfully"})
     
     if created_at is None:
         created_at = datetime.now().strftime("%d/%m/%Y")

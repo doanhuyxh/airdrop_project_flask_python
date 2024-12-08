@@ -117,10 +117,24 @@ def form_mail():
     birthday = request.json.get("birthday")
     mail_recovery = request.json.get("mail_recovery")
     google_ads = request.json.get("google_ads")
+    f2a = request.json.get("f2a")
+    old_password = request.json.get("old_password")
     key = request.json.get("key")
     value_update = request.json.get("value_update")
 
     if _id:
+        
+        if key == "password":
+            mail_data = current_app.mail.find_one({"_id": ObjectId(_id)})
+            current_app.mail.update_one(
+                {"_id": ObjectId(_id)},
+                {
+                    "$set": {
+                        "old_password": mail_data["password"],
+                    }
+                },
+            )
+            
         current_app.mail.update_one(
             {"_id": ObjectId(_id)},
             {
@@ -129,10 +143,22 @@ def form_mail():
                 }
             },
         )
+        
         return jsonify({"code": 200, "message": "Dữ liệu đã được cập nhật"})
 
     check_mail_exist = current_app.mail.find_one({"mail": mail})
     if check_mail_exist:
+        
+        if check_mail_exist["password"] != password:
+            current_app.mail.update_one(
+                {"_id": check_mail_exist["_id"]},
+                {
+                    "$set": {
+                        "old_password": check_mail_exist["password"],
+                        "password": password,
+                    }
+                })
+        
         current_app.mail.update_one(
             {"_id": check_mail_exist["_id"]},
             {
@@ -143,6 +169,7 @@ def form_mail():
                     "birthday": birthday,
                     "mail_recovery": mail_recovery,
                     "google_ads": google_ads,
+                    "f2a": f2a,
                 }
             },
         )
@@ -157,6 +184,8 @@ def form_mail():
                 "mail_recovery": mail_recovery,
                 "google_ads": google_ads,
                 "created_at": datetime.now(),
+                "f2a": f2a,
+                "old_password": "",
             }
         )
 
