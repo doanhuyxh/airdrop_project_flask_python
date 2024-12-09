@@ -31,6 +31,14 @@ def index():
 def form_create():
     return render_template("mail/form.html")
 
+@mail.route("/mail/update_form", methods=["GET"])
+def form_update():
+    id = request.args.get("id")
+    if id:
+        mail_data = current_app.mail.find_one({"_id": ObjectId(id)})
+        mail_data["_id"] = str(mail_data["_id"])
+        return render_template("mail/update_form.html", mail_data=mail_data)
+    return render_template("mail/update_form.html")
 
 @mail.route("/mail/get_data", methods=["POST"])
 def get_data():

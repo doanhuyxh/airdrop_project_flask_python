@@ -1,0 +1,89 @@
+<div class="mb-3">
+  <label for="mail" class="form-label w-100">Email</label>
+  <input
+    t
+    class="form-control"
+    id="mail"
+    name="mail"
+    value="{{ mail_data['mail'] if mail_data else '' }}"
+    required
+  />
+</div>
+
+<div class="mb-3">
+  <label for="password" class="form-label w-100">Mật khẩu</label>
+  <input
+    type="text"
+    class="form-control"
+    id="password"
+    name="password"
+    value="{{ mail_data['password'] if mail_data else '' }}"
+    required
+  />
+</div>
+
+<div class="mb-3">
+  <label for="mail" class="form-label w-100">Mail khôi phục</label>
+  <input
+    class="form-control"
+    id="mail_recovery"
+    name="mail_recovery"
+    value="{{ mail_data['mail_recovery'] if mail_data else '' }}"
+    required
+  />
+</div>
+
+<div class="mb-3">
+  <label for="mail" class="form-label w-100">2FA</label>
+  <input
+    class="form-control"
+    id="f2a"
+    name="f2a"
+    value="{{ mail_data['f2a'] if mail_data else '' }}"
+    required
+  />
+</div>
+
+<div class="mb-3">
+  <label for="phone" class="form-label w-100">Số điện thoại khôi phục</label>
+  <input
+    class="form-control"
+    id="phone"
+    name="phone"
+    value="{{ mail_data['phone'] if mail_data else '' }}"
+    required
+  />
+</div>
+
+<div class="mb-3">
+  <label for="birthday" class="form-label w-100">Ngày sinh</label>
+  <input
+    class="form-control"
+    id="birthday"
+    name="birthday"
+    value="{{ mail_data['birthday'] if mail_data else '' }}"
+    required
+  />
+</div>
+
+<div class="mb-3">
+  <label for="device" class="form-label w-100">Thiết bị</label>
+  <input
+    class="form-control"
+    id="device"
+    name="device"
+    value="{{ mail_data['device'] if mail_data else '' }}"
+    required
+  />
+</div>
+
+<div class="mb-3">
+  <label for="google_ads" class="form-label w-100">Google Ads</label>
+  <input
+    class="form-control"
+    id="google_ads"
+    name="google_ads"
+    value="{{ mail_data['google_ads'] if mail_data else '' }}"
+    required
+  />
+</div>

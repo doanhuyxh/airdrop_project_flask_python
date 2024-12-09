@@ -37,6 +37,10 @@ ${% block breadcrumb %}
         </div>
 
         <div class="float-end d-flex gap-3 mb-3">
+            
+            <div class="opacity-50">
+                <span>Click phải chuột vào hàng để cập nhập</span>
+            </div>
 
             <a href="/mail/form_get" class="btn btn-primary" data-coreui-toggle="tooltip" data-coreui-placement="top"
                 data-coreui-title="Thêm mail mới">
@@ -73,7 +77,7 @@ ${% block breadcrumb %}
                     Mail khôi phục
                 </th>
                 <th>
-                    f2a
+                    2FA
                 </th>
                 <th>
                     mật khẩu cũ
@@ -100,6 +104,7 @@ ${% block breadcrumb %}
         <tbody>
             <tr v-for="(item, index) in mail" :key="item._id" @click="selectRow(item._id)"
                 @mouseover="isDragging ? selectRow(item._id) : null"
+                @contextmenu.prevent="showContextMenu($event, item._id)"
                 :class="{ 'selected-row': selectedRows.includes(item._id) }">
                 <td>
                     <span v-html="index+1"></span>
@@ -108,52 +113,60 @@ ${% block breadcrumb %}
                     <span class="px-3 py-2" style="background:transparent" @click="CopyData(item.mail)" v-html="item.mail" title="click to copy"></span>
                 </td>
                 <td>
-                    <input class="form-control" :value="item.password"
+                    <input class="form-control fit_content" :value="item.password"
                         @focus="focus_input_id = item._id"
                         @blur="focus_input_id = ''"
+                        disabled
                         @keyup="debouncedUpdate($event, item._id, 'password')"/>
                 </td>
                 <td>
-                    <input class="form-control" :value="item.mail_recovery"
+                    <input class="form-control fit_content" :value="item.mail_recovery"
                     @focus="focus_input_id = item._id"
                         @blur="focus_input_id = ''"
+                        disabled
                         @keyup="debouncedUpdate($event, item._id, 'mail_recovery')"/>
                 </td>
                 <td>
-                    <input class="form-control" :value="item.f2a"
+                    <input class="form-control fit_content" :value="item.f2a"
                     @focus="focus_input_id = item._id"
                         @blur="focus_input_id = ''"
+                        disabled
                         @keyup="debouncedUpdate($event, item._id, 'f2a')"/>
                 </td>
                 <td>
-                    <input class="form-control" :value="item.old_password"
+                    <input class="form-control fit_content" :value="item.old_password"
                     @focus="focus_input_id = item._id"
                         @blur="focus_input_id = ''"
+                        disabled
                         @keyup="debouncedUpdate($event, item._id, 'old_password')"/>
                 </td>
                 
                 <td>
-                    <input class="form-control" :value="item.phone"
+                    <input class="form-control fit_content" :value="item.phone"
                     @focus="focus_input_id = item._id"
                         @blur="focus_input_id = ''"
+                        disabled
                         @keyup="debouncedUpdate($event, item._id, 'phone')"/>
                 </td>
                 <td>
-                    <input class="form-control" :value="item.birthday" type="text"
+                    <input class="form-control fit_content" :value="item.birthday" type="text"
                     @focus="focus_input_id = item._id"
                         @blur="focus_input_id = ''"
+                        disabled
                         @keyup="debouncedUpdate($event, item._id, 'birthday')" />
                 </td>
                 <td>
-                    <input class="form-control" style="min-width: 8em;" :value="item.device"
+                    <input class="form-control fit_content" style="min-width: 8em;" :value="item.device"
                     @focus="focus_input_id = item._id"
                         @blur="focus_input_id = ''"
+                        disabled
                         @keyup="debouncedUpdate($event, item._id, 'device')"/>
                 </td>
                 <td>
-                    <input class="form-control" :value="item.google_ads"
+                    <input class="form-control fit_content" :value="item.google_ads"
                     @focus="focus_input_id = item._id"
                         @blur="focus_input_id = ''"
+                        disabled
                         @keyup="debouncedUpdate($event, item._id, 'google_ads')"/>
                 </td>
                 <td>
@@ -336,6 +349,8 @@ ${% block breadcrumb %}
                     });
             },
             Update(event, id, field) {
+                return
+
                 this.isShowLoading = false;
                 let value = event.target.value;
                 fetch("/mail/save", {
@@ -394,10 +409,54 @@ ${% block breadcrumb %}
                         title: "Đã sao chép"
                     });
                 });
+            },
+            showContextMenu($event, id){
+                $("#ModelBody").load("/mail/update_form?id=" + id, function(){
+                    $("#staticBackdropLabel").text("Cập nhật mail");
+                    $("#staticBackdrop").modal("show");
+                });
             }
         }
     });
 
+
+    function Save_Modal(){
+        let mail = $("#mail").val(); 
+        let password = $("#password").val();
+        let mail_recovery = $("#mail_recovery").val();
+        let f2a = $("#f2a").val();
+        let phone = $("#phone").val();
+        let birthday = $("#birthday").val();
+        let device = $("#device").val();
+        let google_ads = $("#google_ads").val();
+
+        fetch("/mail/save", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email: mail,
+                password: password,
+                device: device,
+                phone: phone,
+                birthday: birthday,
+                mail_recovery: mail_recovery,
+                f2a: f2a,
+                google_ads: google_ads
+            })
+        })
+        .then((res) => {
+            app_vue.getMail();
+            Toast.fire({
+                icon: "success",
+                title: "Cập nhật thành công"
+            });
+            $("#staticBackdrop").modal("hide");
+        })
+
+
+    }
     
   $(document).ready(function () {
     window.addEventListener("keydown", function (e) {

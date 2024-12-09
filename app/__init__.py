@@ -98,7 +98,9 @@ def create_app():
         else:
             code = 500        
         stack_trace = traceback.format_exc()
-        print(request.get_data(as_text=True))
+        ip_address = request.remote_addr
+        if ip_address != "127.0.0.1" and ip_address != "localhost" and ip_address != "::1":
+            stack_trace = ""
         return (
             jsonify({"code": code, "message": str(e), "data":[], "stack_trace": stack_trace }),
             200,

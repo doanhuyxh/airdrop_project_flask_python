@@ -246,9 +246,7 @@
   overflow-y: auto;
   white-space: nowrap;
 }
-.table-container::-webkit-scrollbar {
-  display: none; /* Ẩn scrollbar trên Chrome, Safari, Edge */
-}
+
 table {
   user-select: none;
 }
@@ -265,6 +263,11 @@ th{
   word-wrap: break-word;
 }
 
+.fit_content{
+  white-space: nowrap;
+  width: fit-content !important;
+}
+
 span {
   max-width: 250px;
   white-space: normal;
@@ -273,6 +276,23 @@ span {
   text-align: center;
 }
 
-input {
-  width: fit-content !important;
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888; 
+  border-radius: 20px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
 }
