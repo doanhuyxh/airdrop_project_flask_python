@@ -46,8 +46,8 @@ def login_post():
     token = create_token(str(user.get("_id")), user.get("username"))
     refresh_token = create_refresh_token(str(user.get("_id")), user.get("username"))
     response = jsonify({"code": 200, "message": "Login successfully", "token": token})
-    response.set_cookie('token', token, httponly=True, secure=False, path='/', expires=datetime.now() + timedelta(minutes=10))
-    response.set_cookie('refresh_token', refresh_token, httponly=True, secure=False,  path='/', expires=datetime.now() + timedelta(days=1))
+    response.set_cookie('token', token, httponly=True, secure=True, path='/', expires=datetime.now() + timedelta(minutes=10))
+    response.set_cookie('refresh_token', refresh_token, httponly=True, secure=True,  path='/', expires=datetime.now() + timedelta(days=1))
     
     
     return response, 200

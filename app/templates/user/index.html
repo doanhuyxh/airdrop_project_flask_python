@@ -36,19 +36,40 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, index) in users" :key={index}>
+            <tr v-for="(item, index) in users" :key="{index}">
               <td v-html="index+1"></td>
-              <td v-html="item.username">
-              </td>
+              <td v-html="item.username"></td>
               <td>
                 <span class="badge bg-primary" v-html="item.role"></span>
               </td>
               <td v-html="item.email"></td>
               <td>
-               <span class="badge bg-warning" v-html="item.password">********</span>
+                <input
+                  type="text"
+                  class="form-control"
+                  :value="item.password"
+                  @keyup="UpdateUser($event, item._id, 'password')"
+                />
               </td>
               <td>
-                <span class="badge bg-success" v-html="item.status"></span>
+                <div class="dropdown">
+                  <button class="btn dropdown-toggle" type="button" data-coreui-toggle="dropdown">
+                    <span v-if="item.status === 'active'" class="badge bg-success" v-html="item.status"></span>
+                    <span v-else-if="item.status === 'de_active'" class="badge bg-warning" v-html="item.status"></span>
+                    <span v-else-if="item.status === 'block'" class="badge bg-danger" v-html="item.status"></span>
+                  </button>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a class="dropdown-item" href="javascript:void(0)" @click="UpdateUser($event, item._id, 'status')">active</a>
+                    </li>
+                    <li>
+                      <a class="dropdown-item" href="javascript:void(0)" @click="UpdateUser($event, item._id, 'status')">de_active</a>
+                    </li>
+                    <li>
+                      <a class="dropdown-item" href="javascript:void(0)" @click="UpdateUser($event, item._id, 'status')">block</a>
+                    </li>
+                  </ul>
+                </div>                
               </td>
             </tr>
           </tbody>
@@ -78,6 +99,26 @@
             this.users = data.data;
             console.log(this.users);
           });
+      },
+      UpdateUser($event, id, key) {
+        let value = $event.target.innerText;
+        fetch("/user/update", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            id: id,
+            key_update: key,
+            value_update: value
+          })
+        }).then((response) => {
+          Toast.fire({
+            icon: "success",
+            title: "Cập nhật thành công"
+          });
+          this.getUsers();
+        });
       }
     }
   });
