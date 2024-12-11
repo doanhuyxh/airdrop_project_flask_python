@@ -1,0 +1,550 @@
+{% extends "share/Main_Layout.html" %}
+
+{% block title %}Facebook{% endblock %}
+
+${% block breadcrumb %}
+
+<div class="container-fluid px-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb my-0">
+            <li class="breadcrumb-item"><span>Quản lý tài khoản facebook</span></li>
+        </ol>
+    </nav>
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="shadow-lg bg-body rounded px-5 pt-4 pb-5">
+    <p class="text-center h4">Tài khoản facebook</p>
+
+    <div class="w-100">
+
+        <div class="float-start d-flex gap-3 mb-3">
+            <div class="">
+                <select class="form-control" v-model="filter_device" @change="current_page = 1; getMail()">
+                    <option value="">Thiết bị (tất cả)</option>
+                    <option v-for="item in device" :key="item" :value="item" v-html="item"></option>
+                </select>
+            </div>
+
+            <div>
+                <input type="text" class="form-control" style="width: 50rem !important" v-model="search" placeholder="tìm kiếm email hoặc số điện thoại mật khẩu mail khôi phục số điện thoại ngày sinh facebook ads ..."
+                    v-on:keyup="debouncedSearch" />
+            </div>
+
+        </div>
+
+        <div class="float-end d-flex gap-3 mb-3">
+            
+            <div class="opacity-50">
+                <span>Click phải chuột vào hàng để cập nhập</span>
+            </div>
+
+            <a href="/facebook/form_get" class="btn btn-primary" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                data-coreui-title="Thêm mail mới">
+                <i class="fa-solid fa-plus"></i>
+            </a>
+
+            <span v-on:click="ExportExcel" class="btn btn-success" data-coreui-toggle="tooltip"
+                data-coreui-placement="top" data-coreui-title="Xuất dữ liệu ra excel">
+                <i class="fa-solid fa-file-excel"></i>
+            </span>
+
+
+            <span class="btn btn-danger" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                v-on:click="deleteSelectFacebook" data-coreui-title="Xoá mail đang chọn">
+                <i class="fa-solid fa-trash"></i>
+            </span>
+        </div>
+    </div>
+    <div style="overflow-x: auto; white-space: nowrap;" class="w-100">
+    <table class="table table-hover table-striped table-bordered">
+        <thead class="table-primary">
+            <tr>
+                <th @click="sort('_id')" class="pointer" style="width: 5em;">
+                    STT
+                    <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                </th>
+                <th>
+                    Tài khoản
+                </th>
+                <th>
+                    Mật khẩu
+                </th>
+                <th>
+                    Mã đồng bộ messenger
+                </th>
+                <th>
+                    Email đăng ký
+                </th>
+                <th>
+                    Mật khẩu mail đăng ký
+                </th>
+                <th>
+                    Số điện thoại khôi phục
+                </th>
+                <th>
+                    Email khôi phục
+                </th>
+                <th>
+                    Mật khẩu khôi phục
+                </th>
+                <th>
+                    Link profile
+                </th>
+                <th>
+                    Facebook Ads
+                </th>
+                <th @click="sort('device')" class="pointer" style="width: 5em;">
+                    Thiết bị
+                    <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                </th>
+                
+                <th @click="sort('created_at')" class="pointer text-nowrap" style="width: 5em;">
+                    Ngày tạo
+                    <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="(item, index) in facebook" :key="item._id" @click="selectRow(item._id)"
+                @mouseover="isDragging ? selectRow(item._id) : null"
+                @contextmenu.prevent="showContextMenu($event, item._id)"
+                :class="{ 'selected-row': selectedRows.includes(item._id) }">
+                <td>
+                    <span v-html="index+1"></span>
+                </td>
+                
+                <td class="">
+                    <div class="d-flex gap-1">
+                    <span v-html="item.account" class="text-center text-wrap"></span>
+                    <span v-if="item.account" @click="CopyData(item.account)">
+                        <i style="color:blue"  class="fa-solid fa-copy pointer"></i>
+                    </span>
+                </div>
+                </td>
+
+                <td class="">
+                    <div class="d-flex gap-1">
+                    <span v-html="item.password" class="text-center text-wrap"></span>
+                    <span class="btn-primary" v-if="item.password" @click="CopyData(item.password)">
+                        <i style="color:blue"  class="fa-solid fa-copy pointer"></i>
+                    </span>
+                </div>
+                </td>
+
+                <td class="">
+                    <div class="d-flex gap-1">
+                    <span v-html="item.sync_code" class="text-center text-wrap"></span>
+                    <span class="btn-primary" v-if="item.sync_code" @click="CopyData(item.sync_code)">
+                        <i style="color:blue"  class="fa-solid fa-copy pointer"></i>
+                    </span>
+                </div>
+                </td>
+
+                <td class="">
+                    <div class="d-flex gap-1">
+                    <span v-html="item.email_reg" class="text-center text-wrap"></span>
+                    <span class="btn-primary" v-if="item.email_reg" @click="CopyData(item.email_reg)">
+                        <i style="color:blue"  class="fa-solid fa-copy pointer"></i>
+                    </span>
+                </div>
+                </td>
+
+                <td class="">
+                    <div class="d-flex gap-1">
+                    <span v-html="item.email_reg_pass" class="text-center text-wrap"></span>
+                    <span class="btn-primary" v-if="item.email_reg_pass" @click="CopyData(item.email_reg_pass)">
+                        <i style="color:blue"  class="fa-solid fa-copy pointer"></i>
+                    </span>
+                </div>
+                </td>
+
+                <td class="">
+                    <div class="d-flex gap-1">
+                    <span v-html="item.phone" class="text-center text-wrap"></span>
+                    <span class="btn-primary" v-if="item.phone" @click="CopyData(item.phone)">
+                        <i style="color:blue"  class="fa-solid fa-copy pointer"></i>
+                    </span>
+                </div>
+                </td>
+
+                <td class="">
+                    <div class="d-flex gap-1">
+                    <span v-html="item.email_recovery" class="text-center text-wrap"></span>
+                    <span class="btn-primary" v-if="item.email_recovery" @click="CopyData(item.email_recovery)">
+                        <i style="color:blue"  class="fa-solid fa-copy pointer"></i>
+                    </span>
+                </div>
+                </td>
+
+                <td class="">
+                    <div class="d-flex gap-1">
+                    <span v-html="item.email_recovery_pass" class="text-center text-wrap"></span>
+                    <span class="btn-primary" v-if="item.email_recovery_pass" @click="CopyData(item.email_recovery_pass)">
+                        <i style="color:blue"  class="fa-solid fa-copy pointer"></i>
+                    </span>
+                </div>
+                </td>
+
+                <td class="">
+                    <div class="d-flex gap-1">
+                    <span v-html="item.profile_link" class="text-center text-wrap"></span>
+                    <span class="btn-primary" v-if="item.profile_link" @click="CopyData(item.profile_link)">
+                        <i style="color:blue"  class="fa-solid fa-copy pointer"></i>
+                    </span>
+                </div>
+                </td>
+
+                <td class="">
+                    <div class="d-flex gap-1">
+                    <span v-html="item.facebook_ads" class="text-center text-wrap"></span>
+                    <span class="btn-primary" v-if="item.facebook_ads" @click="CopyData(item.facebook_ads)">
+                        <i style="color:blue"  class="fa-solid fa-copy pointer"></i>
+                    </span>
+                </div>
+                </td>
+
+                <td class="">
+                    <div class="d-flex gap-1">
+                    <span v-html="item.device" class="text-center text-wrap"></span>
+                    <span class="btn-primary" v-if="item.device" @click="CopyData(item.device)">
+                        <i style="color:blue"  class="fa-solid fa-copy pointer"></i>
+                    </span>
+                </div>
+                </td>                
+
+                <td>
+                    <span v-html="item.created_at" class="text-center text-wrap"></span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    </div>
+    <div class="my-4 d-flex justify-content-between">
+        <div>
+            <p>hiển thị: <span class="text-danger fw-bold" v-html="facebook.length"></span> của <span
+                    class="text-danger fw-bold" v-html="totalResults"></span> kết quả</p>
+        </div>
+        <div v-if="totalPages > 1" class="btn-group gap-2">
+            <button @click="changePage(current_page - 1)" :disabled="current_page === 1" class="btn btn-info">
+                Trước
+            </button>
+
+            <button v-for="page in pagesToShow" :key="page" @click="changePage(page)"
+                :class="{ 'btn-danger': current_page === page, btn: true }" class="btn">
+                <span v-html="page"></span>
+            </button>
+
+            <button @click="changePage(current_page + 1)" :disabled="current_page === totalPages" class="btn btn-info">
+                Tiếp
+            </button>
+        </div>
+    </div>
+</div>
+
+</div>
+
+{% endblock %}
+
+{% block script %}
+
+<script>
+    var app_vue = new Vue({
+        el: '#app',
+        data: {
+            facebook: [],
+            search: "",
+            device: [],
+            filter_device: "",
+            current_page: 1,
+            pageSize: 25,
+            totalPages: 0,
+            totalResults: 0,
+            order_by: "created_at",
+            order_type: -1,
+            selectedRows: [],
+            isDragging: false,
+            isShowLoading: true,
+            focus_input_id: ''
+        },
+        created() {
+            this.debouncedSearch = _.debounce(this.getFacebook, 300);
+            this.debouncedUpdate = _.debounce(this.Update, 500);
+        },
+        mounted() {
+            this.getDevices();
+            this.getFacebook();
+        },
+        computed: {
+            pagesToShow() {
+                const pages = [];
+                const startPage = Math.max(1, this.current_page - 3);
+                const endPage = Math.min(this.totalPages, this.current_page + 3);
+
+                for (let i = startPage; i <= endPage; i++) {
+                    pages.push(i);
+                }
+
+                return pages;
+            }
+        },
+        methods: {
+            getDevices() {
+                fetch("/facebook/get_devices")
+                    .then(response => response.json())
+                    .then(res => {
+                        this.device = res.data;
+                    });
+            },
+            getFacebook() {
+                if (this.isShowLoading){
+
+                    $("table").LoadingOverlay("show", {
+                        background: "rgba(165, 190, 100, 0.5)"
+                    });
+                }
+                fetch(`/facebook/get_data`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        page: this.current_page,
+                        pageSize: this.pageSize,
+                        order_by: this.order_by,
+                        search: this.search,
+                        device: this.filter_device,
+                        order_type: this.order_type
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        this.facebook = data.data;
+                        this.totalPages = data.totalPages;
+                        this.totalResults = data.totalResults;
+                        $("table").LoadingOverlay("hide");
+                        this.isShowLoading = true;
+                    });
+            },
+            sort(field) {
+                this.order_by = field;
+                this.order_type = this.order_type === -1 ? 1 : -1;
+                this.page = 1;
+                this.getFacebook();
+            },
+            changePage(page) {
+                if (page >= 1 && page <= this.totalPages) {
+                    this.current_page = page;
+                    this.getFacebook();
+                }
+            },
+            selectRow(id) {
+                if (this.selectedRows.includes(id)) {
+                  if (this.isDragging) {
+                    return;
+                  }
+                  this.selectedRows = this.selectedRows.filter((rowId) => rowId !== id);
+                } else {
+
+                    if (this.focus_input_id != '' && this.focus_input_id == id){ 
+                        return;
+                    }
+
+                  this.selectedRows.push(id);
+                }
+            },
+            startDrag() {
+                this.isDragging = true;
+            },
+            stopDrag() {
+                this.isDragging = false;
+            },
+            ExportExcel() {
+                fetch(`/facebook/get_data`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        page: 1,
+                        pageSize: 1000000,
+
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        let res_data = data.data;
+                        let data_result = []
+                        for (let i = 0; i < res_data.length; i++) {
+                            data_result.push({
+                                "account": res_data[i].account,
+                                "password": res_data[i].password,
+                                "sync_code": res_data[i].sync_code,
+                                "email_reg": res_data[i].email_reg,
+                                "email_reg_pass": res_data[i].email_reg_pass,
+                                "phone": res_data[i].phone,
+                                "email_recovery": res_data[i].email_recovery,
+                                "email_recovery_pass": res_data[i].email_recovery_pass,
+                                "profile_link": res_data[i].profile_link,
+                                "facebook_ads": res_data[i].facebook_ads,
+                            });
+                        }
+                        let ws = XLSX.utils.json_to_sheet(data_result);
+                        const columnWidths = Object.keys(data_result[0]).map((key) => {
+                            const maxWidth = Math.max(
+                                ...data_result.map(row => (row[key] ? row[key].toString().length : 0)),
+                                key.length
+                            );
+                            return { wch: maxWidth + 2 };
+                        });
+                        ws['!cols'] = columnWidths;
+
+                        let wb = XLSX.utils.book_new();
+                        XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+                        // Tải file Excel xuống
+                        XLSX.writeFile(wb, `${"facebook"}.xlsx`);
+                    });
+            },
+            Update(event, id, field) {
+                return
+
+                this.isShowLoading = false;
+                let value = event.target.value;
+                fetch("/facebook/save", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        id: id,
+                        key: field,
+                        value_update: value
+                    })
+                }).then((res) => {
+                    this.getFacebook();
+                    Toast.fire({
+                        icon: "success",
+                        title: "Cập nhật thành công"
+                    });
+                })
+            },
+            deleteSelectFacebook() {
+                Swal.fire({
+                    title: "Bạn chắc chắn chứ?",
+                    text: "Sẽ xoá tất cả dữ liệu liên quan, không thể khôi phục lại!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    confirmButtonText: "Xoá!",
+                    cancelButtonColor: "#d33",
+                    cancelButtonText: "Huỷ",
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        if (this.selectedRows.length == 0) {
+                            Toast.fire({
+                                icon: "error",
+                                title: "Không có dữ liệu để xoá"
+                            });
+                            return;
+                        }
+                        this.selectedRows.forEach(async item => {
+                            await fetch("/facebook/delete?id=" + item)
+                        });
+                        Swal.fire({
+                            title: "Xoá thành công",
+                            icon: "success"
+                        }).then(() => {
+                            this.getFacebook();
+                        });
+                    }
+                });
+            },
+            CopyData(value) {
+                navigator.clipboard.writeText(value).then(() => {
+                    Toast.fire({
+                        icon: "success",
+                        title: "Đã sao chép"
+                    });
+                });
+            },
+            showContextMenu($event, id){
+                $("#ModelBody").load("/facebook/update_form?id=" + id, function(){
+                    $("#staticBackdropLabel").text("Cập nhật tài khoản Facebook");
+                    $("#staticBackdrop").modal("show");
+                });
+            }
+        }
+    });
+
+
+    function Save_Modal(){
+        let id = $("#id").val();
+        let account = $("#account").val(); 
+        let password = $("#password").val();
+        let sync_code = $("#sync_code").val();
+        let email_reg = $("#email_reg").val();
+        let email_reg_pass = $("#email_reg_pass").val();
+        let phone = $("#phone").val();
+        let email_recovery = $("#email_recovery").val();
+        let email_recovery_pass = $("#email_recovery_pass").val();
+        let profile_link = $("#profile_link").val();
+        let facebook_ads = $("#facebook_ads").val();
+        let device = $("#device").val();
+
+        fetch("/facebook/save", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                id: id,
+                account: account,
+                password: password,
+                sync_code: sync_code,
+                email_reg: email_reg,
+                email_reg_pass: email_reg_pass,
+                phone: phone,
+                email_recovery: email_recovery,
+                email_recovery_pass: email_recovery_pass,
+                profile_link: profile_link,
+                facebook_ads: facebook_ads,
+                device: device
+            })
+        })
+        .then((res) => {
+            app_vue.getFacebook();
+            Toast.fire({
+                icon: "success",
+                title: "Cập nhật thành công"
+            });
+            $("#staticBackdrop").modal("hide");
+        })
+
+
+    }
+    
+  $(document).ready(function () {
+    window.addEventListener("keydown", function (e) {
+      if (e.key === "Shift") {
+        app_vue.startDrag();
+      }
+
+      if (event.ctrlKey && event.key === "a") {
+        event.preventDefault();
+        app_vue.selectedRows = app_vue.facebook.map((item) => item._id);
+      }
+    });
+
+    window.addEventListener("keyup", function (e) {
+      if (e.key === "Shift") {
+        app_vue.stopDrag();
+      }
+    });
+  });
+</script>
+
+{% endblock %}

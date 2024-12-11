@@ -1,0 +1,349 @@
+{% extends "share/Main_Layout.html" %} {% block title %} Thêm tài khoản facebook
+{% endblock %} ${% block breadcrumb %}
+<div class="container-fluid px-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb my-0">
+      <li class="breadcrumb-item">
+        <a href="/facebook">Quản lý tài khoản facebook</a>
+      </li>
+      <li class="breadcrumb-item"><span> Thêm tài khoản </span></li>
+    </ol>
+  </nav>
+</div>
+
+{% endblock %} {% block content %}
+
+<div class="container-lg px-4">
+  <p class="h5 text-center mb-4">
+    Nhập tài khoản facebook
+    <span class="mx-2 opacity-75">(Mỗi acc 1 dòng)</span>
+  </p>
+  <div class="card mb-4 mx-4">
+    <div class="card-body p-4">
+      <div class="mb-5 d-flex justify-content-between">
+        <div class="mx-2 d-flex justify-content-start">
+          <div>
+            <select
+              class="form-select"
+              style="max-width: 300px !important"
+              id="facebook_device"
+            ></select>
+          </div>
+          <div class="mx-2 d-flex justify-content-start gap-2">
+            <span
+              class="btn btn-outline-info"
+              id="btn_add_devices"
+              data-coreui-toggle="tooltip"
+              data-coreui-placement="top"
+              onclick="ActiveAddDevices()"
+              data-coreui-title="Tạo devices mới"
+            >
+              <i class="fa-solid fa-plus"></i>
+            </span>
+
+            <div
+              class="d-flex justify-content-start gap-2 d-none"
+              id="form-add-device"
+            >
+              <input
+                class="form-control w-50"
+                type="text"
+                id="new_device"
+                placeholder="Tên device"
+              />
+              <span class="btn btn-outline-success" onclick="SaveDevices()">
+                <i class="fa-solid fa-floppy-disk"></i>
+              </span>
+              <span class="btn btn-outline-danger" onclick="ActiveAddDevices()">
+                <i class="fa-solid fa-xmark"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <button
+            class="btn btn-success text-white"
+            id="save"
+            type="button"
+            onclick="save()"
+          >
+            <i class="fa-solid fa-floppy-disk"></i>
+          </button>
+        </div>
+      </div>
+      <div class="mb-3">
+        <p class="text-center opacity-50">
+          account|password|sync_code|email_reg|email_reg_pass|phone|email_recovery|email_recovery_pass|profile_link|facebook_ads
+          <br />
+          (Có thể chỉ cần điền account|pass)
+        </p>
+        <textarea
+          class="form-control"
+          id="facebook_form"
+          rows="20"
+          placeholder="account|password|sync_code|email_reg|email_reg_pass|phone|email_recovery|email_recovery_pass|profile_link|facebook_ads"
+        ></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %} {% block script %}
+
+<script>
+  var devices = ["Vui lòng chọn devices"];
+  var isSuccess = false;
+  var isAddDevice = false;
+
+  function RenderMenuDevices() {
+    let profileType = document.getElementById("facebook_device");
+    profileType.innerHTML = "";
+    devices.forEach((device) => {
+      let option = document.createElement("option");
+      option.value = device;
+      option.text = device;
+      profileType.appendChild(option);
+    });
+  }
+
+  function ActiveAddDevices() {
+    isAddDevice = !isAddDevice;
+    $("#form-add-device").toggleClass("d-none");
+    $("#btn_add_devices").toggleClass("d-none");
+    $("#new_device").val("");
+  }
+
+  function SaveDevices() {
+    devices.push($("#new_device").val());
+    ActiveAddDevices();
+    RenderMenuDevices();
+  }
+
+  $(document).ready(function () {
+    fetch("/facebook/get_devices")
+      .then((response) => response.json())
+      .then((data) => {
+        data = data.data;
+        for (let i = 0; i < data.length; i++) {
+          devices.push(data[i]);
+        }
+        RenderMenuDevices();
+      });
+  });
+
+  async function save() {
+    try {
+      $("#profile").LoadingOverlay("show", {
+        background: "rgba(165, 190, 100, 0.5)"
+      });
+      $("#profile").LoadingOverlay("show");
+
+      $("#save").LoadingOverlay("show", {
+        background: "rgba(165, 190, 100, 0.5)"
+      });
+      $("#save").LoadingOverlay("show");
+      $("#save").attr("disabled", true);
+
+      let facebook_form = document.getElementById("facebook_form").value;
+      let facebookArray = facebook_form.split("\n");
+      for (let i = 0; i < facebookArray.length; i++) {
+        let facebook_data = facebookArray[i];
+
+        if (facebook_data.trim() == "") {
+          continue;
+        }
+
+        let facebook_data_array = facebook_data.split("|");
+
+        if (facebook_data_array.length < 2) {
+          continue;
+        }
+
+        let account = facebook_data_array[0];
+        let password = facebook_data_array[1];
+        let sync_code = facebook_data_array[2];
+        let email_reg = facebook_data_array[3];
+        let email_reg_pass = facebook_data_array[4];
+        let phone = facebook_data_array[5];
+        let email_recovery = facebook_data_array[6];
+        let email_recovery_pass = facebook_data_array[7];
+        let profile_link = facebook_data_array[8];
+        let facebook_ads = facebook_data_array[9];
+
+        let device = document.getElementById("facebook_device").value;
+
+        if (device == devices[0]) {
+          device = "";
+        }
+
+        if (
+          account == undefined ||
+          account.trim() == "" ||
+          account.trim() == "undefined" ||
+          account.trim() == "null" ||
+          account.trim() == "NaN"
+        ) {
+          account = "";
+        }
+
+        if (
+          password == undefined ||
+          password.trim() == "" ||
+          password.trim() == "undefined" ||
+          password.trim() == "null" ||
+          password.trim() == "NaN"
+        ) {
+          password = "";
+        }
+
+        if (
+          sync_code == undefined ||
+          sync_code.trim() == "" ||
+          sync_code.trim() == "undefined" ||
+          sync_code.trim() == "null" ||
+          sync_code.trim() == "NaN"
+        ) {
+          sync_code = "";
+        }
+
+        if (
+          email_reg == undefined ||
+          email_reg.trim() == "" ||
+          email_reg.trim() == "undefined" ||
+          email_reg.trim() == "null" ||
+          email_reg.trim() == "NaN"
+        ) {
+          email_reg = "";
+        }
+
+        if (
+          email_reg_pass == undefined ||
+          email_reg_pass.trim() == "" ||
+          email_reg_pass.trim() == "undefined" ||
+          email_reg_pass.trim() == "null" ||
+          email_reg_pass.trim() == "NaN "
+        ) {
+          email_reg_pass = "";
+        }
+
+        if (
+          phone == undefined ||
+          phone.trim() == "" ||
+          phone.trim() == "undefined" ||
+          phone.trim() == "null" ||
+          phone.trim() == "NaN"
+        ) {
+          phone = "";
+        }
+
+        if (
+          email_recovery == undefined ||
+          email_recovery.trim() == "" ||
+          email_recovery.trim() == "undefined" ||
+          email_recovery.trim() == "null" ||
+          email_recovery.trim() == "NaN"
+        ) {
+          email_recovery = "";
+        }
+
+        if (
+          email_recovery_pass == undefined ||
+          email_recovery_pass.trim() == "" ||
+          email_recovery_pass.trim() == "undefined" ||
+          email_recovery_pass.trim() == "null" ||
+          email_recovery_pass.trim() == "NaN"
+        ) {
+          email_recovery_pass = "";
+        }
+
+        if (
+          profile_link == undefined ||
+          profile_link.trim() == "" ||
+          profile_link.trim() == "undefined" ||
+          profile_link.trim() == "null" ||
+          profile_link.trim() == "NaN"
+        ) {
+          profile_link = "";
+        }
+
+        if (
+          facebook_ads == undefined ||
+          facebook_ads.trim() == "" ||
+          facebook_ads.trim() == "undefined" ||
+          facebook_ads.trim() == "null" ||
+          facebook_ads.trim() == "NaN"
+        ) {
+          facebook_ads = "";
+        }
+
+        await saveData(
+          account,
+          password,
+          sync_code,
+          email_reg,
+          email_reg_pass,
+          phone,
+          email_recovery,
+          email_recovery_pass,
+          profile_link,
+          facebook_ads,
+          device
+        );
+      }
+
+      isSuccess = true;
+    } catch (error) {
+      console.log(error);
+    } finally {
+      $("#profile").LoadingOverlay("hide", true);
+      $("#save").LoadingOverlay("hide", true);
+      $("#save").attr("disabled", false);
+      Swal.fire({
+        title: isSuccess ? "Thành công" : "Thất bại",
+        icon: isSuccess ? "success" : "error",
+        showConfirmButton: false,
+        timer: 1500
+      }).then(() => {
+        if (isSuccess) {
+          window.location.href = "/facebook";
+        }
+      });
+    }
+  }
+
+  async function saveData(
+    account,
+    password,
+    sync_code,
+    email_reg,
+    email_reg_pass,
+    phone,
+    email_recovery,
+    email_recovery_pass,
+    profile_link,
+    facebook_ads,
+    device
+  ) {
+    await fetch("/facebook/save", {
+      method: "POST",
+      body: JSON.stringify({
+        account,
+        password,
+        sync_code,
+        email_reg,
+        email_reg_pass,
+        phone,
+        email_recovery,
+        email_recovery_pass,
+        profile_link,
+        facebook_ads,
+        device
+      }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+  }
+</script>
+
+{% endblock %}

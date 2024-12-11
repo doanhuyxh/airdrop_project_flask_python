@@ -1,0 +1,143 @@
+
+<input hidden id="id" name="id" value="{{ facebook_data['_id'] if facebook_data else '' }}" />
+
+<div class="mb-3">
+    <label for="account" class="form-label w-100">Tài khoản</label>
+    <input
+      type="text"
+      class="form-control"
+      id="account"
+      name="account"
+      value="{{ facebook_data['account'] if facebook_data else '' }}"
+      required
+    />
+  </div>
+  
+  <div class="mb-3">
+    <label for="password" class="form-label w-100">Mật khẩu</label>
+    <input
+      type="text"
+      class="form-control"
+      id="password"
+      name="password"
+      value="{{ facebook_data['password'] if facebook_data else '' }}"
+      required
+    />
+  </div>
+  
+  
+  <div class="mb-3">
+    <label for="sync_code" class="form-label w-100">Mã đồng bộ messenger</label>
+    <input
+      type="text"
+      class="form-control"
+      id="sync_code"
+      name="sync_code"
+      value="{{ facebook_data['sync_code'] if facebook_data else '' }}"
+      required
+    />
+  </div>
+  
+  
+  <div class="mb-3">
+    <label for="email_reg" class="form-label w-100">Email đăng ký</label>
+    <input
+      type="text"
+      class="form-control"
+      id="email_reg"
+      name="email_reg"
+      value="{{ facebook_data['email_reg'] if facebook_data else '' }}"
+      required
+    />
+  </div>
+  
+  
+  <div class="mb-3">
+    <label for="email_reg_pass" class="form-label w-100">Mật khẩu mail đăng ký</label>
+    <input
+      type="text"
+      class="form-control"
+      id="email_reg_pass"
+      name="email_reg_pass"
+      value="{{ facebook_data['email_reg_pass'] if facebook_data else '' }}"
+      required
+    />
+  </div>
+  
+  
+  <div class="mb-3">
+    <label for="phone" class="form-label w-100">Số điện thoại khôi phục</label>
+    <input
+      type="text"
+      class="form-control"
+      id="phone"
+      name="phone"
+      value="{{ facebook_data['phone'] if facebook_data else '' }}"
+      required
+    />
+  </div>
+  
+  
+  <div class="mb-3">
+    <label for="email_recovery" class="form-label w-100">Email khôi phục</label>
+    <input
+      type="text"
+      class="form-control"
+      id="email_recovery"
+      name="email_recovery"
+      value="{{ facebook_data['email_recovery'] if facebook_data else '' }}"
+      required
+    />
+  </div>
+  
+  
+  <div class="mb-3">
+    <label for="email_recovery_pass" class="form-label w-100">Mật khẩu mail khôi phục</label>
+    <input
+      type="text"
+      class="form-control"
+      id="email_recovery_pass"
+      name="email_recovery_pass"
+      value="{{ facebook_data['email_recovery_pass'] if facebook_data else '' }}"
+      required
+    />
+  </div>
+  
+  
+  <div class="mb-3">
+    <label for="profile_link" class="form-label w-100">Link trang cá nhân</label>
+    <input
+      type="text"
+      class="form-control"
+      id="profile_link"
+      name="profile_link"
+      value="{{ facebook_data['profile_link'] if facebook_data else '' }}"
+      required
+    />
+  </div>
+  
+  <div class="mb-3">
+    <label for="facebook_ads" class="form-label w-100">Facebook Ads</label>
+    <input
+      type="text"
+      class="form-control"
+      id="facebook_ads"
+      name="facebook_ads"
+      value="{{ facebook_data['facebook_ads'] if facebook_data else '' }}"
+      required
+    />
+  </div>
+  
+  <div class="mb-3">
+    <label for="device" class="form-label w-100">Thiết bị</label>
+    <input
+      type="text"
+      class="form-control"
+      id="device"
+      name="device"
+      value="{{ facebook_data['device'] if facebook_data else '' }}"
+      required
+    />
+  </div>
+
+  

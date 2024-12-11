@@ -52,6 +52,8 @@ def create_app():
     
     app.sim_card = app.db["sim_card"]
     
+    app.facebook = app.db["facebook"]
+    
     # Register the schedule job
     # run_check_proxy_job()
 
@@ -132,6 +134,7 @@ def create_app():
     from .routes.appleId import appleId
     from .routes.log_request import log_request
     from .routes.sim_card import sim_card
+    from .routes.facebook import facebook
     app.register_blueprint(main)
     app.register_blueprint(auth)
     app.register_blueprint(dashboard)
@@ -145,6 +148,7 @@ def create_app():
     app.register_blueprint(appleId)
     app.register_blueprint(log_request)
     app.register_blueprint(sim_card)
+    app.register_blueprint(facebook)
 
     clear_all_pycache()
     

@@ -191,9 +191,9 @@ def form_mail():
                 "birthday": birthday,
                 "mail_recovery": mail_recovery,
                 "google_ads": google_ads,
-                "created_at": datetime.now(),
                 "f2a": f2a,
                 "old_password": "",
+                "created_at": datetime.now(),
             }
         )
 
