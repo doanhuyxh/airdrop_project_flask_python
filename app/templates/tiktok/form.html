@@ -1,0 +1,307 @@
+{% extends "share/Main_Layout.html" %} {% block title %} Thêm tài khoản tiktok
+{% endblock %} ${% block breadcrumb %}
+<div class="container-fluid px-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb my-0">
+      <li class="breadcrumb-item">
+        <a href="/tiktok">Quản lý tài khoản tiktok</a>
+      </li>
+      <li class="breadcrumb-item"><span> Thêm tài khoản </span></li>
+    </ol>
+  </nav>
+</div>
+
+{% endblock %} {% block content %}
+
+<div class="container-lg px-4">
+  <p class="h5 text-center mb-4">
+    Nhập tài khoản tiktok
+    <span class="mx-2 opacity-75">(Mỗi acc 1 dòng)</span>
+  </p>
+  <div class="card mb-4 mx-4">
+    <div class="card-body p-4">
+      <div class="mb-5 d-flex justify-content-between">
+        <div class="mx-2 d-flex justify-content-start">
+          <div>
+            <select
+              class="form-select"
+              style="max-width: 300px !important"
+              id="tiktok_device"
+            ></select>
+          </div>
+          <div class="mx-2 d-flex justify-content-start gap-2">
+            <span
+              class="btn btn-outline-info"
+              id="btn_add_devices"
+              data-coreui-toggle="tooltip"
+              data-coreui-placement="top"
+              onclick="ActiveAddDevices()"
+              data-coreui-title="Tạo devices mới"
+            >
+              <i class="fa-solid fa-plus"></i>
+            </span>
+
+            <div
+              class="d-flex justify-content-start gap-2 d-none"
+              id="form-add-device"
+            >
+              <input
+                class="form-control w-50"
+                type="text"
+                id="new_device"
+                placeholder="Tên device"
+              />
+              <span class="btn btn-outline-success" onclick="SaveDevices()">
+                <i class="fa-solid fa-floppy-disk"></i>
+              </span>
+              <span class="btn btn-outline-danger" onclick="ActiveAddDevices()">
+                <i class="fa-solid fa-xmark"></i>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <button
+            class="btn btn-success text-white"
+            id="save"
+            type="button"
+            onclick="save()"
+          >
+            <i class="fa-solid fa-floppy-disk"></i>
+          </button>
+        </div>
+      </div>
+      <div class="mb-3">
+        <p class="text-center opacity-50">
+          username|password|phone|email|passkey|birthday|country
+          <br />
+          (Có thể chỉ cần điền username|pass)
+        </p>
+        <textarea
+          class="form-control"
+          id="tiktok_form"
+          rows="20"
+          placeholder="username|password|phone|email|passkey|birthday|country"
+        ></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %} {% block script %}
+
+<script>
+  var devices = ["Vui lòng chọn devices"];
+  var isSuccess = false;
+  var isAddDevice = false;
+
+  function RenderMenuDevices() {
+    let profileType = document.getElementById("tiktok_device");
+    profileType.innerHTML = "";
+    devices.forEach((device) => {
+      let option = document.createElement("option");
+      option.value = device;
+      option.text = device;
+      profileType.appendChild(option);
+    });
+  }
+
+  function ActiveAddDevices() {
+    isAddDevice = !isAddDevice;
+    $("#form-add-device").toggleClass("d-none");
+    $("#btn_add_devices").toggleClass("d-none");
+    $("#new_device").val("");
+  }
+
+  function SaveDevices() {
+    devices.push($("#new_device").val());
+    ActiveAddDevices();
+    RenderMenuDevices();
+  }
+
+  $(document).ready(function () {
+    fetch("/tiktok/get_devices")
+      .then((response) => response.json())
+      .then((data) => {
+        data = data.data;
+        for (let i = 0; i < data.length; i++) {
+          devices.push(data[i]);
+        }
+        RenderMenuDevices();
+      });
+  });
+
+  async function save() {
+    try {
+      $("#profile").LoadingOverlay("show", {
+        background: "rgba(165, 190, 100, 0.5)"
+      });
+      $("#profile").LoadingOverlay("show");
+
+      $("#save").LoadingOverlay("show", {
+        background: "rgba(165, 190, 100, 0.5)"
+      });
+      $("#save").LoadingOverlay("show");
+      $("#save").attr("disabled", true);
+
+      let tiktok_form = document.getElementById("tiktok_form").value;
+      let tiktokArray = tiktok_form.split("\n");
+      for (let i = 0; i < tiktokArray.length; i++) {
+        let tiktok_data = tiktokArray[i];
+
+        if (tiktok_data.trim() == "") {
+          continue;
+        }
+
+        let tiktok_data_array = tiktok_data.split("|");
+
+        if (tiktok_data_array.length < 2) {
+          continue;
+        }
+
+        let username = tiktok_data_array[0];
+        let password = tiktok_data_array[1];
+        let phone = tiktok_data_array[2];
+        let email = tiktok_data_array[3];
+        let passkey = tiktok_data_array[4];
+        let birthday = tiktok_data_array[5];
+        let country = tiktok_data_array[6];
+
+        let device = document.getElementById("tiktok_device").value;
+
+        if (device == devices[0]) {
+          device = "";
+        }
+
+        if (
+          username == undefined ||
+          username.trim() == "" ||
+          username.trim() == "undefined" ||
+          username.trim() == "null" ||
+          username.trim() == "NaN"
+        ) {
+          username = "";
+        }
+
+        if (
+          phone == undefined ||
+          phone.trim() == "" ||
+          phone.trim() == "undefined" ||
+          phone.trim() == "null" ||
+          phone.trim() == "NaN"
+        ) {
+          phone = "";
+        }
+
+        if (
+          email == undefined ||
+          email.trim() == "" ||
+          email.trim() == "undefined" ||
+          email.trim() == "null" ||
+          email.trim() == "NaN"
+        ) {
+          email = "";
+        }
+
+        if (
+          password == undefined ||
+          password.trim() == "" ||
+          password.trim() == "undefined" ||
+          password.trim() == "null" ||
+          password.trim() == "NaN"
+        ) {
+          password = "";
+        }
+
+        if (
+          passkey == undefined ||
+          passkey.trim() == "" ||
+          passkey.trim() == "undefined" ||
+          passkey.trim() == "null" ||
+          passkey.trim() == "NaN"
+        ) {
+          passkey = "";
+        }
+
+        if (
+          birthday == undefined ||
+          birthday.trim() == "" ||
+          birthday.trim() == "undefined" ||
+          birthday.trim() == "null" ||
+          birthday.trim() == "NaN"
+        ) {
+          birthday = "";
+        }
+
+        if (
+          country == undefined ||
+          country.trim() == "" ||
+          country.trim() == "undefined" ||
+          country.trim() == "null" ||
+          country.trim() == "NaN"
+        ) {
+          country = "";
+        }
+
+        await saveData(
+          username,
+          phone,
+          email,
+          password,
+          passkey,
+          birthday,
+          country,
+          device
+        );
+      }
+
+      isSuccess = true;
+    } catch (error) {
+      console.log(error);
+    } finally {
+      $("#profile").LoadingOverlay("hide", true);
+      $("#save").LoadingOverlay("hide", true);
+      $("#save").attr("disabled", false);
+      Swal.fire({
+        title: isSuccess ? "Thành công" : "Thất bại",
+        icon: isSuccess ? "success" : "error",
+        showConfirmButton: false,
+        timer: 1500
+      }).then(() => {
+        if (isSuccess) {
+          window.location.href = "/tiktok";
+        }
+      });
+    }
+  }
+
+  async function saveData(
+    username,
+    phone,
+    email,
+    password,
+    passkey,
+    birthday,
+    country,
+    device
+  ) {
+    await fetch("/tiktok/save", {
+      method: "POST",
+      body: JSON.stringify({
+        username,
+        phone,
+        email,
+        password,
+        passkey,
+        birthday,
+        country,
+        device
+      }),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+  }
+</script>
+
+{% endblock %}

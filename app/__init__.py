@@ -54,6 +54,8 @@ def create_app():
     
     app.facebook = app.db["facebook"]
     
+    app.tiktok = app.db["tiktok"]
+    
     # Register the schedule job
     # run_check_proxy_job()
 
@@ -135,6 +137,7 @@ def create_app():
     from .routes.log_request import log_request
     from .routes.sim_card import sim_card
     from .routes.facebook import facebook
+    from .routes.tiktok import tiktok
     app.register_blueprint(main)
     app.register_blueprint(auth)
     app.register_blueprint(dashboard)
@@ -149,6 +152,7 @@ def create_app():
     app.register_blueprint(log_request)
     app.register_blueprint(sim_card)
     app.register_blueprint(facebook)
+    app.register_blueprint(tiktok)
 
     clear_all_pycache()
     

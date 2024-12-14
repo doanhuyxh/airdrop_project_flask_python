@@ -1,13 +1,13 @@
 {% extends "share/Main_Layout.html" %}
 
-{% block title %}Facebook{% endblock %}
+{% block title %}Tiktok{% endblock %}
 
 ${% block breadcrumb %}
 
 <div class="container-fluid px-4">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb my-0">
-            <li class="breadcrumb-item"><span>Quản lý tài khoản facebook</span></li>
+            <li class="breadcrumb-item"><span>Quản lý tài khoản Tiktok</span></li>
         </ol>
     </nav>
 </div>
@@ -17,20 +17,26 @@ ${% block breadcrumb %}
 {% block content %}
 
 <div class="shadow-lg bg-body rounded px-5 pt-4 pb-5">
-    <p class="text-center h4">Tài khoản facebook</p>
+    <p class="text-center h4">Tài khoản tiktok</p>
 
     <div class="w-100">
 
         <div class="float-start d-flex gap-3 mb-3">
             <div class="">
-                <select class="form-control" v-model="filter_device" @change="current_page = 1; getFacebook()">
+                <select class="form-control" v-model="filter_device" @change="current_page = 1; getTiktok()">
                     <option value="">Thiết bị (tất cả)</option>
                     <option v-for="item in device" :key="item" :value="item" v-html="item"></option>
                 </select>
             </div>
+            <div class="">
+                <select class="form-control" v-model="filter_country" @change="current_page = 1; getTiktok()">
+                    <option value="">Quốc gia(tất cả)</option>
+                    <option v-for="item in country" :key="item" :value="item" v-html="item"></option>
+                </select>
+            </div>
 
             <div>
-                <input type="text" class="form-control" style="width: 50rem !important" v-model="search" placeholder="tìm kiếm email hoặc số điện thoại mật khẩu mail khôi phục số điện thoại ngày sinh facebook ads ..."
+                <input type="text" class="form-control" style="width: 50rem !important" v-model="search" placeholder="tìm kiếm email hoặc số điện thoại mật khẩu mail khôi phục số điện thoại ngày sinh ..."
                     v-on:keyup="debouncedSearch" />
             </div>
 
@@ -42,8 +48,8 @@ ${% block breadcrumb %}
                 <span>Click phải chuột vào hàng để cập nhập</span>
             </div>
 
-            <a href="/facebook/form_get" class="btn btn-primary" data-coreui-toggle="tooltip" data-coreui-placement="top"
-                data-coreui-title="Thêm acc facebook mới">
+            <a href="/tiktok/form_get" class="btn btn-primary" data-coreui-toggle="tooltip" data-coreui-placement="top"
+                data-coreui-title="Thêm acc tiktok mới">
                 <i class="fa-solid fa-plus"></i>
             </a>
 
@@ -54,7 +60,7 @@ ${% block breadcrumb %}
 
 
             <span class="btn btn-danger" data-coreui-toggle="tooltip" data-coreui-placement="top"
-                v-on:click="deleteSelectFacebook" data-coreui-title="Xoá acc facebook đang chọn">
+                v-on:click="deleteSelecttiktok" data-coreui-title="Xoá acc tiktok đang chọn">
                 <i class="fa-solid fa-trash"></i>
             </span>
         </div>
@@ -74,28 +80,19 @@ ${% block breadcrumb %}
                     Mật khẩu
                 </th>
                 <th>
-                    Mã đồng bộ messenger
+                    Số điện thoại
                 </th>
                 <th>
-                    Email đăng ký
+                    Email
+                </th>               
+                <th>
+                    Passkey
                 </th>
                 <th>
-                    Mật khẩu mail đăng ký
-                </th>
+                    Ngày sinh
+                </th>                
                 <th>
-                    Số điện thoại khôi phục
-                </th>
-                <th>
-                    Email khôi phục
-                </th>
-                <th>
-                    Mật khẩu mail khôi phục
-                </th>
-                <th>
-                    Link profile
-                </th>
-                <th>
-                    Facebook Ads
+                    Quốc gia
                 </th>
                 <th @click="sort('device')" class="pointer" style="width: 5em;">
                     Thiết bị
@@ -109,7 +106,7 @@ ${% block breadcrumb %}
             </tr>
         </thead>
         <tbody>
-            <tr v-for="(item, index) in facebook" :key="item._id" @click="selectRow(item._id)"
+            <tr v-for="(item, index) in tiktok" :key="item._id" @click="selectRow(item._id)"
                 @mouseover="isDragging ? selectRow(item._id) : null"
                 @contextmenu.prevent="showContextMenu($event, item._id)"
                 :class="{ 'selected-row': selectedRows.includes(item._id) }">
@@ -119,8 +116,8 @@ ${% block breadcrumb %}
                 
                 <td class="">
                     <div class="d-flex gap-1">
-                    <span v-html="item.account" class="text-center text-wrap"></span>
-                    <span v-if="item.account" @click="CopyData(item.account)">
+                    <span v-html="item.username" class="text-center text-wrap"></span>
+                    <span v-if="item.username" @click="CopyData(item.username)">
                         <i style="color:blue"  class="fa-solid fa-copy pointer"></i>
                     </span>
                 </div>
@@ -137,35 +134,8 @@ ${% block breadcrumb %}
 
                 <td class="">
                     <div class="d-flex gap-1">
-                    <span v-html="item.sync_code" class="text-center text-wrap"></span>
-                    <span class="btn-primary" v-if="item.sync_code" @click="CopyData(item.sync_code)">
-                        <i style="color:blue"  class="fa-solid fa-copy pointer"></i>
-                    </span>
-                </div>
-                </td>
-
-                <td class="">
-                    <div class="d-flex gap-1">
-                    <span v-html="item.email_reg" class="text-center text-wrap"></span>
-                    <span class="btn-primary" v-if="item.email_reg" @click="CopyData(item.email_reg)">
-                        <i style="color:blue"  class="fa-solid fa-copy pointer"></i>
-                    </span>
-                </div>
-                </td>
-
-                <td class="">
-                    <div class="d-flex gap-1">
-                    <span v-html="item.email_reg_pass" class="text-center text-wrap"></span>
-                    <span class="btn-primary" v-if="item.email_reg_pass" @click="CopyData(item.email_reg_pass)">
-                        <i style="color:blue"  class="fa-solid fa-copy pointer"></i>
-                    </span>
-                </div>
-                </td>
-
-                <td class="">
-                    <div class="d-flex gap-1">
                     <span v-html="item.phone" class="text-center text-wrap"></span>
-                    <span class="btn-primary" v-if="item.phone" @click="CopyData(item.phone)">
+                    <span v-if="item.phone" @click="CopyData(item.phone)">
                         <i style="color:blue"  class="fa-solid fa-copy pointer"></i>
                     </span>
                 </div>
@@ -173,8 +143,17 @@ ${% block breadcrumb %}
 
                 <td class="">
                     <div class="d-flex gap-1">
-                    <span v-html="item.email_recovery" class="text-center text-wrap"></span>
-                    <span class="btn-primary" v-if="item.email_recovery" @click="CopyData(item.email_recovery)">
+                    <span v-html="item.email" class="text-center text-wrap"></span>
+                    <span class="btn-primary" v-if="item.email" @click="CopyData(item.email)">
+                        <i style="color:blue"  class="fa-solid fa-copy pointer"></i>
+                    </span>
+                </div>
+                </td>               
+
+                <td class="">
+                    <div class="d-flex gap-1">
+                    <span v-html="item.passkey" class="text-center text-wrap"></span>
+                    <span class="btn-primary" v-if="item.passkey" @click="CopyData(item.passkey)">
                         <i style="color:blue"  class="fa-solid fa-copy pointer"></i>
                     </span>
                 </div>
@@ -182,8 +161,8 @@ ${% block breadcrumb %}
 
                 <td class="">
                     <div class="d-flex gap-1">
-                    <span v-html="item.email_recovery_pass" class="text-center text-wrap"></span>
-                    <span class="btn-primary" v-if="item.email_recovery_pass" @click="CopyData(item.email_recovery_pass)">
+                    <span v-html="item.birthday" class="text-center text-wrap"></span>
+                    <span class="btn-primary" v-if="item.birthday" @click="CopyData(item.birthday)">
                         <i style="color:blue"  class="fa-solid fa-copy pointer"></i>
                     </span>
                 </div>
@@ -191,17 +170,8 @@ ${% block breadcrumb %}
 
                 <td class="">
                     <div class="d-flex gap-1">
-                    <span v-html="item.profile_link" class="text-center text-wrap"></span>
-                    <span class="btn-primary" v-if="item.profile_link" @click="CopyData(item.profile_link)">
-                        <i style="color:blue"  class="fa-solid fa-copy pointer"></i>
-                    </span>
-                </div>
-                </td>
-
-                <td class="">
-                    <div class="d-flex gap-1">
-                    <span v-html="item.facebook_ads" class="text-center text-wrap"></span>
-                    <span class="btn-primary" v-if="item.facebook_ads" @click="CopyData(item.facebook_ads)">
+                    <span v-html="item.country" class="text-center text-wrap"></span>
+                    <span class="btn-primary" v-if="item.country" @click="CopyData(item.country)">
                         <i style="color:blue"  class="fa-solid fa-copy pointer"></i>
                     </span>
                 </div>
@@ -225,7 +195,7 @@ ${% block breadcrumb %}
     </div>
     <div class="my-4 d-flex justify-content-between">
         <div>
-            <p>hiển thị: <span class="text-danger fw-bold" v-html="facebook.length"></span> của <span
+            <p>hiển thị: <span class="text-danger fw-bold" v-html="tiktok.length"></span> của <span
                     class="text-danger fw-bold" v-html="totalResults"></span> kết quả</p>
         </div>
         <div v-if="totalPages > 1" class="btn-group gap-2">
@@ -255,10 +225,12 @@ ${% block breadcrumb %}
     var app_vue = new Vue({
         el: '#app',
         data: {
-            facebook: [],
+            tiktok: [],
             search: "",
             device: [],
+            country: [],
             filter_device: "",
+            filter_country:"",
             current_page: 1,
             pageSize: 25,
             totalPages: 0,
@@ -271,12 +243,13 @@ ${% block breadcrumb %}
             focus_input_id: ''
         },
         created() {
-            this.debouncedSearch = _.debounce(this.getFacebook, 300);
+            this.debouncedSearch = _.debounce(this.getTiktok, 300);
             this.debouncedUpdate = _.debounce(this.Update, 500);
         },
         mounted() {
             this.getDevices();
-            this.getFacebook();
+            this.getCountry();
+            this.getTiktok();
         },
         computed: {
             pagesToShow() {
@@ -293,20 +266,27 @@ ${% block breadcrumb %}
         },
         methods: {
             getDevices() {
-                fetch("/facebook/get_devices")
+                fetch("/tiktok/get_devices")
                     .then(response => response.json())
                     .then(res => {
                         this.device = res.data;
                     });
             },
-            getFacebook() {
+            getCountry() {
+                fetch("/tiktok/get_country")
+                    .then(response => response.json())
+                    .then(res => {
+                        this.country = res.data;
+                    });
+            },
+            getTiktok() {
                 if (this.isShowLoading){
 
                     $("table").LoadingOverlay("show", {
                         background: "rgba(165, 190, 100, 0.5)"
                     });
                 }
-                fetch(`/facebook/get_data`, {
+                fetch(`/tiktok/get_data`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -317,12 +297,13 @@ ${% block breadcrumb %}
                         order_by: this.order_by,
                         search: this.search,
                         device: this.filter_device,
+                        country: this.filter_country,
                         order_type: this.order_type
                     })
                 })
                     .then(response => response.json())
                     .then(data => {
-                        this.facebook = data.data;
+                        this.tiktok = data.data;
                         this.totalPages = data.totalPages;
                         this.totalResults = data.totalResults;
                         $("table").LoadingOverlay("hide");
@@ -333,12 +314,12 @@ ${% block breadcrumb %}
                 this.order_by = field;
                 this.order_type = this.order_type === -1 ? 1 : -1;
                 this.page = 1;
-                this.getFacebook();
+                this.getTiktok();
             },
             changePage(page) {
                 if (page >= 1 && page <= this.totalPages) {
                     this.current_page = page;
-                    this.getFacebook();
+                    this.getTiktok();
                 }
             },
             selectRow(id) {
@@ -363,7 +344,7 @@ ${% block breadcrumb %}
                 this.isDragging = false;
             },
             ExportExcel() {
-                fetch(`/facebook/get_data`, {
+                fetch(`/tiktok/get_data`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -380,16 +361,14 @@ ${% block breadcrumb %}
                         let data_result = []
                         for (let i = 0; i < res_data.length; i++) {
                             data_result.push({
-                                "account": res_data[i].account,
+                                "username": res_data[i].username,
                                 "password": res_data[i].password,
-                                "sync_code": res_data[i].sync_code,
-                                "email_reg": res_data[i].email_reg,
-                                "email_reg_pass": res_data[i].email_reg_pass,
                                 "phone": res_data[i].phone,
-                                "email_recovery": res_data[i].email_recovery,
-                                "email_recovery_pass": res_data[i].email_recovery_pass,
-                                "profile_link": res_data[i].profile_link,
-                                "facebook_ads": res_data[i].facebook_ads,
+                                "email": res_data[i].email,
+                                "passkey": res_data[i].passkey,
+                                "birthday": res_data[i].birthday,
+                                "country": res_data[i].country,
+                                "device": res_data[i].device,
                             });
                         }
                         let ws = XLSX.utils.json_to_sheet(data_result);
@@ -406,7 +385,7 @@ ${% block breadcrumb %}
                         XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
 
                         // Tải file Excel xuống
-                        XLSX.writeFile(wb, `${"facebook"}.xlsx`);
+                        XLSX.writeFile(wb, `${"tiktok"}.xlsx`);
                     });
             },
             Update(event, id, field) {
@@ -414,7 +393,7 @@ ${% block breadcrumb %}
 
                 this.isShowLoading = false;
                 let value = event.target.value;
-                fetch("/facebook/save", {
+                fetch("/tiktok/save", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -425,14 +404,14 @@ ${% block breadcrumb %}
                         value_update: value
                     })
                 }).then((res) => {
-                    this.getFacebook();
+                    this.getTiktok();
                     Toast.fire({
                         icon: "success",
                         title: "Cập nhật thành công"
                     });
                 })
             },
-            deleteSelectFacebook() {
+            deleteSelecttiktok() {
                 Swal.fire({
                     title: "Bạn chắc chắn chứ?",
                     text: "Sẽ xoá tất cả dữ liệu liên quan, không thể khôi phục lại!",
@@ -452,13 +431,13 @@ ${% block breadcrumb %}
                             return;
                         }
                         this.selectedRows.forEach(async item => {
-                            await fetch("/facebook/delete?id=" + item)
+                            await fetch("/tiktok/delete?id=" + item)
                         });
                         Swal.fire({
                             title: "Xoá thành công",
                             icon: "success"
                         }).then(() => {
-                            this.getFacebook();
+                            this.getTiktok();
                         });
                     }
                 });
@@ -472,8 +451,8 @@ ${% block breadcrumb %}
                 });
             },
             showContextMenu($event, id){
-                $("#ModelBody").load("/facebook/update_form?id=" + id, function(){
-                    $("#staticBackdropLabel").text("Cập nhật tài khoản Facebook");
+                $("#ModelBody").load("/tiktok/update_form?id=" + id, function(){
+                    $("#staticBackdropLabel").text("Cập nhật tài khoản tiktok");
                     $("#staticBackdrop").modal("show");
                 });
             }
@@ -483,40 +462,34 @@ ${% block breadcrumb %}
 
     function Save_Modal(){
         let id = $("#id").val();
-        let account = $("#account").val(); 
-        let password = $("#password").val();
-        let sync_code = $("#sync_code").val();
-        let email_reg = $("#email_reg").val();
-        let email_reg_pass = $("#email_reg_pass").val();
-        let phone = $("#phone").val();
-        let email_recovery = $("#email_recovery").val();
-        let email_recovery_pass = $("#email_recovery_pass").val();
-        let profile_link = $("#profile_link").val();
-        let facebook_ads = $("#facebook_ads").val();
+        let username = $("#username").val(); 
+        let password = $("#password").val();        
+        let phone = $("#phone").val();        
+        let email = $("#email").val();        
+        let passkey = $("#passkey").val();        
+        let birthday = $("#birthday").val();        
+        let country = $("#country").val();        
         let device = $("#device").val();
 
-        fetch("/facebook/save", {
+        fetch("/tiktok/save", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
                 id: id,
-                account: account,
+                username: username,
                 password: password,
-                sync_code: sync_code,
-                email_reg: email_reg,
-                email_reg_pass: email_reg_pass,
+                email: email,
                 phone: phone,
-                email_recovery: email_recovery,
-                email_recovery_pass: email_recovery_pass,
-                profile_link: profile_link,
-                facebook_ads: facebook_ads,
-                device: device
+                passkey: passkey,
+                birthday: birthday,
+                country: country,
+                device: device,
             })
         })
         .then((res) => {
-            app_vue.getFacebook();
+            app_vue.getTiktok();
             Toast.fire({
                 icon: "success",
                 title: "Cập nhật thành công"
@@ -535,7 +508,7 @@ ${% block breadcrumb %}
 
       if (event.ctrlKey && event.key === "a") {
         event.preventDefault();
-        app_vue.selectedRows = app_vue.facebook.map((item) => item._id);
+        app_vue.selectedRows = app_vue.tiktok.map((item) => item._id);
       }
     });
 
