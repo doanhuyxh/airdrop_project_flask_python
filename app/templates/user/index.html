@@ -41,6 +41,7 @@
               <td v-html="item.username"></td>
               <td>
                 <span class="badge bg-primary" v-html="item.role"></span>
+                  <span class="badge bg-red" v-if="item.role == ''">Chưa có</span>
               </td>
               <td v-html="item.email"></td>
               <td>
@@ -57,6 +58,7 @@
                     <span v-if="item.status === 'active'" class="badge bg-success" v-html="item.status"></span>
                     <span v-else-if="item.status === 'de_active'" class="badge bg-warning" v-html="item.status"></span>
                     <span v-else-if="item.status === 'block'" class="badge bg-danger" v-html="item.status"></span>
+                    <span v-else class="badge bg-red">Chưa có</span>
                   </button>
                   <ul class="dropdown-menu">
                     <li>

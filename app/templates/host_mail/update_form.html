@@ -1,0 +1,77 @@
+<div class="mb-3">
+  <label for="mail" class="form-label w-100">Host mail</label>
+  <input
+    class="form-control"
+    id="host_mail"
+    name="host_mail"
+    value="{{ host_mail_data['host_mail'] if host_mail_data else '' }}"
+    required
+  />
+</div>
+
+<div class="mb-3">
+  <label for="password" class="form-label w-100">Mật khẩu</label>
+  <input
+    type="text"
+    class="form-control"
+    id="password"
+    name="password"
+    value="{{ host_mail_data['password'] if host_mail_data else '' }}"
+    required
+  />
+</div>
+
+<div class="mb-3">
+  <label for="mail" class="form-label w-100">Mail khôi phục</label>
+  <input
+    class="form-control"
+    id="mail_recovery"
+    name="mail_recovery"
+    value="{{ host_mail_data['host_mail_recovery'] if host_mail_data else '' }}"
+    required
+  />
+</div>
+
+<div class="mb-3">
+  <label for="mail" class="form-label w-100">2FA</label>
+  <input
+    class="form-control"
+    id="f2a"
+    name="f2a"
+    value="{{ host_mail_data['f2a'] if host_mail_data else '' }}"
+    required
+  />
+</div>
+
+<div class="mb-3">
+  <label for="phone" class="form-label w-100">Số điện thoại khôi phục</label>
+  <input
+    class="form-control"
+    id="phone"
+    name="phone"
+    value="{{ host_mail_data['phone'] if host_mail_data else '' }}"
+    required
+  />
+</div>
+
+<div class="mb-3">
+  <label for="birthday" class="form-label w-100">Ngày sinh</label>
+  <input
+    class="form-control"
+    id="birthday"
+    name="birthday"
+    value="{{ host_mail_data['birthday'] if host_mail_data else '' }}"
+    required
+  />
+</div>
+
+<div class="mb-3">
+  <label for="device" class="form-label w-100">Thiết bị</label>
+  <input
+    class="form-control"
+    id="device"
+    name="device"
+    value="{{ host_mail_data['device'] if host_mail_data else '' }}"
+    required
+  />
+</div>

@@ -1,13 +1,13 @@
 {% extends "share/Main_Layout.html" %}
 
-{% block title %}Gmail{% endblock %}
+{% block title %}HostMail{% endblock %}
 
 ${% block breadcrumb %}
 
 <div class="container-fluid px-4">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb my-0">
-            <li class="breadcrumb-item"><span>Quản lý Gmail</span></li>
+            <li class="breadcrumb-item"><span>Quản lý HostMail</span></li>
         </ol>
     </nav>
 </div>
@@ -17,7 +17,7 @@ ${% block breadcrumb %}
 {% block content %}
 
 <div class="shadow-lg bg-body rounded px-5 pt-4 pb-5">
-    <p class="text-center h4">Tài khoản Gmail</p>
+    <p class="text-center h4">Tài khoản HostMail</p>
 
     <div class="w-100">
 
@@ -30,7 +30,7 @@ ${% block breadcrumb %}
             </div>
 
             <div>
-                <input type="text" class="form-control" style="width: 50rem !important" v-model="search" placeholder="tìm kiếm email hoặc số điện thoại mật khẩu mail khôi phục số điện thoại ngày sinh google ads"
+                <input type="text" class="form-control" style="width: 50rem !important" v-model="search" placeholder="tìm kiếm email hoặc số điện thoại mật khẩu mail khôi phục số điện thoại ngày sinh"
                     v-on:keyup="debouncedSearch" />
             </div>
 
@@ -42,7 +42,7 @@ ${% block breadcrumb %}
                 <span>Click phải chuột vào hàng để cập nhập</span>
             </div>
 
-            <a href="/mail/form_get" class="btn btn-primary" data-coreui-toggle="tooltip" data-coreui-placement="top"
+            <a href="/host_mail/form_get" class="btn btn-primary" data-coreui-toggle="tooltip" data-coreui-placement="top"
                 data-coreui-title="Thêm mail mới">
                 <i class="fa-solid fa-plus"></i>
             </a>
@@ -92,9 +92,6 @@ ${% block breadcrumb %}
                     Thiết bị
                     <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
                 </th>
-                <th>
-                    Google Ads
-                </th>
                 <th @click="sort('created_at')" class="pointer text-nowrap" style="width: 5em;">
                     Ngày tạo
                     <span class="opacity-25 mx-2"><i class="fa-solid fa-arrows-up-down"></i></span>
@@ -102,7 +99,7 @@ ${% block breadcrumb %}
             </tr>
         </thead>
         <tbody>
-            <tr v-for="(item, index) in mail" :key="item._id" @click="selectRow(item._id)"
+            <tr v-for="(item, index) in host_mail" :key="item._id" @click="selectRow(item._id)"
                 @mouseover="isDragging ? selectRow(item._id) : null"
                 @contextmenu.prevent="showContextMenu($event, item._id)"
                 :class="{ 'selected-row': selectedRows.includes(item._id) }">
@@ -110,7 +107,7 @@ ${% block breadcrumb %}
                     <span v-html="index+1"></span>
                 </td>
                 <td>
-                    <span class="px-3 py-2" style="background:transparent" @click="CopyData(item.mail)" v-html="item.mail" title="click to copy"></span>
+                    <span class="px-3 py-2" style="background:transparent" @click="CopyData(item.host_mail)" v-html="item.host_mail" title="click to copy"></span>
                 </td>
                 <td>
                     <input class="form-control fit_content" :value="item.password"
@@ -120,11 +117,11 @@ ${% block breadcrumb %}
                         @keyup="debouncedUpdate($event, item._id, 'password')"/>
                 </td>
                 <td>
-                    <input class="form-control fit_content" :value="item.mail_recovery"
+                    <input class="form-control fit_content" :value="item.host_mail_recovery"
                     @focus="focus_input_id = item._id"
                         @blur="focus_input_id = ''"
                         disabled
-                        @keyup="debouncedUpdate($event, item._id, 'mail_recovery')"/>
+                        @keyup="debouncedUpdate($event, item._id, 'host_mail_recovery')"/>
                 </td>
                 <td>
                     <input class="form-control fit_content" :value="item.f2a"
@@ -163,13 +160,6 @@ ${% block breadcrumb %}
                         @keyup="debouncedUpdate($event, item._id, 'device')"/>
                 </td>
                 <td>
-                    <input class="form-control fit_content" :value="item.google_ads"
-                    @focus="focus_input_id = item._id"
-                        @blur="focus_input_id = ''"
-                        disabled
-                        @keyup="debouncedUpdate($event, item._id, 'google_ads')"/>
-                </td>
-                <td>
                     <span v-html="item.created_at" class="text-center text-wrap"></span>
                 </td>
             </tr>
@@ -178,7 +168,7 @@ ${% block breadcrumb %}
     </div>
     <div class="my-4 d-flex justify-content-between">
         <div>
-            <p>hiển thị: <span class="text-danger fw-bold" v-html="mail.length"></span> của <span
+            <p>hiển thị: <span class="text-danger fw-bold" v-html="host_mail.length"></span> của <span
                     class="text-danger fw-bold" v-html="totalResults"></span> kết quả</p>
         </div>
         <div v-if="totalPages > 1" class="btn-group gap-2">
@@ -208,7 +198,7 @@ ${% block breadcrumb %}
     var app_vue = new Vue({
         el: '#app',
         data: {
-            mail: [],
+            host_mail: [],
             search: "",
             device: [],
             filter_device: "",
@@ -251,7 +241,7 @@ ${% block breadcrumb %}
                         background: "rgba(165, 190, 100, 0.5)"
                     });
                 }
-                fetch(`/mail/get_data`, {
+                fetch(`/host_mail/get_data`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -267,7 +257,7 @@ ${% block breadcrumb %}
                 })
                     .then(response => response.json())
                     .then(data => {
-                        this.mail = data.data;
+                        this.host_mail = data.data;
                         this.totalPages = data.totalPages;
                         this.totalResults = data.totalResults;
                         this.device = data.list_devices;
@@ -309,7 +299,7 @@ ${% block breadcrumb %}
                 this.isDragging = false;
             },
             ExportExcel() {
-                fetch(`/mail/get_data`, {
+                fetch(`/host_mail/get_data`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -353,7 +343,7 @@ ${% block breadcrumb %}
 
                 this.isShowLoading = false;
                 let value = event.target.value;
-                fetch("/mail/save", {
+                fetch("/host_mail/save", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -391,7 +381,7 @@ ${% block breadcrumb %}
                             return;
                         }
                         this.selectedRows.forEach(async item => {
-                            await fetch("/mail/delete?id=" + item)
+                            await fetch("/host_mail/delete?id=" + item)
                         });
                         Swal.fire({
                             title: "Xoá thành công",
@@ -411,7 +401,7 @@ ${% block breadcrumb %}
                 });
             },
             showContextMenu($event, id){
-                $("#ModelBody").load("/mail/update_form?id=" + id, function(){
+                $("#ModelBody").load("/host_mail/update_form?id=" + id, function(){
                     $("#staticBackdropLabel").text("Cập nhật mail");
                     $("#staticBackdrop").modal("show");
                 });
@@ -421,29 +411,27 @@ ${% block breadcrumb %}
 
 
     function Save_Modal(){
-        let mail = $("#mail").val(); 
+        let host_mail = $("#host_mail").val();
         let password = $("#password").val();
         let mail_recovery = $("#mail_recovery").val();
         let f2a = $("#f2a").val();
         let phone = $("#phone").val();
         let birthday = $("#birthday").val();
         let device = $("#device").val();
-        let google_ads = $("#google_ads").val();
 
-        fetch("/mail/save", {
+        fetch("/host_mail/save", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                email: mail,
+                host_mail: host_mail,
                 password: password,
                 device: device,
                 phone: phone,
                 birthday: birthday,
-                mail_recovery: mail_recovery,
-                f2a: f2a,
-                google_ads: google_ads
+                host_mail_recovery: mail_recovery,
+                f2a: f2a
             })
         })
         .then((res) => {
@@ -466,7 +454,7 @@ ${% block breadcrumb %}
 
       if (event.ctrlKey && event.key === "a") {
         event.preventDefault();
-        app_vue.selectedRows = app_vue.mail.map((item) => item._id);
+        app_vue.selectedRows = app_vue.host_mail.map((item) => item._id);
       }
     });
 

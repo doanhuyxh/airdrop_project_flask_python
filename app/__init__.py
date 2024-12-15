@@ -45,6 +45,8 @@ def create_app():
     app.wallet_detail = app.db["wallet_detail"]
     
     app.mail = app.db["mail"]
+
+    app.host_mail = app.db["host_mail"]
     
     app.apple_id = app.db["apple_id_new"]
 
@@ -132,7 +134,8 @@ def create_app():
     from .routes.api import api
     from .routes.user_system import user_system
     from .routes.wallet import wallet
-    from .routes.mail import mail 
+    from .routes.mail import mail
+    from .routes.host_mail import host_mail
     from .routes.appleId import appleId
     from .routes.log_request import log_request
     from .routes.sim_card import sim_card
@@ -148,6 +151,7 @@ def create_app():
     app.register_blueprint(user_system)
     app.register_blueprint(wallet)
     app.register_blueprint(mail)
+    app.register_blueprint(host_mail)
     app.register_blueprint(appleId)
     app.register_blueprint(log_request)
     app.register_blueprint(sim_card)
