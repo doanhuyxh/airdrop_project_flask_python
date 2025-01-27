@@ -86,6 +86,8 @@ def save():
             update_data["mail"] = mail
         if phone is not None:
             update_data["phone"] = phone
+
+        update_data["last_update"] = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
         
         if update_data:
             current_app.apple_id.update_one({

@@ -137,6 +137,7 @@
               ><i class="fa-solid fa-arrows-up-down"></i
             ></span>
           </th>
+            <th>Lần cập nhật cuối</th>
         </tr>
       </thead>
       <tbody>
@@ -241,6 +242,9 @@
           <td>
             <span v-html="item.created_at" class="text-center text-wrap"></span>
           </td>
+            <td class="text-center">
+                <span v-html="item.last_update" class="text-center text-wrap"></span>
+            </td>
         </tr>
       </tbody>
     </table>

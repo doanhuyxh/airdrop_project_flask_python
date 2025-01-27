@@ -438,4 +438,21 @@ def save():
         })
         
         return jsonify({"code": 200, "message": "Data created successfully"})
-  
+
+
+@api.route("/api/appleId/update_status", methods=["POST"])
+def update_status():
+    data = request.get_json()
+    account = data.get("account")
+    status = data.get("status")
+
+    current_app.apple_id.update_one({
+        "account": account
+    }, {
+        "$set": {
+            "status": status,
+            "last_update": datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        }
+    })
+
+    return jsonify({"code": 200, "message": "Update status successfully"})

@@ -298,6 +298,47 @@
                     }
                 }
             }
+        },
+        "/appleId/update_status": {
+            "post": {
+                "tags": [
+                    "AppleId"
+                ],
+                "summary": "Cập nhật trạng thái appleId",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": true,
+                        "description": "JSON payload chứa thông tin cập nhật trạng thái appleId",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "account": {
+                                    "type": "string",
+                                    "description": "tài khoản appleId"
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "description": "trạng thái acc"
+                                }
+                            },
+                            "required": [
+                                "account",
+                                "status"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation"
+                    },
+                    "405": {
+                        "description": "Invalid input"
+                    }
+                }
+            }
         }
     }
 }
